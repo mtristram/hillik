@@ -20,29 +20,24 @@ The foreground model is coherent over the three datasets and includes several fo
 
 Likelihoods available are ``hillik.planck``, ``hillik.spt``, ``hillik.act``.
 
-It is interfaced with the [https://cobaya.readthedocs.io/en/latest/](``cobaya``) MCMC sampler.
+It is interfaced with the [``cobaya``](https://cobaya.readthedocs.io/en/latest/) MCMC sampler.
 
 Likelihood versions
 -------------------
 
 * ``planck_2020_hillipop`` Planck 2020 (PR4)
-* ``spt_hiell_2020`` SPT high-l `Reichardt et al. <https://arxiv.org/abs/2002.06197>`_, 2020
+* ``spt_hiell_2020`` SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197)
 
 Install
 -------
-The easiest way to install the `Hillipop` likelihood is *via* `pip`
+
+It is better to clone this repository 
 
 ```shell
-$ pip install planck-2020-hillipop [--user]
+$ git clone https://github.com/mtristram/hillik.git /where/to/clone
 ```
 
-If you plan to dig into the code, it is better to clone this repository to some location
-
-```shell
-$ git clone https://github.com/planck-npipe/hillipop.git /where/to/clone
-```
-
-Then you can install the `Hillipop` likelihood and its dependencies *via*
+Then you can install the `Hillik` likelihoods and its dependencies *via*
 
 ```shell
 $ pip install -e /where/to/clone
@@ -52,22 +47,6 @@ The ``-e`` option allow the developer to make changes within the `Hillipop` dire
 to reinstall at every changes. If you plan to just use the likelihood and do not develop it, you can
 remove the ``-e`` option.
 
-Installing Hillipop likelihood data
------------------------------------
-
-The [`examples/hillipop_example.yaml`](examples/hillipop_example.yaml) file is a good starting point to
-know the different nuisance parameters used by `hillipop` likelihoods.
-
-You should use the `cobaya-install` binary to automatically download the data needed by the
-`Hillipop` likelihood
-
-```shell
-$ cobaya-install /where/to/clone/examples/hillipop_example.yaml -p /where/to/put/packages
-```
-
-Data and code such as [CAMB](https://github.com/cmbant/CAMB) will be downloaded and installed within
-the ``/where/to/put/packages`` directory. For more details, you can have a look to `cobaya`
-[documentation](https://cobaya.readthedocs.io/en/latest/installation_cosmo.html).
 
 Requirements
 ------------
