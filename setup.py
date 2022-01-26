@@ -6,14 +6,14 @@ with open("README.md") as f:
     long_description = f.read()
 
 setup(
-    name="planck_2020_hillipop",
+    name="hillik",
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    description="A cobaya high-ell likelihood polarized for planck",
+    description="A cobaya high-ell CMB likelihood",
     long_description=long_description,
     long_description_content_type="text/markdown",
     author="Matthieu Tristram",
-    url="https://github.com/planck-npipe/hillipop",
+    url="https://github.com/mtristram/hillik",
     license="GNU license",
     classifiers=[
         "Intended Audience :: Developers",
@@ -27,5 +27,6 @@ setup(
     packages=find_packages(),
     python_requires=">=3.5",
     install_requires=["astropy", "cobaya>=3.0"],
-    package_data={"planck_2020_hillipop": ["Hillipop.yaml", "Hillipop.bibtex"]},
+    package_data={"planck_2020_hillipop": ["Hillipop.yaml", "Hillipop.bibtex"],
+                  "spt_hiell_2020": ["spt_hiell_2020.yaml","spt_hiell_2020.bibtex"]},
 )
