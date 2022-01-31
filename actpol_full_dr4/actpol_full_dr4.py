@@ -4,6 +4,8 @@
 Adapted from Fortran likelihood code
 https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
 
+full ACTPol spectra at 98x98, 98x150 and 150x150 GHz from 350 < l < 8000 measured during 2013-2016 in temperature and polarization
+
 :Author: Matthieu Tristram
 
 """
@@ -14,7 +16,20 @@ import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-from . import act_foregrounds as actfg
+from . import act_foregrounds as fg
+
+fg_list = 
+    "ps": fg.ps,
+    "cib_clustered": fg.CIBclustered,
+    "cib_poisson": fg.CIBpoisson,
+    "radio_poisson": fg.RADIOpoisson,
+    "galactic_dust": fg.GalacticDust,
+    "synchrotron": fg.Synchrotron,
+    "tsz": fg.tSZ,
+    "ksz": fg.kSZ,
+    "szxcib": fg.tSZxCIB,
+    }
+
 
 
 class ACTPolLikelihood(InstallableLikelihood):
@@ -23,24 +38,55 @@ class ACTPolLikelihood(InstallableLikelihood):
         "data_path": "actpol_full_dr4",
     }
 
-    cal_cov = [
-        [1.1105131e-05, 3.5551351e-06, 1.1602891e-06],
-        [3.5551351e-06, 3.4153547e-06, 2.1348018e-06],
-        [1.1602891e-06, 2.1348018e-06, 1.7536000e-05],
-    ]
+#    frequencies: Sequence[int] = [98, 150]
 
-    frequencies: Sequence[int] = [95, 150, 220]
+    data_folder: Optional[str] = "actpol_full_dr4/likelihood"
+    spec_filename: Optional[str] #'coadd_cl_15mJy_data_200124.txt'
+    cov_filename: Optional[str]  #'coadd_cov_15mJy_200519.txt'
+    bbl_filename: Optional[str]  #'coadd_bpwf_15mJy_191127_lmin2.txt'
+    leakd_filename: Optional[str] #'leak_TE_deep_200519.txt'
 
-    data_folder: Optional[str] = "spt_hiell_2020/likelihood"
-    desc_file: Optional[str]
-    bp_file: Optional[str]
-    cov_file: Optional[str]
-    beamerr_file: Optional[str]
-    window_file: Optional[str]
+#    normalizeSZ_143GHz: Optional[bool] = True
+#    callFGprior: Optional[bool] = True
+#    applyFTSprior: Optional[bool] = True
 
-    normalizeSZ_143GHz: Optional[bool] = True
-    callFGprior: Optional[bool] = True
-    applyFTSprior: Optional[bool] = True
+    #--------------------------------------------------------------
+    # change these to include/exclude observables 
+    #--------------------------------------------------------------
+    # Options are tt only, te only, ee only or all
+    # i.e., true-false-false, false-true-false, false-false-true, true-true-true
+    use_tt: Optional[bool] = True  #TT only
+    use_te: Optional[bool] = True  #TE only
+    use_ee: Optional[bool] = True  #EE only
+
+    bool use_deep = True
+    bool use_wide = True
+
+    #--------------------------------------------------------------
+    #Settings (should not be altered)
+    #--------------------------------------------------------------
+    # general settings
+    #--------------------------------------------------------------
+    int tt_lmax = 6000
+
+    #----------------------------------------------------------------
+    # likelihood terms from ACT data
+    #----------------------------------------------------------------
+    int nnu      = 2   # number of frequencies
+    int nspectot = 10  #nspecf*nspec+2 TE for 90x150 and 150x90
+    int nspecf   = 3   #95x95, 95x150, 150
+    int nspectt  = 3   #TT
+    int nspecte  = 4   #TE
+    int nspecee  = 3   #EE
+    int nbintt = 52    #max nbins in ACT TT data  
+    int nbinte = 52    #max nbins in ACT TE data
+    int nbinee = 52    #max nbins in ACT EE data
+    int nbint  = 520   #total bins
+    int lmax_win = 7925 #ell max of the full window functions 
+    int bmax0  = 52     #number of bins in full window function
+    int b0=5           # setting bins discarded in TT (i.e., ell>600)
+    int b1=0           # bins discarded for TE
+    int b2=0           # bins discarded for EE
 
     def initialize(self):
         # Set path to data
@@ -65,194 +111,159 @@ class ACTPolLikelihood(InstallableLikelihood):
                 self.data_folder,
             )
 
-        # Init foreground model
-        self.fg = sptfg.SPTforegounds(data_folder=self.data_folder, **self.foregrounds)
-
         # Update data_folder location
-        self.data_folder = os.path.join(self.data_folder, "data/spt_hiell_2020")
+        self.data_folder = os.path.join(self.data_folder, "data/actpol_full_dr4.01/data")
 
-        # get info from the desc_file
-        self._update_with_desc_file()
+        #-----------------------------------------------
+        #load spectrum
+        #-----------------------------------------------
 
-        self.log.debug(f"nall: {self.nall}")
-        self.log.debug(f"nfreq: {self.nfreq}")
-        self.log.debug(f"spt_windows_lmin: {self.spt_windows_lmin}")
-        self.log.debug(f"spt_windows_lmax: {self.spt_windows_lmax}")
-
-        self.lmin = self.spt_windows_lmin
-        self.lmax = self.spt_windows_lmax + 1  # to match fortran convention
-
-        if self.spt_windows_lmax > self.fg.ReportFGLmax():
-            raise LoggedError(self.log, "Hard-wired lmax in foregrounds is too low for SPT_hiell")
-
-        if self.spt_windows_lmin < 2 or self.spt_windows_lmin >= self.spt_windows_lmax:
-            raise LoggedError(self.log, "Invalid lranges for sptpol")
-
-        # read bandpowers (90x90, 90x150, 90x220, 150x150, 150x220, 220x220)
+        # read bandpowers (1040)
         # check file before
-        bla, self.spec = np.loadtxt(os.path.join(self.data_folder, self.bp_file), unpack=True)
+        self.b_dat = np.loadtxt(os.path.join(self.data_folder, self.spec_filename), unpack=True)
+        self.b_dat = self.b_dat[0:nbint]
 
-        # read covariance
+        # Read windows (520,7924) check l ?
         # check file before
-        self.cov = np.fromfile(
-            os.path.join(self.data_folder, self.cov_file), dtype=np.float64
-        ).reshape(self.nall, self.nall)
+        self.win_func = np.loadtxt(os.path.join(self.data_folder, self.bbl_filename))
+        nbint,lmax_win = np.shape(self.win_func)
+        if nbint != self.nbint or lmax_win != self.lmax_win:
+            raise LoggedError(self.log, "Wrong size for Window function (%s)"%self.bbl_filename)
 
-        # read beam_err
+        # Read leakage (52)
         # check file before
-        self.beam_err = np.fromfile(
-            os.path.join(self.data_folder, self.beamerr_file), dtype=np.float64
-        ).reshape(self.nall, self.nall)
+        ell, self.l98, self.l150 = np.loadtxt(os.path.join(self.data_folder, self.leakd_filename),unpack=True)
+        if len(ell) != self.nbinte:
+            raise LoggedError(self.log, "Wrong size for Leakage template (%s)"%self.leakd_filename)
 
-        # Read windows
-        # check file before
-        self.windows = self._read_windows(os.path.join(self.data_folder, self.window_file))
+        #-----------------------------------------------
+        #Read Covariance Matrix
+        #-----------------------------------------------
+        #covmat (1040,1040)
+        self.covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
+        self.covmat = self.covmat[:nbint,:nbint]
 
-        # define indicies
-        self.indices = []
-        for j in range(self.nfreq):
-            for k in range(j, self.nfreq):
-                self.indices.append((j, k))
+        #cut lmin TT
+        for s in range(self.nspectt):
+            ishift = s*self.nbintt
+            covmat[ishift:ishift+b0,ishift:ishift+b0] = identity(b0)
 
-        # define offsets for xfreq in Cl vector
-        self.offsets = [0]
-        for i in range(1, self.nband):
-            self.offsets.append(self.offsets[i - 1] + self.nbins[i - 1])
+        #cut lmin TE
+        for s in range(self.nspecte):
+            ishift = self.nspectt*self.nbintt + s*self.nbinte
+            covmat[ishift:ishift+b1,ishift:ishift+b1] = identity(b1)
 
-        self.log.info("Init SPTlik done")
+        #cut lmin EE
+        for s in range(self.nspecee):
+            ishift = self.nspectt*self.nbintt + self.nspecte*self.nbinte + s*self.nbinee
+            covmat[ishift:ishift+b2,ishift:ishift+b2] = identity(b2)
 
-    def _read_windows(self, filename):
-        import struct
+        # Init foreground model
+        self.fgs = {'tt':[],'te':[],'ee':[]}
+        for tag in fgs.keys():
+            for name in self.foregrounds[tag.upper()].keys():
+                if name not in fg_list.keys():
+                    raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
-        with open(filename, "rb") as f:
-            efflmin, efflmax = struct.unpack("@II", f.read(2 * np.dtype(np.int32).itemsize))
+                self.log.debug("Adding '{}' foreground for {}".format(name,tag.upper()))
+                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode=tag.upper())
+                if isinstance(self.foregrounds[tag.upper()][name], str):
+                    kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[tag.upper()][name])
+                self.fgsTT[tag].append(fg_list[name](**kwargs)))
 
-        if efflmax < self.spt_windows_lmin or efflmin > self.spt_windows_lmax:
-            raise LoggedError(self.log, "unallowed l-ranges for binary window functions")
+        self.log.debug(f"nbintt: {self.nbintt}")
+        self.log.debug(f"nbinte: {self.nbinte}")
+        self.log.debug(f"nbinee: {self.nbinee}")
 
-        #        j0 = self.spt_windows_lmin if self.spt_windows_lmin > efflmin else efflmin
-        #        j1 = self.spt_windows_lmax if self.spt_windows_lmax < efflmax else efflmax
-        #        if j1 < j0:
-        #            raise ValueError( "unallowed l-ranges for binary window functions - no allowed ells")
+        self.log.info("Init ACTpol_deep likelihood done")
 
-        offset = 2 * (np.dtype(np.int32).itemsize)
-        #        windows = np.zeros( (self.nall, self.spt_windows_lmax+1) )
-        #        windows[:,j0:j1+1] = np.fromfile( filename, dtype=np.float64, offset=offset).reshape(self.nall,-1)
-        # windows = np.zeros((self.nall, efflmax + 1))
-        windows = np.fromfile(filename, dtype=np.float64, offset=offset).reshape(self.nall, -1)
-
-        return windows
-
-    def _update_with_desc_file(self):
-        filename = os.path.join(self.data_folder, self.desc_file)
-        with open(filename) as f:
-            self.nall, self.nfreq = [int(float(x)) for x in next(f).split()]
-            self.nband = int(self.nfreq * (self.nfreq + 1) / 2)
-
-            self.nbins = [int(next(f)) for i in range(self.nband)]
-            if self.nall != sum(self.nbins):
-                raise LoggedError(self.log, "Mismatched number of bandpowers")
-
-            self.spt_norm_fr = [float(next(f)) for i in range(5)]
-
-            if self.normalizeSZ_143GHz:
-                self.log.debug("Using 143 as tSZ center freq")
-                self.spt_norm_fr[4] = 143.0
-
-            self.spt_windows_lmin, self.spt_windows_lmax = [int(x) for x in next(f).split()]
-
-            eff_fr = []
-            for _ in range(self.nfreq):
-                eff_fr.append([float(next(f)) for i in range(5)])
-            self.spt_eff_fr = np.array(eff_fr)
-
-            self.spt_prefactor = np.array([float(next(f)) for i in range(self.nfreq)])
-
-    def _gaussian_loglike(self, dlcov, res):
-        """
-        Returns -Log Likelihood for Gaussian: (d^T Cov^{-1} d + log|Cov|)/2
-        """
-        from scipy.linalg import cho_factor, cho_solve
-
-        L, low = cho_factor(dlcov)
-
-        # compute det
-        detcov = 2.0 * np.sum(np.log(np.diag(L)))
-
-        # Compute C-1.d
-        invCd = cho_solve((L, low), res)
-
-        # Compute chi2
-        chi2 = res @ invCd
-
-        return chi2 / 2.0, detcov / 2.0
 
     def loglike(self, dl_cmb, **params):
         """
         dl_cmb: Dl TT
         """
-        CalFactors = [params[f"mapCal{nu}"] for nu in self.frequencies]
-        FTSfactor = params["FTS_calibration_error"]
 
-        # scaling theory
-        # tszfac = sptfg.cosmo_scale_tsz(theory.H0,theory.sigma_8,theory.omb)
-        # params["czero_tsz"] = params["czero_tsz"] * tszfac
-        # kszfac = sptfg.cosmo_scale_ksz(theory.H0,theory.sigma_8,theory.omb,theory.omc+theory.omb+theory.omnu,theory.InitPower(ns_index),theory.tau)
-        # params["czero_ksz"] = params["czero_ksz"] * kszfac
+        ct1 = 1.0  #Cal and leakage errors included in covmat and so fixed here
+        ct2 = 1.0
+        a1  = 1.0
+        a2  = 1.0
 
-        # Loop on nband
-        cbs = np.zeros(self.nall)
-        for i in range(self.nband):
-            j, k = self.indices[i]
-            thisoffset = self.offsets[i]
-            thisbin = self.nbins[i]
+        #Calculate CMB+fg
+        dlth = {'tt':np.repeat([dl_cmb['tt']],self.nspectt),
+                'te':np.repeat([dl_cmb['te']],self.nspecte),
+                'ee':np.repeat([dl_cmb['ee']],self.nspecee)}
+        for tag in dlth.keys():
+            for fg in self.fgs[tag]:
+                dlth_tt += fg.compute_dl( params, mode=tag) #array( nspecf, lmax_win)
 
-            # get theory spectra
-            dl_fg = self.fg.dl_foregrounds(
-                params,
-                j,
-                k,
-                self.nfreq,
-                self.spt_eff_fr + FTSfactor,
-                self.spt_norm_fr,
-                self.spt_windows_lmin,
-                self.spt_windows_lmax
-            )
-            dl_th = dl_cmb[self.lmin : self.lmax] + dl_fg[self.lmin : self.lmax]
+        #Get theory in Cls
+        lth = np.arange(self.lmax_win)
+        X_theory = dlth
+        for k,val in dlth.items():
+            val /= (lth*(lth+1)/2/np.pi)
 
-            # bin theory with window functions
-            tmpcb = self.windows[thisoffset:thisoffset+thisbin] @ dl_th
+        # Get binned model
+        X_model = []
+        for s in range(self.nspectt):
+            ishift = s*self.nbintt
+            X_model += list( self.win[ishift:ishift+self.nbintt] @ X_theory['tt'][s] )
+        for s in range(self.nspecte):
+            ishift = self.nspectt * self.nbintt + s* self.nbinte
+            X_model += list( self.win[ishift:ishift+*self.nbinte] @ X_theory['te'][s] )
+        for s in range(self.nspecee):
+            ishift = self.nspectt * self.nbintt + self.nspecte * self.nbinte + s* self.nbinee
+            X_model += list( self.win[ishift:ishift+*self.nbinee] @ X_theory['ee'][s] )
+        X_model = np.asarray(X_model)
 
-            # apply prefactors
-            tmpcb = tmpcb * self.spt_prefactor[k] * self.spt_prefactor[j] * CalFactors[j] * CalFactors[k]
+        # Add leakage
+        X_model[3*nbintt+0*nbinte:3*nbintt+1*nbinte] += X_model[0*nbintt:1*nbintt]*a1*l98[:nbinte]
+        X_model[3*nbintt+1*nbinte:3*nbintt+2*nbinte] += X_model[1*nbintt:2*nbintt]*a2*l150[:nbinte]
+        
+        X_model[3*nbintt+2*nbinte:3*nbintt+3*nbinte] += X_model[1*nbintt:2*nbintt]*a1*l98[:nbinte]
+        X_model[3*nbintt+3*nbinte:3*nbintt+4*nbinte] += X_model[2*nbintt:3*nbintt]*a2*l150[:nbinte]
 
-            cbs[thisoffset : thisoffset + thisbin] = tmpcb
+        X_model[3*nbintt+4*nbinte+0*nbinee:3*nbintt+4*nbinte+1*nbinee] += 2*X_model[3*nbintt+0*nbinte:3*nbintt+1*nbinte]*a1*l98[:nbinte] + X_model[0*nbintt:1*nbintt]*(a1*l98[:nbinte])**2.
+        X_model[3*nbintt+4*nbinte+1*nbinee:3*nbintt+4*nbinte+2*nbinee] += ( X_model[3*nbintt+1*nbinte:3*nbintt+2*nbinte]*a1*l98[:nbinte] +
+                                                                            X_model[3*nbintt+2*nbinte:3*nbintt+3*nbinte]*a2*l150[:nbinte] +
+                                                                            X_model[1*nbintt:2*nbintt]*a1*l98[:nbinte]*a2*l150[:nbinte]
+                                                                            )
+        X_model[3*nbintt+4*nbinte+2*nbinee:3*nbintt+4*nbinte+3*nbinee] += 2*X_model[3*nbintt+3*nbinte:3*nbintt+4*nbinte]*a2*l150[:nbinte] + X_model[2*nbintt:3*nbintt]*(a2*l150[:nbinte])**2.
 
-        # Residuals
-        delta_cb = cbs - self.spec
+        # Calibrate
+        yp1 = params['yp1']
+        yp2 = params['yp2']
+        X_model[0*nbintt:1*nbintt] *= ct1*ct1
+        X_model[1*nbintt:2*nbintt] *= ct1*ct2
+        X_model[2*nbintt:3*nbintt] *= ct2*ct2
+        X_model[3*nbintt:3*nbintt+nbinte] *= ct1*ct1*yp1
+        X_model[3*nbintt+1*nbinte:3*nbintt+2*nbinte] *= ct1*ct2*yp2
+        X_model[3*nbintt+2*nbinte:3*nbintt+3*nbinte] *= ct1*ct2*yp1
+        X_model[3*nbintt+3*nbinte:3*nbintt+4*nbinte] *= ct1*ct2*yp2
+        X_model[3*nbintt+4*nbinte+0*nbinee:3*nbintt+4*nbinte+1*nbinee] *= ct1*ct1*yp1*yp1 
+        X_model[4*nbinte+3*nbintt+1*nbinee:3*nbintt+4*nbinte+2*nbinee] *= ct1*ct2*yp1*yp2
+        X_model[3*nbintt+4*nbinte+2*nbinee:3*nbintt+4*nbinte+3*nbinee] *= ct2*ct2*yp2*yp2
 
-        # Dl covariance (with beams)
-        cov_w_beam = self.cov + self.beam_err * np.outer(cbs, cbs)
+        # Select data
+        bstart = 0
+        bend   = nbint
+        if use_tt and not use_te and not use_ee:
+            bstart = 0
+            bend   = nbintt*nspectt
+        if not use_tt and use_te and not use_ee:
+            bstart = nbintt*nspectt
+            bend   = nbintt*nspectt + nbinte*nspecte
+        if not use_tt and not use_te and use_ee:
+            bstart = nbintt*nspectt + nbinte*nspecte
+            bend   = nbint
 
-        # compute LogLike
-        LnL, detcov = self._gaussian_loglike(cov_w_beam, delta_cb)
-        SPTHiEllLnLike = LnL + detcov
+        diff_vec = (self.b_dat - Xmodel)[bstart:bend]
+        fisher   = self.covmat[bstart:bend,bstart:bend]
 
-        # Add FG priors
-        if self.callFGprior:
-            FGPriorLnLike = self.fg.getForegroundPriorLnL(params)
-            SPTHiEllLnLike += FGPriorLnLike
-
-        # Add calib LogLike
-        delta_calib = np.log(CalFactors)
-        CalibLnLike, _ = self._gaussian_loglike(self.cal_cov, delta_calib)
-        SPTHiEllLnLike += CalibLnLike
-
-        # Add FTS prior
-        # Prior is 0.3 GHz for 1 sigma around 0.
-        if self.applyFTSprior:
-            FTSLnLike = 0.5 * (FTSfactor / 0.3) ** 2
-            SPTHiEllLnLike += FTSLnLike
+        # Invert covmat
+        fisher = np.linalg.inv( fisher)
+        
+        #chi2
+        dlnlike = sum( diff_vec @ fisher @ diff_vec)
 
         self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
         self.log.debug(f"Calibration chisq = {2 * CalibLnLike}")
@@ -261,18 +272,36 @@ class ACTPolLikelihood(InstallableLikelihood):
         self.log.debug(f"chisq for FG prior: {2 * FGPriorLnLike}")
         self.log.debug(f"SPTHiEllLnLike chisq (after prior) = {2 * (SPTHiEllLnLike - detcov)}")
 
-        return -SPTHiEllLnLike
+        return -0.5*dlnlike
 
     def get_requirements(self):
-        requirements = dict(Cl={mode: self.lmax for mode in ["tt"]})
+        requirements = dict(Cl={mode: self.lmax for mode in ["tt","te","ee"]})
         return requirements
 
     def logp(self, **params_values):
-        dl = self.theory.get_Cl(units="muK2", ell_factor=True)["tt"]
+        dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
 
-class TT(SPTHiellLikelihood):
+class TT(ACTPolLikelihood):
     """
-    CMB likelihood with SPT-SZ and SPTpol surveys (Reichard et al. 2020)
+    CMB likelihood with ACTpol DR4 TT dataset
+    """
+
+
+class EE(ACTPolLikelihood):
+    """
+    CMB likelihood with ACTpol DR4 EE dataset
+    """
+
+
+class TE(ACTPolLikelihood):
+    """
+    CMB likelihood with ACTpol DR4 TE dataset
+    """
+
+
+class full(ACTPolLikelihood):
+    """
+    CMB likelihood with ACTpol DR4 full dataset
     """
