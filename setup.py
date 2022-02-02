@@ -5,8 +5,6 @@ with open("README.md") as f:
 
 setup(
     name="hillik",
-    version=versioneer.get_version(),
-    cmdclass=versioneer.get_cmdclass(),
     description="A cobaya high-ell CMB likelihood",
     long_description=long_description,
     long_description_content_type="text/markdown",
