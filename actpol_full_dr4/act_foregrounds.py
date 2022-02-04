@@ -62,22 +62,29 @@ class fgmodel(HasLogger):
         return (nu0/nu)**4.*(np.exp(xx0)/np.exp(xx))*((np.exp(xx)-1.)/(np.exp(xx0)-1.))**2.
         
 
-    def __init__(self, lmax, freqs, mode="TT", auto=True):
+    def __init__(self, lmax, freqs, mode="TT", auto=True, survey=""):
         """
         Create model for foreground
         """
-        self.mode = mode
-        self.lmax = lmax
-        self.freqs = freqs
-        self.name = None
+        self.mode   = mode
+        self.lmax   = lmax
+        self.freqs  = freqs
+        self.survey = survey
+        self.name   = None
 
         # Build the list of cross frequencies
         nfreq = len(freqs)
-        self._cross_frequencies = list(
-            itertools.combinations_with_replacement(range(nfreq), 2)
-            if auto
-            else itertools.combinations(range(nfreq), 2)
-        )
+        if auto:
+            if mode == "TE":
+                self._cross_frequencies = list(itertools.product(range(nfreq), repeat=2))
+            else:
+                self._cross_frequencies = list(itertools.combinations_with_replacement(range(nfreq), 2))
+        else:
+            if mode == "TE":
+                self._cross_frequencies = list(itertools.permutations(range(nfreq), 2))
+            else:
+                self._cross_frequencies = list(itertools.combinations(range(nfreq), 2))
+
         self.set_logger()
         pass
 
@@ -94,11 +101,11 @@ class fgmodel(HasLogger):
 
 # Point Sources
 class ps(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False):
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "PS"
         # Amplitudes of the point sources power spectrum per xfreq
-        ell = np.arange(lmax)
+        ell = np.arange(lmax+1)
         self.ll2pi = ell * (ell + 1) / 2.0 / np.pi
 
     def compute_dl(self, pars):
@@ -113,13 +120,14 @@ class ps(fgmodel):
 
 #CIB clustered (TT)
 class CIBclustered(fgmodel):
-    def __init__(self, lmax, freqs, filename, mode="TT", auto=True):
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, filename, mode="TT", auto=True, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "clustered_cib"
 
-        ell = np.arange( lmax)
+        ell = np.arange( lmax+1)
 #        self.clc=(ell*(ell+1)/3000/3001)*(ell/3000)**(-1.2)
-        self.clc = np.loadtxt( filename, unpack=True)[1,:lmax]
+        self.clc = np.zeros( lmax+1)
+        self.clc[2:] = np.loadtxt( filename, unpack=True)[1,:lmax-1]
 
     def compute_dl(self, pars):
         dl = []
@@ -134,11 +142,11 @@ class CIBclustered(fgmodel):
 
 #CIB poisson (TT)
 class CIBpoisson(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, mode="TT", auto=True, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "poisson_cib"
 
-        ell = np.arange( lmax)
+        ell = np.arange( lmax+1)
         self.clp=(ell*(ell+1)/3000/3001)
 
     def compute_dl(self, pars):
@@ -152,20 +160,24 @@ class CIBpoisson(fgmodel):
         return np.array(dl)
 
 
-#RADIO poisson (TT, TE, EE)
+#RADIO poisson (TT, TE, EE) wide/deep
 class RADIOpoisson(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, mode="TT", auto=True, survey="wide"):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
         self.name = "poisson_radio"
-        self.mode = mode
-        ell = np.arange( lmax)
+        ell = np.arange( lmax+1)
         self.clp=(ell*(ell+1)/3000/3001)
 
     def compute_dl(self, pars):
         Aps = 0
-        if self.mode is "TT": Aps = pars['a_s'] 
-        if self.mode is "TE": Aps = pars['a_tps'] 
-        if self.mode is "EE": Aps = pars['a_ps'] 
+        if self.survey == "wide":
+            if self.mode == "TT": Aps = pars['a_s'] 
+            if self.mode == "TE": Aps = pars['a_tps']
+            if self.mode == "EE": Aps = pars['a_ps']
+        if self.survey == "deep":
+            if self.mode == "TT": Aps = pars['a_sw'] 
+            if self.mode == "TE": Aps = pars['a_tps']
+            if self.mode == "EE": Aps = pars['a_ps']
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( Aps * self.clp *
@@ -174,24 +186,29 @@ class RADIOpoisson(fgmodel):
                        )
         return np.array(dl)
 
-#Galactic Dust (TT,TE,EE)
+#Galactic Dust (TT,TE,EE) wide/deep
 class GalacticDust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, mode="TT", auto=True, survey="deep"):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
         self.name = "galactic dust"
 
-        ell = np.arange( lmax)
-        if mode is "TT":
-            self.clg = (ell/500)**(-0.6) #clgt
+        ell = np.arange( 2, lmax+1)
+        self.clg = np.zeros( lmax+1)
+        if mode == "TT":
+            self.clg[2:] = (ell/500)**(-0.6) #clgt
         else:
-            self.clg = (ell/500)**(-0.4) #clgp
-        self.clg[0] = 1.
+            self.clg[2:] = (ell/500)**(-0.4) #clgp
         
     def compute_dl(self, pars):
         Adust = 0
-        if self.mode is "TT": Adust = pars["a_gd"]
-        if self.mode is "TE": Adust = pars["a_gted"]
-        if self.mode is "EE": Adust = pars["a_geed"]
+        if self.survey == "deep":
+            if self.mode == "TT": Adust = pars["a_gd"]
+            if self.mode == "TE": Adust = pars["a_gted"]
+            if self.mode == "EE": Adust = pars["a_geed"]
+        if self.survey == "wide":
+            if self.mode == "TT": Adust = pars["a_gw"]
+            if self.mode == "TE": Adust = pars["a_gtew"]
+            if self.mode == "EE": Adust = pars["a_geew"]
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( Adust * self.clg *
@@ -204,18 +221,18 @@ class GalacticDust(fgmodel):
 
 #Synchrotron (TE,EE)
 class Synchrotron(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, mode="TT", auto=True, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "synchrotron"
 
-        ell = np.arange( lmax)
-        self.clsp = (ell/500)**(-0.7)
-        self.clsp[0] = 1.
+        self.clsp = np.zeros( lmax+1)
+        ell = np.arange( 2, lmax+1)
+        self.clsp[2:] = (ell/500)**(-0.7)
 
     def compute_dl(self, pars):
         Async = 0
-        if self.mode is "TE": Async = pars["a_ste"]
-        if self.mode is "EE": Async = pars["a_see"]
+        if self.mode == "TE": Async = pars["a_ste"]
+        if self.mode == "EE": Async = pars["a_see"]
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( Async * self.clsp *
@@ -227,12 +244,12 @@ class Synchrotron(fgmodel):
 
 #thermal SZ (TT)
 class tSZ(fgmodel):
-    def __init__(self, lmax, freqs, filename, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, filename, mode="TT", auto=True, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "tsz"
 
-        ell = np.arange( lmax)
-        self.cltsz = np.loadtxt( filename, unpack=True)[1,:lmax]
+        self.cltsz = np.zeros( lmax+1)
+        self.cltsz[2:] = np.loadtxt( filename, unpack=True)[1,:lmax-1]
         self.cltsz /= 5.59550 #This normalizes the tSZ spectrum to 1 at l=3000
 
     def compute_dl(self, pars):
@@ -245,12 +262,12 @@ class tSZ(fgmodel):
 
 #kinetic SZ (TT)
 class kSZ(fgmodel):
-    def __init__(self, lmax, freqs, filename, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, filename, mode="TT", auto=True, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "ksz"
 
-        ell = np.arange( lmax)
-        self.clksz =np.loadtxt( filename, unpack=True)[1,:lmax]
+        self.clksz = np.zeros( lmax+1)
+        self.clksz[2:] =np.loadtxt( filename, unpack=True)[1,:lmax-1]
         self.clksz /= 1.51013 #This normalizes the kSZ spectrum to 1 at l=3000
         
     def compute_dl(self, pars):
@@ -262,12 +279,12 @@ class kSZ(fgmodel):
 
 #tSZ-CIB correlation (TT)
 class tSZxCIB(fgmodel):
-    def __init__(self, lmax, freqs, filename, mode="TT", auto=True):        
-        super().__init__(lmax, freqs, auto)
+    def __init__(self, lmax, freqs, filename, mode="TT", auto=True, survey=""):
+        super().__init__(lmax, freqs, mode=mode, auto=auto)
         self.name = "tszxcib"
 
-        ell = np.arange( lmax)
-        self.clszcib =np.loadtxt( filename, unpack=True)[1,:lmax]
+        self.clszcib = np.zeros( lmax+1)
+        self.clszcib[2:] =np.loadtxt( filename, unpack=True)[1,:lmax-1]
         
     def compute_dl(self, pars):
         f0 = self._sz_func( self.feff)

@@ -59,8 +59,8 @@ class ACTPolLikelihood(InstallableLikelihood):
     use_te: Optional[bool] = False  #TE only
     use_ee: Optional[bool] = False  #EE only
 
-    use_deep = True
-    use_wide = False
+    use_deep: Optional[bool]
+    use_wide: Optional[bool]
 
     #--------------------------------------------------------------
     #Settings (should not be altered)
@@ -125,12 +125,12 @@ class ACTPolLikelihood(InstallableLikelihood):
 
         # Read windows (520,7924) check l ?
         # check file before
-        self.win_func = np.zeros( (self.nbint, self.lmax_win) )
+        self.win_func = np.zeros( (self.nbint, self.lmax_win+1) )
         win_func = np.loadtxt(os.path.join(self.data_folder, self.bbl_filename))
         nbint,lmax_win = np.shape(win_func)
         if nbint != self.nbint or lmax_win != self.lmax_win-1:
             raise LoggedError(self.log, "Wrong size for Window function (%s)" % self.bbl_filename)
-        self.win_func[:,2:] = win_func[:,1:]
+        self.win_func[:,2:] = win_func
 
         # Read leakage (52)
         # check file before
@@ -144,6 +144,17 @@ class ACTPolLikelihood(InstallableLikelihood):
         #covmat (1040,1040)
         self.covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
         self.covmat = self.covmat[:self.nbint,:self.nbint]
+
+        #check survey
+        self.survey = ""
+        if self.use_wide and self.use_deep:
+            raise LoggedError(self.log, "Choose survey DEEP or WIDE, not both")
+        if self.use_wide: self.survey = "wide"
+        if self.use_deep: self.survey = "deep"
+
+        #check modes
+        if self.use_tt + self.use_te + self.use_ee not in [1,3]:
+            raise LoggedError(self.log, "Usage: TT, EE, TE or TT+TE+EE")
 
         #cut lmin TT
         for s in range(self.nspectt):
@@ -170,7 +181,7 @@ class ACTPolLikelihood(InstallableLikelihood):
 
                     self.log.info("Adding '{}' foreground for {}".format(name,tag.upper()))
                     self.log.debug("Adding '{}' foreground for {}".format(name,tag.upper()))
-                    kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper())
+                    kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[tag.upper()][name])
                     self.fgs[tag].append(fg_list[name](**kwargs))
@@ -179,14 +190,14 @@ class ACTPolLikelihood(InstallableLikelihood):
         if self.use_te: self.log.debug(f"nbinte: {self.nbinte}")
         if self.use_ee: self.log.debug(f"nbinee: {self.nbinee}")
 
-        self.log.info("Init ACTpol_deep likelihood done")
+        self.log.info(f"Init ACTpol_{self.survey} likelihood done")
 
 
     def _dl2cl( self, dl):
-        cl2dl = np.ones( self.lmax_win)
+        cl2dl = np.ones( self.lmax_win+1)
         
-        lth = np.arange( self.lmax_win)
-        cl2dl[1:] = (lth*(lth+1)/2/np.pi)[1:]
+        lth = np.arange( self.lmax_win+1)
+        cl2dl[1:] = (lth*(lth+1)/2./np.pi)[1:]
 
         return dl/cl2dl
 
@@ -205,22 +216,38 @@ class ACTPolLikelihood(InstallableLikelihood):
 
         #Calculate CMB+fg
         dlth = {
-            'tt':np.repeat([dl_cmb['tt'][:self.lmax_win]],self.nspectt,axis=0),
-            'te':np.repeat([dl_cmb['te'][:self.lmax_win]],self.nspecte,axis=0),
-            'ee':np.repeat([dl_cmb['ee'][:self.lmax_win]],self.nspecee,axis=0)
+            'tt':np.repeat([dl_cmb['tt'][:self.lmax_win+1]],self.nspectt,axis=0),
+            'te':np.repeat([dl_cmb['te'][:self.lmax_win+1]],self.nspecte,axis=0),
+            'ee':np.repeat([dl_cmb['ee'][:self.lmax_win+1]],self.nspecee,axis=0)
             }
+
+        #zero l>6000
+        for k in dlth:
+            dlth[k][:,6000:] = 0.
 #        print( "CMB: ", dlth['tt'][:,340:360])
 
+        #FORCE MODEL bf_ACTPol_lcdm.minimum.theory_cl
+        ell, dltt, dlte, dlee, _, _ = np.loadtxt( "/sps/planck/Users/tristram/Soft/Hillik/modules/data/actpolfull_dr4.01/data/bf_ACTPol_lcdm.minimum.theory_cl", unpack=True)
+        dlth['tt'][:,np.array(ell,int)] = dltt
+        dlth['ee'][:,np.array(ell,int)] = dlee
+        dlth['te'][:,np.array(ell,int)] = dlte
+        #WARNING
+        
         for tag in dlth.keys():
             for fg in self.fgs[tag]:
-#                print( f"{fg.name}: ", fg.compute_dl( params)[:,340:360])
-                dlth[tag] += fg.compute_dl( params) #array( nspecf, lmax_win)
+#                print( f"{fg.name}: ", fg.compute_dl( params)[:,1000:1010])
+                dlth[tag] += fg.compute_dl( params) #array( nspecf, lmax_win+1)
 
         #Get theory in Cls
         X_theory = dlth
         for k,val in X_theory.items():
+            val[:,:2] = 0.
             X_theory[k] = self._dl2cl(val)
-#        print( "Total: ", X_theory['tt'][:,340:360])
+#        print( "Total: ", X_theory['ee'][0,2:10])
+#        print( "Total: ", X_theory['ee'][0,self.lmax_win-10:])
+
+#        print( np.shape(X_theory['tt']))
+#        print( np.shape( self.win_func))
 
         # Get binned model
         X_model = []
@@ -228,10 +255,10 @@ class ACTPolLikelihood(InstallableLikelihood):
             ishift = s*self.nbintt
             X_model += list( self.win_func[ishift:ishift+self.nbintt] @ X_theory['tt'][s] )
         for s in range(self.nspecte):
-            ishift = self.nspectt * self.nbintt + s*self.nbinte
+            ishift = self.nspectt*self.nbintt + s*self.nbinte
             X_model += list( self.win_func[ishift:ishift+self.nbinte] @ X_theory['te'][s] )
         for s in range(self.nspecee):
-            ishift = self.nspectt * self.nbintt + self.nspecte * self.nbinte + s* self.nbinee
+            ishift = self.nspectt*self.nbintt + self.nspecte*self.nbinte + s*self.nbinee
             X_model += list( self.win_func[ishift:ishift+self.nbinee] @ X_theory['ee'][s] )
         X_model = np.asarray(X_model)
 
@@ -276,19 +303,21 @@ class ACTPolLikelihood(InstallableLikelihood):
             bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
             bend   = self.nbint
 
-        print( "Data: ", self.b_dat[:10])
-        print( "Model: ", X_model[:10])
+#        print( "Data: ", self.b_dat[bstart:bend])
+#        print( "Model: ", X_model[bstart:bend])
 
         diff_vec = (self.b_dat - X_model)[bstart:bend]
         fisher   = self.covmat[bstart:bend,bstart:bend]
 
-        print( "Res: ", diff_vec**2)
-        print( "Var: ", np.diag(fisher))
-        print( "chi2: ", diff_vec**2/np.diag(fisher))
+#        print( "Res: ", diff_vec**2)
+#        print( "Var: ", np.diag(fisher))
+#        print( "chi2: ", diff_vec**2/np.diag(fisher))
 
         # Invert covmat
         fisher = np.linalg.inv( fisher)
-        
+
+#        print( "chi2: ", diff_vec**2*np.diag(fisher))
+
         #chi2
         dlnlike = np.sum( diff_vec @ fisher @ diff_vec)
         
@@ -298,7 +327,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         return -0.5*dlnlike
 
     def get_requirements(self):
-        requirements = dict(Cl={mode: self.lmax_win for mode in ["tt","te","ee"]})
+        requirements = dict(Cl={mode: self.lmax_win+1 for mode in ["tt","te","ee"]})
         return requirements
 
     def logp(self, **params_values):
@@ -316,12 +345,10 @@ class EE(ACTPolLikelihood):
     CMB likelihood with ACTpol DR4 EE dataset
     """
 
-
 class TE(ACTPolLikelihood):
     """
     CMB likelihood with ACTpol DR4 TE dataset
     """
-
 
 class full(ACTPolLikelihood):
     """

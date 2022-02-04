@@ -1,0 +1,95 @@
+  a_c:
+    prior:
+      dist: norm
+      loc: 4.9
+      scale: 0.9
+    ref: 0.3648102E+01
+    proposal: 0.9
+    latex: A_\mathrm{c}(act)
+  beta_c:
+    prior:
+      min: 1
+      max: 5
+    ref: 0.2447908E+01
+    proposal: 0.5
+    latex: \beta_\mathrm{c}(act)
+  a_d:
+    prior:
+      min: 0
+      max: 20
+    ref: 0.6872966E+01
+    proposal: 0.5
+    latex: A_\mathrm{PS,d}(act)
+  a_s:
+    prior:
+      dist: norm
+      loc: 3.1
+      scale: 0.4
+    ref: 0.3682240E+01
+    proposal: 0.3
+    latex: A_\mathrm{PS,s}^{TT}(act)
+  a_tps:
+    prior:
+      min: -1.
+      max: 1.
+    ref: 0.4443353E-01
+    proposal: 0.1
+    latex: A_\mathrm{PS,s}^{TE}(act)
+  a_ps:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 0.5342375E-04
+    proposal: 1.
+    latex: A_\mathrm{PS,s}^{EE}(act)
+  a_gd:
+    prior:
+      dist: norm
+      loc: 2.79
+      scale: 0.45
+    ref: 0.2811710E+01
+    proposal: 0.45
+    latex: A_\mathrm{dust}^{TT}(act)
+  a_gted:
+    prior:
+      dist: norm
+      loc: 0.11
+      scale: 0.1
+    ref: 0.1049940E+00
+    proposal: 0.1
+    latex: A_\mathrm{dust}^{TE}(act)
+  a_geed:
+    prior:
+      dist: norm
+      loc: 0.04
+      scale: 0.08
+    ref: 0.3436806E-01
+    proposal: 0.1
+    latex: A_\mathrm{dust}^{EE}(act)
+  a_ste:
+    value: 0.
+    latex: A_\mathrm{sync}^{TE}(act)
+  a_see:
+    value: 0.
+    latex: A_\mathrm{sync}^{EE}(act)
+  a_tsz:
+    prior:
+      min: 0
+      max: 20
+    ref: 0.5806115E+01
+    proposal: 1.0
+    latex: A_\mathrm{tSZ}(act)
+  a_ksz:
+    prior:
+      min: 0.
+      max: 5.
+    ref: 0.1024734E-03
+    proposal: 1.
+    latex: A_\mathrm{kSZ}(act)
+  xi:
+    prior:
+      min: 0
+      max: 0.2
+    ref: 0.1998220E+00
+    proposal: 0.1
+    latex: \xsi_\mathrm{SZxCIB}(act)
