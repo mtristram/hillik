@@ -350,7 +350,12 @@ class TE(ACTPolLikelihood):
     CMB likelihood with ACTpol DR4 TE dataset
     """
 
-class full(ACTPolLikelihood):
+class wide(ACTPolLikelihood):
+    """
+    CMB likelihood with ACTpol DR4 full dataset
+    """
+
+class deep(ACTPolLikelihood):
     """
     CMB likelihood with ACTpol DR4 full dataset
     """

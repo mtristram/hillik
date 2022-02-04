@@ -1,0 +1,16 @@
+  TT:
+    cib_clustered: Fg/cib_extra.dat
+    cib_poisson: null
+    radio_poisson: null
+    galactic_dust: null
+    tsz: Fg/cl_tsz_150_bat.dat
+    ksz: Fg/cl_ksz_bat.dat
+    szxcib: Fg/sz_x_cib_template.dat
+  EE:
+    radio_poisson: null
+    galactic_dust: null
+    synchrotron: null
+  TE:
+    radio_poisson: null
+    galactic_dust: null
+    synchrotron: null

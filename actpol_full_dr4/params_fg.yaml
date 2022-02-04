@@ -27,7 +27,14 @@
       scale: 0.4
     ref: 0.3682240E+01
     proposal: 0.3
-    latex: A_\mathrm{PS,s}^{TT}(act)
+    latex: A_\mathrm{PS,s}^{TT}(act deep)
+  a_sw:
+    prior:
+      min: 15
+      max: 30
+    ref: 0.2249012E+02
+    proposal: 0.3
+    latex: A_\mathrm{PS,s}^{TT}(act wide)
   a_tps:
     prior:
       min: -1.
@@ -49,7 +56,15 @@
       scale: 0.45
     ref: 0.2811710E+01
     proposal: 0.45
-    latex: A_\mathrm{dust}^{TT}(act)
+    latex: A_\mathrm{dust}^{TT}(act deep)
+  a_gw:
+    prior:
+      dist: norm
+      loc: 8.77
+      scale: 0.3
+    ref: 0.8717251E+01
+    proposal: 0.5
+    latex: A_\mathrm{dust}^{TT}(act wide)
   a_gted:
     prior:
       dist: norm
@@ -57,7 +72,15 @@
       scale: 0.1
     ref: 0.1049940E+00
     proposal: 0.1
-    latex: A_\mathrm{dust}^{TE}(act)
+    latex: A_\mathrm{dust}^{TE}(act deep)
+  a_gtew:
+    prior:
+      dist: norm
+      loc: 0.36
+      scale: 0.04
+    ref: 0.3559930E+00
+    proposal: 0.1
+    latex: A_\mathrm{dust}^{TE}(act wide)
   a_geed:
     prior:
       dist: norm
@@ -65,7 +88,15 @@
       scale: 0.08
     ref: 0.3436806E-01
     proposal: 0.1
-    latex: A_\mathrm{dust}^{EE}(act)
+    latex: A_\mathrm{dust}^{EE}(act deep)
+  a_geew:
+    prior:
+      dist: norm
+      loc: 0.13
+      scale: 0.03
+    ref: 0.1293905E+00
+    proposal: 0.1
+    latex: A_\mathrm{dust}^{EE}(act wide)
   a_ste:
     value: 0.
     latex: A_\mathrm{sync}^{TE}(act)

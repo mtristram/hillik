@@ -170,11 +170,11 @@ class RADIOpoisson(fgmodel):
 
     def compute_dl(self, pars):
         Aps = 0
-        if self.survey == "wide":
+        if self.survey == "deep":
             if self.mode == "TT": Aps = pars['a_s'] 
             if self.mode == "TE": Aps = pars['a_tps']
             if self.mode == "EE": Aps = pars['a_ps']
-        if self.survey == "deep":
+        if self.survey == "wide":
             if self.mode == "TT": Aps = pars['a_sw'] 
             if self.mode == "TE": Aps = pars['a_tps']
             if self.mode == "EE": Aps = pars['a_ps']

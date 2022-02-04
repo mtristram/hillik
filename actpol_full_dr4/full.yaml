@@ -6,11 +6,11 @@ leakd_filename: data_act/leak_TE_deep_200519.txt
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_calib, params_nui]
+params: !defaults [params_calib, params_fg]
 
 use_tt: True
 use_te: True
 use_ee: True
 
 use_wide: False
-use_deep: True
+use_deep: False
