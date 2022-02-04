@@ -19,7 +19,6 @@ from cobaya.log import LoggedError
 from . import act_foregrounds as fg
 
 fg_list = {
-    "ps": fg.ps,
     "cib_clustered": fg.CIBclustered,
     "cib_poisson": fg.CIBpoisson,
     "radio_poisson": fg.RADIOpoisson,
@@ -40,15 +39,12 @@ class ACTPolLikelihood(InstallableLikelihood):
 
     frequencies: Sequence[int] = [98, 150]
 
-    data_folder: Optional[str] # = "actpol_full_dr4/likelihood"
-    spec_filename: Optional[str] #'coadd_cl_15mJy_data_200124.txt'
-    cov_filename: Optional[str]  #'coadd_cov_15mJy_200519.txt'
-    bbl_filename: Optional[str]  #'coadd_bpwf_15mJy_191127_lmin2.txt'
-    leakd_filename: Optional[str] #'leak_TE_deep_200519.txt'
+    data_folder: Optional[str]
+    spec_filename: Optional[str]
+    cov_filename: Optional[str]
+    bbl_filename: Optional[str]
+    leakd_filename: Optional[str]
 
-#    normalizeSZ_143GHz: Optional[bool] = True
-#    callFGprior: Optional[bool] = True
-#    applyFTSprior: Optional[bool] = True
 
     #--------------------------------------------------------------
     # change these to include/exclude observables 
@@ -123,7 +119,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         self.b_dat = np.loadtxt(os.path.join(self.data_folder, self.spec_filename), unpack=True)
         self.b_dat = self.b_dat[0:self.nbint]
 
-        # Read windows (520,7924) check l ?
+        # Read windows (520,7924)
         # check file before
         self.win_func = np.zeros( (self.nbint, self.lmax_win+1) )
         win_func = np.loadtxt(os.path.join(self.data_folder, self.bbl_filename))
@@ -215,22 +211,17 @@ class ACTPolLikelihood(InstallableLikelihood):
         a2  = params['leak150']
 
         #Calculate CMB+fg
-        dlth = {
-            'tt':np.repeat([dl_cmb['tt'][:self.lmax_win+1]],self.nspectt,axis=0),
-            'te':np.repeat([dl_cmb['te'][:self.lmax_win+1]],self.nspecte,axis=0),
-            'ee':np.repeat([dl_cmb['ee'][:self.lmax_win+1]],self.nspecee,axis=0)
-            }
+        dlth = { 'tt':np.zeros( (self.nspectt,self.lmax_win+1) ),
+                 'te':np.zeros( (self.nspecte,self.lmax_win+1) ),
+                 'ee':np.zeros( (self.nspecee,self.lmax_win+1) )}
+        for tag in ['tt','te','ee']:
+            dlth[tag][:,:self.tt_lmax+1] = dl_cmb[tag][:self.tt_lmax+1]
 
-        #zero l>6000
-        for k in dlth:
-            dlth[k][:,6000:] = 0.
-#        print( "CMB: ", dlth['tt'][:,340:360])
-
-        #FORCE MODEL bf_ACTPol_lcdm.minimum.theory_cl
-        ell, dltt, dlte, dlee, _, _ = np.loadtxt( "/sps/planck/Users/tristram/Soft/Hillik/modules/data/actpolfull_dr4.01/data/bf_ACTPol_lcdm.minimum.theory_cl", unpack=True)
-        dlth['tt'][:,np.array(ell,int)] = dltt
-        dlth['ee'][:,np.array(ell,int)] = dlee
-        dlth['te'][:,np.array(ell,int)] = dlte
+        #TEST FORCE MODEL bf_ACTPol_lcdm.minimum.theory_cl
+#        ell, dltt, dlte, dlee, _, _ = np.loadtxt( "/sps/planck/Users/tristram/Soft/Hillik/modules/data/actpolfull_dr4.01/data/bf_ACTPol_lcdm.minimum.theory_cl", unpack=True)
+#        dlth['tt'][:,np.array(ell,int)] = dltt
+#        dlth['ee'][:,np.array(ell,int)] = dlee
+#        dlth['te'][:,np.array(ell,int)] = dlte
         #WARNING
         
         for tag in dlth.keys():
@@ -243,11 +234,6 @@ class ACTPolLikelihood(InstallableLikelihood):
         for k,val in X_theory.items():
             val[:,:2] = 0.
             X_theory[k] = self._dl2cl(val)
-#        print( "Total: ", X_theory['ee'][0,2:10])
-#        print( "Total: ", X_theory['ee'][0,self.lmax_win-10:])
-
-#        print( np.shape(X_theory['tt']))
-#        print( np.shape( self.win_func))
 
         # Get binned model
         X_model = []
@@ -262,20 +248,24 @@ class ACTPolLikelihood(InstallableLikelihood):
             X_model += list( self.win_func[ishift:ishift+self.nbinee] @ X_theory['ee'][s] )
         X_model = np.asarray(X_model)
 
-        # Add leakage
+        # Add leakage (Warning: need same binning in tt, te and ee)
+        # TiEj = TiEj + TiTj*gamma_j
+        # EiEj = EiEj + TiEj*gamma_i + TjEi*gamma_j + TiTj*gamma_i*gamma_j 
         ntt = self.nbintt
         nte = self.nbinte
         nee = self.nbinee
-        X_model[3*ntt+0*nte:3*ntt+1*nte] += X_model[0*ntt:1*ntt]*a1*self.l98[:nte]
-        X_model[3*ntt+1*nte:3*ntt+2*nte] += X_model[1*ntt:2*ntt]*a2*self.l150[:nte]
-        
-        X_model[3*ntt+2*nte:3*ntt+3*nte] += X_model[1*ntt:2*ntt]*a1*self.l98[:nte]
-        X_model[3*ntt+3*nte:3*ntt+4*nte] += X_model[2*ntt:3*ntt]*a2*self.l150[:nte]
+        X_model[3*ntt+0*nte:3*ntt+1*nte] += X_model[0*ntt:1*ntt]*a1*self.l98[:nte]    #TE(98x98)   <- TT(98x98)  
+        X_model[3*ntt+1*nte:3*ntt+2*nte] += X_model[1*ntt:2*ntt]*a2*self.l150[:nte]   #TE(98x150)  <- TT(98x150) 
+        X_model[3*ntt+2*nte:3*ntt+3*nte] += X_model[1*ntt:2*ntt]*a1*self.l98[:nte]    #TE(150x98)  <- TT(98x150) 
+        X_model[3*ntt+3*nte:3*ntt+4*nte] += X_model[2*ntt:3*ntt]*a2*self.l150[:nte]   #TE(150x150) <- TT(150x150)
 
+        #EE(98x98) <- 2*TE(98x98) + TT(98x98)
         X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] += 2*X_model[3*ntt+0*nte:3*ntt+1*nte]*a1*self.l98[:nte] + X_model[0*ntt:1*ntt]*(a1*self.l98[:nte])**2.
+        #EE(98x150) <- TE(98x150) + TE(150x98) + TT(98x150)
         X_model[3*ntt+4*nte+1*nee:3*ntt+4*nte+2*nee] += ( X_model[3*ntt+1*nte:3*ntt+2*nte]*a1*self.l98[:nte] +
                                                           X_model[3*ntt+2*nte:3*ntt+3*nte]*a2*self.l150[:nte] +
                                                           X_model[1*ntt:2*ntt]*a1*self.l98[:nte]*a2*self.l150[:nte])
+        #EE(150x150) <- 2*TE(150x150) + TT(150x150)
         X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] += 2*X_model[3*ntt+3*nte:3*ntt+4*nte]*a2*self.l150[:nte] + X_model[2*ntt:3*ntt]*(a2*self.l150[:nte])**2.
 
         # Calibrate
@@ -303,20 +293,11 @@ class ACTPolLikelihood(InstallableLikelihood):
             bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
             bend   = self.nbint
 
-#        print( "Data: ", self.b_dat[bstart:bend])
-#        print( "Model: ", X_model[bstart:bend])
-
         diff_vec = (self.b_dat - X_model)[bstart:bend]
         fisher   = self.covmat[bstart:bend,bstart:bend]
 
-#        print( "Res: ", diff_vec**2)
-#        print( "Var: ", np.diag(fisher))
-#        print( "chi2: ", diff_vec**2/np.diag(fisher))
-
         # Invert covmat
         fisher = np.linalg.inv( fisher)
-
-#        print( "chi2: ", diff_vec**2*np.diag(fisher))
 
         #chi2
         dlnlike = np.sum( diff_vec @ fisher @ diff_vec)
@@ -326,7 +307,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         return -0.5*dlnlike
 
     def get_requirements(self):
-        requirements = dict(Cl={mode: self.lmax_win+1 for mode in ["tt","te","ee"]})
+        requirements = dict(Cl={mode:self.tt_lmax for mode in ["tt","te","ee"]})
         return requirements
 
     def logp(self, **params_values):
