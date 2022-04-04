@@ -9,6 +9,7 @@ Gaussian approximation for cross-correlation spectra from Planck, SPT and ACT.
 It is based on different public codes:
 - [Planck Hillipop](https://github.com/planck-npipe/hillipop)
 - [SPTlik](https://github.com/xgarrido/spt_likelihoods)
+- [ACTpol](https://github.com/mtristram/actpol_full_dr4)
 
 The foreground model is coherent over the three datasets and includes several foregrounds residuals in spectra domain:
 - Galactic dust;
