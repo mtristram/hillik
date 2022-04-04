@@ -1,14 +1,3 @@
-""".. module:: ACTpol_full_DR4
-
-:Synopsis: Definition of python-native CMB likelihood for ACT likelihood.
-Adapted from Fortran likelihood code
-https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
-
-full ACTPol spectra at 98x98, 98x150 and 150x150 GHz from 350 < l < 8000 measured during 2013-2016 in temperature and polarization
-
-:Author: Matthieu Tristram
-
-"""
 import os
 from typing import Optional, Sequence
 
@@ -16,17 +5,15 @@ import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-from . import act_foregrounds as fg
+import foregrounds as fg
 
 fg_list = {
-    "cib_clustered": fg.CIBclustered,
-    "cib_poisson": fg.CIBpoisson,
-    "radio_poisson": fg.RADIOpoisson,
-    "galactic_dust": fg.GalacticDust,
-    "synchrotron": fg.Synchrotron,
-    "tsz": fg.tSZ,
-    "ksz": fg.kSZ,
-    "szxcib": fg.tSZxCIB,
+    "cib_clustered": fg.cib_template,
+    "poisson": fg.ps,
+    "galactic_dust": fg.dust_template,
+    "tsz": fg.tsz_template,
+    "ksz": fg.ksz_template,
+    "szxcib": fg.szxcib_template,
     }
 
 
@@ -203,6 +190,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         dl_cmb: Dl TT
         """
 
+        cal = params['A_actpol']
         yp1 = params['yp1']
         yp2 = params['yp2']
         ct1 = params['cal98']  #Cal and leakage errors included in covmat and so fixed to 1
@@ -267,19 +255,19 @@ class ACTPolLikelihood(InstallableLikelihood):
                                                           X_model[1*ntt:2*ntt]*a1*self.l98[:nte]*a2*self.l150[:nte])
         #EE(150x150) <- 2*TE(150x150) + TT(150x150)
         X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] += 2*X_model[3*ntt+3*nte:3*ntt+4*nte]*a2*self.l150[:nte] + X_model[2*ntt:3*ntt]*(a2*self.l150[:nte])**2.
-
+        
         # Calibrate
-        X_model[0*ntt:1*ntt] *= ct1*ct1
-        X_model[1*ntt:2*ntt] *= ct1*ct2
-        X_model[2*ntt:3*ntt] *= ct2*ct2
-        X_model[3*ntt+0*nte:3*ntt+1*nte] *= ct1*ct1*yp1
-        X_model[3*ntt+1*nte:3*ntt+2*nte] *= ct1*ct2*yp2
-        X_model[3*ntt+2*nte:3*ntt+3*nte] *= ct1*ct2*yp1
-        X_model[3*ntt+3*nte:3*ntt+4*nte] *= ct1*ct2*yp2
-        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] *= ct1*ct1*yp1*yp1 
-        X_model[4*nte+3*ntt+1*nee:3*ntt+4*nte+2*nee] *= ct1*ct2*yp1*yp2
-        X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] *= ct2*ct2*yp2*yp2
-
+        X_model[0*ntt:1*ntt] *= cal*ct1*ct1
+        X_model[1*ntt:2*ntt] *= cal*ct1*ct2
+        X_model[2*ntt:3*ntt] *= cal*ct2*ct2
+        X_model[3*ntt+0*nte:3*ntt+1*nte] *= cal*ct1*ct1*yp1
+        X_model[3*ntt+1*nte:3*ntt+2*nte] *= cal*ct1*ct2*yp2
+        X_model[3*ntt+2*nte:3*ntt+3*nte] *= cal*ct1*ct2*yp1
+        X_model[3*ntt+3*nte:3*ntt+4*nte] *= cal*ct1*ct2*yp2
+        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] *= cal*ct1*ct1*yp1*yp1 
+        X_model[4*nte+3*ntt+1*nee:3*ntt+4*nte+2*nee] *= cal*ct1*ct2*yp1*yp2
+        X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] *= cal*ct2*ct2*yp2*yp2
+        
         # Select data
         bstart = 0
         bend   = self.nbint

@@ -186,10 +186,8 @@ class tsz_model(fgmodel):
             tmpl = np.zeros(max(ell) + 1)
             tmpl[ell] = (
                 (dldata.CL1HALO + dldata.CL2HALO)
-                * self.fnu[freqs[f1]]
-                * self.fnu[freqs[f2]]
-                / self.fnu[143]
-                / self.fnu[143]
+                * self.fnu[freqs[f1]] / self.fnu[143]
+                * self.fnu[freqs[f2]] / self.fnu[143]
             )
             self.dl_sz.append(tmpl[: lmax + 1])
         self.dl_sz = np.array(self.dl_sz)

@@ -1,12 +1,3 @@
-""".. module:: SPTPol
-
-:Synopsis: Definition of python-native CMB likelihood for SPT likelihood (SPTpol+SZ l=2000-11000
-power spectrum). Adapted from Fortran likelihood code
-https://lambda.gsfc.nasa.gov/product/spt/spt_ps_2020_get.cfm
-
-:Author: Matthieu Tristram
-
-"""
 import os
 from typing import Optional, Sequence
 
@@ -14,7 +5,7 @@ import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-from . import spt_foregrounds as sptfg
+import foregrounds as fg
 
 
 class SPTHiellLikelihood(InstallableLikelihood):
@@ -30,7 +21,8 @@ class SPTHiellLikelihood(InstallableLikelihood):
     ]
 
     frequencies: Sequence[int] = [95, 150, 220]
-
+    ReportFGLmax = 13500
+    
     data_folder: Optional[str] = "spt_hiell_2020/likelihood"
     desc_file: Optional[str]
     bp_file: Optional[str]
@@ -66,7 +58,16 @@ class SPTHiellLikelihood(InstallableLikelihood):
             )
 
         # Init foreground model
-        self.fg = sptfg.SPTforegounds(data_folder=self.data_folder, **self.foregrounds)
+        self.fgs = []
+        for name in self.foregrounds.keys():
+            if name not in fg_list.keys():
+                raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
+
+            self.log.info("Adding '{}' foreground".format(name))
+            kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, survey=self.survey)
+            if isinstance(self.foregrounds[name], str):
+                kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[name])
+            self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location
         self.data_folder = os.path.join(self.data_folder, "data/spt_hiell_2020")
@@ -82,7 +83,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         self.lmin = self.spt_windows_lmin
         self.lmax = self.spt_windows_lmax + 1  # to match fortran convention
 
-        if self.spt_windows_lmax > self.fg.ReportFGLmax():
+        if self.spt_windows_lmax > self.ReportFGLmax:
             raise LoggedError(self.log, "Hard-wired lmax in foregrounds is too low for SPT_hiell")
 
         if self.spt_windows_lmin < 2 or self.spt_windows_lmin >= self.spt_windows_lmax:
@@ -194,11 +195,9 @@ class SPTHiellLikelihood(InstallableLikelihood):
         CalFactors = [params[f"mapCal{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
-        # scaling theory
-        # tszfac = sptfg.cosmo_scale_tsz(theory.H0,theory.sigma_8,theory.omb)
-        # params["czero_tsz"] = params["czero_tsz"] * tszfac
-        # kszfac = sptfg.cosmo_scale_ksz(theory.H0,theory.sigma_8,theory.omb,theory.omc+theory.omb+theory.omnu,theory.InitPower(ns_index),theory.tau)
-        # params["czero_ksz"] = params["czero_ksz"] * kszfac
+        dl_fg = np.zeros( self.nband, self.lmax+1)
+        for fg in self.fgs:
+            dl_fg += fg.compute_dl( params)
 
         # Loop on nband
         cbs = np.zeros(self.nall)
@@ -208,17 +207,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
             thisbin = self.nbins[i]
 
             # get theory spectra
-            dl_fg = self.fg.dl_foregrounds(
-                params,
-                j,
-                k,
-                self.nfreq,
-                self.spt_eff_fr + FTSfactor,
-                self.spt_norm_fr,
-                self.spt_windows_lmin,
-                self.spt_windows_lmax
-            )
-            dl_th = dl_cmb[self.lmin : self.lmax] + dl_fg[self.lmin : self.lmax]
+            dl_th = dl_cmb[self.lmin : self.lmax] + dl_fg[i, self.lmin : self.lmax]
 
             # bin theory with window functions
             tmpcb = self.windows[thisoffset:thisoffset+thisbin] @ dl_th

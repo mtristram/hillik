@@ -254,9 +254,9 @@ class SPTforegounds(HasLogger):
             return dl_dg + dl_rg + dl_t_sz + dl_k_sz + dl_cirrus + dl_tsz_dgcl_cor + dl_tsz_rg_cor
 
     def _dl_dusty_clustered(self, params, fri, frj, fr0, ifr, jfr, only1halo=False):
-        effalpha_cl = params["T_dg_cl"] + self.AddAlphaPoisson * params["T_dg_po"]
+        effalpha_cl   = params["T_dg_cl"]       + self.AddAlphaPoisson * params["T_dg_po"]
         effsigmasq_cl = params["sigmasq_dg_cl"] + self.AddAlphaPoisson * params["sigmasq_dg_po"]
-        effalpha_cl_2 = params["beta_dg_cl"] + self.AddAlphaPoisson * params["beta_dg_po"]
+        effalpha_cl_2 = params["beta_dg_cl"]    + self.AddAlphaPoisson * params["beta_dg_po"]
 
         frqdep = ((fri * frj) / (fr0 * fr0)) ** (effalpha_cl_2)
         frqdep = frqdep * Bnu(fri, fr0, effalpha_cl) * Bnu(frj, fr0, effalpha_cl)

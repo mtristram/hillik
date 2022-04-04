@@ -21,12 +21,10 @@ from . import tools
 fg_list = {
     "ps": fg.ps,
     "dust": fg.dust_model,
-    "ksz": fg.ksz_model,
-    "ps_radio": fg.ps_radio,
-    "ps_dusty": fg.ps_dusty,
-    "cib": fg.cib_model,
-    "tsz": fg.tsz_model,
-    "szxcib": fg.szxcib_model,
+    "ksz": fg.ksz_template,
+    "cib": fg.cib_template,
+    "tsz": fg.tsz_template,
+    "szxcib": fg.szxcib_template,
 }
 
 
