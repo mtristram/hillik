@@ -8,9 +8,5 @@ foregrounds: !defaults [foregrounds]
 
 params: !defaults [params_calib, params_fg]
 
-use_tt: True
-use_te: False
-use_ee: False
-
-use_wide: False
-use_deep: True
+use_deep: true
+use_wide: false

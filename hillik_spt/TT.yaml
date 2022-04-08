@@ -9,6 +9,6 @@ normalizeSZ_143GHz: true
 callFGprior: true
 applyFTSprior: true
 
-foregrounds: !defaults [spt_foregrounds]
+foregrounds: !defaults [foregrounds]
 
-params: !defaults [spt_params]
+params: !defaults [params]

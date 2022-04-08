@@ -5,15 +5,15 @@ import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-import foregrounds as fg
+import hillik_foregrounds as fg
 
 fg_list = {
-    "cib_clustered": fg.cib_template,
+    "cib": fg.cib,
     "poisson": fg.ps,
-    "galactic_dust": fg.dust_template,
-    "tsz": fg.tsz_template,
-    "ksz": fg.ksz_template,
-    "szxcib": fg.szxcib_template,
+    "galactic_dust": fg.dust,
+    "tsz": fg.tsz,
+    "ksz": fg.ksz,
+    "szxcib": fg.szxcib,
     }
 
 
@@ -31,19 +31,6 @@ class ACTPolLikelihood(InstallableLikelihood):
     cov_filename: Optional[str]
     bbl_filename: Optional[str]
     leakd_filename: Optional[str]
-
-
-    #--------------------------------------------------------------
-    # change these to include/exclude observables 
-    #--------------------------------------------------------------
-    # Options are tt only, te only, ee only or all
-    # i.e., true-false-false, false-true-false, false-false-true, true-true-true
-    use_tt: Optional[bool] = False  #TT only
-    use_te: Optional[bool] = False  #TE only
-    use_ee: Optional[bool] = False  #EE only
-
-    use_deep: Optional[bool]
-    use_wide: Optional[bool]
 
     #--------------------------------------------------------------
     #Settings (should not be altered)
@@ -128,16 +115,20 @@ class ACTPolLikelihood(InstallableLikelihood):
         self.covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
         self.covmat = self.covmat[:self.nbint,:self.nbint]
 
-        #check survey
+        #define the survey
         self.survey = ""
         if self.use_wide and self.use_deep:
             raise LoggedError(self.log, "Choose survey DEEP or WIDE, not both")
-        if self.use_wide: self.survey = "wide"
-        if self.use_deep: self.survey = "deep"
+        if self.use_wide: self.survey = "ACTw"
+        if self.use_deep: self.survey = "ACTd"
+        self.log.debug( f"Survey = {self.survey}")
 
         #check modes
-        if self.use_tt + self.use_te + self.use_ee not in [1,3]:
-            raise LoggedError(self.log, "Usage: TT, EE, TE or TT+TE+EE")
+        # Get likelihood name and add the associated mode
+        likelihood_name = self.__class__.__name__
+        likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
+        self._is_mode = {mode: mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
+        self.log.debug("mode = {}".format(self._is_mode))
 
         #cut lmin TT
         for s in range(self.nspectt):
@@ -155,23 +146,22 @@ class ACTPolLikelihood(InstallableLikelihood):
             self.covmat[ishift:ishift+self.b2,ishift:ishift+self.b2] = np.identity(self.b2)*1e10
 
         # Init foreground model
-        self.fgs = {'tt':[],'te':[],'ee':[]}
-        for tag,is_used in {"tt":self.use_tt,"te":self.use_te,"ee":self.use_ee}.items():
+        self.fgs = {'TT':[],'TE':[],'EE':[]}
+        for tag,is_used in self._is_mode.items():
             if is_used:
                 for name in self.foregrounds[tag.upper()].keys():
                     if name not in fg_list.keys():
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                     self.log.info("Adding '{}' foreground for {}".format(name,tag.upper()))
-                    self.log.debug("Adding '{}' foreground for {}".format(name,tag.upper()))
                     kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[tag.upper()][name])
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
-        if self.use_tt: self.log.debug(f"nbintt: {self.nbintt}")
-        if self.use_te: self.log.debug(f"nbinte: {self.nbinte}")
-        if self.use_ee: self.log.debug(f"nbinee: {self.nbinee}")
+        if self._is_mode['TT']: self.log.debug(f"nbintt: {self.nbintt}")
+        if self._is_mode['TE']: self.log.debug(f"nbinte: {self.nbinte}")
+        if self._is_mode['EE']: self.log.debug(f"nbinee: {self.nbinee}")
 
         self.log.info(f"Init ACTpol_{self.survey} likelihood done")
 
@@ -271,13 +261,13 @@ class ACTPolLikelihood(InstallableLikelihood):
         # Select data
         bstart = 0
         bend   = self.nbint
-        if self.use_tt and not self.use_te and not self.use_ee:
+        if self._is_mode['TT'] and not _is_mode['TE'] and not _is_mode['EE']:
             bstart = 0
             bend   = self.nbintt*self.nspectt
-        if not self.use_tt and self.use_te and not self.use_ee:
+        if not self._is_mode['TT'] and self._is_mode['TE'] and not self._is_mode['EE']:
             bstart = self.nbintt*self.nspectt
             bend   = self.nbintt*self.nspectt + self.nbinte*self.nspecte
-        if not self.use_tt and not self.use_te and self.use_ee:
+        if not self._is_mode['TT'] and not self._is_mode['TE'] and self._is_mode['EE']:
             bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
             bend   = self.nbint
 
@@ -302,28 +292,3 @@ class ACTPolLikelihood(InstallableLikelihood):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
-
-class TT(ACTPolLikelihood):
-    """
-    CMB likelihood with ACTpol DR4 TT dataset
-    """
-
-class EE(ACTPolLikelihood):
-    """
-    CMB likelihood with ACTpol DR4 EE dataset
-    """
-
-class TE(ACTPolLikelihood):
-    """
-    CMB likelihood with ACTpol DR4 TE dataset
-    """
-
-class wide(ACTPolLikelihood):
-    """
-    CMB likelihood with ACTpol DR4 full dataset
-    """
-
-class deep(ACTPolLikelihood):
-    """
-    CMB likelihood with ACTpol DR4 full dataset
-    """

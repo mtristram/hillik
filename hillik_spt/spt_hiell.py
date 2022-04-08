@@ -5,7 +5,16 @@ import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-import foregrounds as fg
+import hillik_foregrounds as fg
+
+fg_list = {
+    "cib": fg.cib,
+    "poisson": fg.ps,
+    "galactic_dust": fg.dust,
+    "tsz": fg.tsz,
+    "ksz": fg.ksz,
+    "szxcib": fg.szxcib,
+    }
 
 
 class SPTHiellLikelihood(InstallableLikelihood):
@@ -57,16 +66,19 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 self.data_folder,
             )
 
+        #define the survey
+        self.survey = "SPT"
+
         # Init foreground model
         self.fgs = []
-        for name in self.foregrounds.keys():
+        for name in self.foregrounds["TT"].keys():
             if name not in fg_list.keys():
                 raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
             self.log.info("Adding '{}' foreground".format(name))
-            kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, survey=self.survey)
-            if isinstance(self.foregrounds[name], str):
-                kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[name])
+            kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, survey=self.survey)
+            if isinstance(self.foregrounds["TT"][name], str):
+                kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds["TT"][name])
             self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location
@@ -131,15 +143,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         if efflmax < self.spt_windows_lmin or efflmin > self.spt_windows_lmax:
             raise LoggedError(self.log, "unallowed l-ranges for binary window functions")
 
-        #        j0 = self.spt_windows_lmin if self.spt_windows_lmin > efflmin else efflmin
-        #        j1 = self.spt_windows_lmax if self.spt_windows_lmax < efflmax else efflmax
-        #        if j1 < j0:
-        #            raise ValueError( "unallowed l-ranges for binary window functions - no allowed ells")
-
         offset = 2 * (np.dtype(np.int32).itemsize)
-        #        windows = np.zeros( (self.nall, self.spt_windows_lmax+1) )
-        #        windows[:,j0:j1+1] = np.fromfile( filename, dtype=np.float64, offset=offset).reshape(self.nall,-1)
-        # windows = np.zeros((self.nall, efflmax + 1))
         windows = np.fromfile(filename, dtype=np.float64, offset=offset).reshape(self.nall, -1)
 
         return windows

@@ -4,13 +4,9 @@ cov_filename: data_act/coadd_cov_15mJy_200519.txt
 bbl_filename: data_act/coadd_bpwf_15mJy_191127_lmin2.txt
 leakd_filename: data_act/leak_TE_deep_200519.txt
 
-foregrounds: !defaults [foregrounds]
+foregrounds: !defaults [../foregrounds]
 
 params: !defaults [params_calib, params_fg]
 
-use_tt: False
-use_te: False
-use_ee: True
-
-use_wide: False
-use_deep: True
+use_deep: true
+use_wide: false

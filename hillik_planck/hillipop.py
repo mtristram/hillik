@@ -14,18 +14,18 @@ import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-from . import foregrounds as fg
+import hillik_foregrounds as fg
 from . import tools
 
 #list of available foreground models
 fg_list = {
-    "ps": fg.ps,
-    "dust": fg.dust_model,
-    "ksz": fg.ksz_template,
-    "cib": fg.cib_template,
-    "tsz": fg.tsz_template,
-    "szxcib": fg.szxcib_template,
-}
+    "cib": fg.cib,
+    "poisson": fg.ps,
+    "galactic_dust": fg.dust,
+    "tsz": fg.tsz,
+    "ksz": fg.ksz,
+    "szxcib": fg.szxcib,
+    }
 
 
 # ------------------------------------------------------------------------------------------------
@@ -73,6 +73,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._xspec2xfreq = self._xspec2xfreq()
         self.log.debug("frequencies = {}".format(self.frequencies))
 
+        # Define the survey
+        self.survey = "PLK"
+
         # Get likelihood name and add the associated mode
         likelihood_name = self.__class__.__name__
         likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
@@ -116,7 +119,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                 self.log.debug("Adding '{}' foreground for TT".format(name))
-                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT")
+                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", survey=self.survey)
                 if isinstance(self.foregrounds["TT"][name], str):
                     kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds["TT"][name])
                 fgsTT.append(fg_list[name](**kwargs))
