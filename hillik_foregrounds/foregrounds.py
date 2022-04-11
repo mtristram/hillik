@@ -139,7 +139,7 @@ class ps(fgmodel):
     def compute_dl(self, pars):
         dl_ps = []
         for f1, f2 in self._cross_frequencies:
-            dl_ps.append( pars["Aps_{}x{}".format(f1,f2)] * 1e-6 * self.ll2pi)
+            dl_ps.append( pars[f"Aps_{self.survey}_{f1}x{f2}"] * 1e-6 * self.ll2pi)
 
         return np.array(dl_ps)
 
@@ -166,7 +166,10 @@ class dust(fgmodel):
     def compute_dl(self, pars):        
         dl = []
         for f1, f2 in self._cross_frequencies:
-            dl.append( self.dlg * self._dustRatio(self.fdust[self.survey][f1],353) * self._dustRatio(self.fdust[self.survey][f2],353) )
+            dl.append( self.dlg
+                       * self._dustRatio(self.fdust[self.survey][f1],353, beta=pars["beta_dust"], T=pars["T_dust"])
+                       * self._dustRatio(self.fdust[self.survey][f2],353, beta=pars["beta_dust"], T=pars["T_dust"])
+                       )
         
         return pars[f'Adust_{self.survey}'] * np.array(dl)
 
@@ -190,8 +193,8 @@ class cib(fgmodel):
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dl_cib
-                       * self._cibRatio(self.fdust[self.survey][f1],self.feff,pars['beta_c'])
-                       * self._cibRatio(self.fdust[self.survey][f2],self.feff,pars['beta_c'])
+                       * self._cibRatio(self.fdust[self.survey][f1],self.feff,pars['beta_cib'])
+                       * self._cibRatio(self.fdust[self.survey][f2],self.feff,pars['beta_cib'])
                        )
 
         return pars["Acib"] * np.array(dl)
@@ -253,8 +256,8 @@ class szxcib(fgmodel):
         dl_szxcib = []
         for f1, f2 in self._cross_frequencies:
             dl_szxcib.append( self.x_tmpl * (
-                self._f_tsz(self.fsz[self.survey][f2]) * self._cibRatio(self.fdust[self.survey][f1], 150, pars['beta_c']) +
-                self._f_tsz(self.fsz[self.survey][f1]) * self._cibRatio(self.fdust[self.survey][f2], 150, pars['beta_c'])
+                self._f_tsz(self.fsz[self.survey][f2]) * self._cibRatio(self.fdust[self.survey][f1], 150, pars['beta_cib']) +
+                self._f_tsz(self.fsz[self.survey][f1]) * self._cibRatio(self.fdust[self.survey][f2], 150, pars['beta_cib'])
                 ) / 2
             )
         

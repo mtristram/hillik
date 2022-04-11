@@ -1,4 +1,4 @@
-  A_planck:
+  cal_PLK:
     prior:
       dist: norm
       loc: 1
@@ -10,38 +10,38 @@
     proposal: 0.0005
     latex: y_\mathrm{cal}
     renames: calPlanck
-  cal100A:
+  cal_PLK_100A:
     prior:
       dist: norm
       loc: 0.0
       scale: 0.002
     proposal: 0.001
     latex: cal_\mathrm{100A}
-  cal100B:
+  cal_PLK_100B:
     prior:
       dist: norm
       loc: 0.0
       scale: 0.002
     proposal: 0.001
     latex: cal_\mathrm{100B}
-  cal143A:
+  cal_PLK_143A:
     value: 0.0
     latex: cal_\mathrm{143A}
-  cal143B:
+  cal_PLK_143B:
     prior:
       dist: norm
       loc: 0.0
       scale: 0.002
     proposal: 0.001
     latex: cal_\mathrm{143B}
-  cal217A:
+  cal_PLK_217A:
     prior:
       dist: norm
       loc: 0.0
       scale: 0.002
     proposal: 0.001
     latex: cal_\mathrm{217A}
-  cal217B:
+  cal_PLK_217B:
     prior:
       dist: norm
       loc: 0.0

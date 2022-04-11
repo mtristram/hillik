@@ -180,13 +180,13 @@ class ACTPolLikelihood(InstallableLikelihood):
         dl_cmb: Dl TT
         """
 
-        cal = params['A_actpol']
-        yp1 = params['yp1']
-        yp2 = params['yp2']
-        ct1 = params['cal98']  #Cal and leakage errors included in covmat and so fixed to 1
-        ct2 = params['cal150'] #Cal and leakage errors included in covmat and so fixed to 1
-        a1  = params['leak98']
-        a2  = params['leak150']
+        cal = params[f'cal_{self.survey}']
+        ct1 = params[f'cal_{self.survey}_98']  #Cal and leakage errors included in covmat and so fixed to 1
+        ct2 = params[f'cal_{self.survey}_150'] #Cal and leakage errors included in covmat and so fixed to 1
+        yp1 = params['poleff_{self.survey}_98']
+        yp2 = params['poleff_{self.survey}_150']
+        a1  = params['leak_{self.survey}_98']
+        a2  = params['leak_{self.survey}_150']
 
         #Calculate CMB+fg
         dlth = { 'tt':np.zeros( (self.nspectt,self.lmax_win+1) ),

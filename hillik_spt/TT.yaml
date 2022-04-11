@@ -9,6 +9,6 @@ normalizeSZ_143GHz: true
 callFGprior: true
 applyFTSprior: true
 
-foregrounds: !defaults [foregrounds]
+foregrounds: !defaults [../hillik_foregrounds/foregrounds,params_SPT_fg]
 
-params: !defaults [params]
+params: !defaults [params_SPT_calib]

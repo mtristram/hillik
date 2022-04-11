@@ -4,9 +4,9 @@ cov_filename: data_act/coadd_cov_100mJy_200519.txt
 bbl_filename: data_act/coadd_bpwf_100mJy_191127_lmin2.txt
 leakd_filename: data_act/leak_TE_wide_200519.txt
 
-foregrounds: !defaults [../foregrounds]
+foregrounds: !defaults [../hillik_foregrounds/foregrounds]
 
-params: !defaults [params_calib, params_fg]
+params: !defaults [../params_ACT_calib, params_ACTw_fg]
 
 use_wide: True
 use_deep: False

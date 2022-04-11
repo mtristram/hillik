@@ -3,6 +3,6 @@ multipoles_range_file: data/binning_ext.fits
 xspectra_basename: data/cross_NPIPE_detset
 covariance_matrix_file: data/invfll_NPIPE_detset_ext_TT.fits
 
-foregrounds: !defaults [foregrounds]
+foregrounds: !defaults [../hillik_foregrounds/foregrounds,params_PLK_fg]
 
-params: !defaults [params_calib, params_TT]
+params: !defaults [params_PLK_calib]

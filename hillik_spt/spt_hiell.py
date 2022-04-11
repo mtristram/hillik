@@ -196,7 +196,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         """
         dl_cmb: Dl TT
         """
-        CalFactors = [params[f"mapCal{nu}"] for nu in self.frequencies]
+        CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
         dl_fg = np.zeros( self.nband, self.lmax+1)

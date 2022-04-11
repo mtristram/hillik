@@ -289,7 +289,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Nuisances
         cal = []
         for m1, m2 in combinations(range(self._nmap), 2):
-            cal.append(pars["A_planck"] ** 2 * (1. + pars["cal%s" % self._mapnames[m1]] + pars["cal%s" % self._mapnames[m2]]))
+            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + pars[f"cal_{self.survey}_{mapnames[m1]}"] + pars[f"cal_{self.survey}_{mapnames[m2]}"]))
 
         # Data
         dldata = self._dldata[mode]

@@ -1,0 +1,36 @@
+  Aps_ACTw_98x98:
+    prior:
+      min: 
+      max: 
+    ref: 
+    proposal: 10
+    latex: A^\mathrm{PS}(98x98)
+  Aps_ACTw_98x150:
+    prior:
+      min: 
+      max: 
+    ref: 
+    proposal: 10
+    latex: A^\mathrm{PS}(98x150)
+  Aps_ACTw_150x150:
+    prior:
+      min: 
+      max: 
+    ref: 
+    proposal: 
+    latex: A^\mathrm{PS}(150x150)
+
+  Adust_ACTw_98:
+    prior:
+      min: 
+      max: 
+    ref: 
+    proposal: 
+    latex: A_\mathrm{dust}^\mathrm{98}
+  Adust_ACTw_150:
+    prior:
+      min: 
+      max: 
+    ref: 
+    proposal: 
+    latex: A_\mathrm{dust}^\mathrm{150}

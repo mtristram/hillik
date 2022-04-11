@@ -1,4 +1,4 @@
-  A_actpol:
+  cal_ACT:
     prior:
       dist: norm
       loc: 1
@@ -6,29 +6,29 @@
     proposal: 0.01
     latex: y_\mathrm{cal}^{ACT}
     renames: calACTpol
-  yp1:
+  poleff_ACT_98:
     prior:
       dist: norm
       loc: 0.9860632E+00
       scale: 0.02
     proposal: 0.01
     latex: y_\mathrm{98}^{ACT}
-  yp2:
+  poleff_ACT_98:
     prior:
       dist: norm
       loc: 0.9714017E+00
       scale: 0.02
     proposal: 0.01
     latex: y_\mathrm{150}^{ACT}
-  cal98:
+  cal_ACT_98:
     value: 1.0
     latex: cal_\mathrm{98}^{ACT}
-  cal150:
+  cal_ACT_150:
     value: 1.0
     latex: cal_\mathrm{150}^{ACT}
-  leak98:
+  leak_ACT_98:
     value: 1.0
     latex: leak_\mathrm{98}^{ACT}
-  leak150:
+  leak_ACT_150:
     value: 1.0
     latex: leak_\mathrm{150}^{ACT}
