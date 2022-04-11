@@ -1,0 +1,13 @@
+  cal_SPT_95:
+    value: 1.0
+    latex: cal^\mathrm{95}
+  cal_SPT_150:
+    value: 1.0
+    latex: cal^\mathrm{150}
+  cal_SPT_220:
+    value: 1.0
+    latex: cal^\mathrm{220}
+  FTS_calibration_error:
+    value: 0.0
+    latex: \sigma(FTS)
+

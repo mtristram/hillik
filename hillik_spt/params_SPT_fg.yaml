@@ -1,64 +1,64 @@
   Aps_SPT_95x95:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 10
+      min: 100
+      max: 500
+    ref: 200
+    proposal: 100
     latex: A^\mathrm{PS}(95x95)
   Aps_SPT_95x150:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 10
+      min: 0
+      max: 400
+    ref: 100
+    proposal: 100
     latex: A^\mathrm{PS}(95x150)
   Aps_SPT_95x220:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0
+      max: 400
+    ref: 100
+    proposal: 100
     latex: A^\mathrm{PS}(95x220)
   Aps_SPT_150x150:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0
+      max: 400
+    ref: 100
+    proposal: 100
     latex: A^\mathrm{PS}(150x150)
   Aps_SPT_150x220:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0
+      max: 400
+    ref: 100
+    proposal: 100
     latex: A^\mathrm{PS}(150x220)
   Aps_SPT_220x220:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0
+      max: 400
+    ref: 100
+    proposal: 100
     latex: A^\mathrm{PS}(220x220)
 
   Adust_SPT_95:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0.
+      max: 0.2
+    ref: 0.02
+    proposal: 0.1
     latex: A_\mathrm{dust}^\mathrm{95}
   Adust_SPT_150:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0
+      max: 0.2
+    ref: 0.04
+    proposal: 0.1
     latex: A_\mathrm{dust}^\mathrm{150}
   Adust_SPT_220:
     prior:
-      min: 
-      max: 
-    ref: 
-    proposal: 
+      min: 0
+      max: 0.2
+    ref: 0.12
+    proposal: 0.1
     latex: A_\mathrm{dust}^\mathrm{220}
