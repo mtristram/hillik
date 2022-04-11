@@ -13,7 +13,7 @@
       scale: 0.02
     proposal: 0.01
     latex: y_\mathrm{98}^{ACT}
-  poleff_ACT_98:
+  poleff_ACT_150:
     prior:
       dist: norm
       loc: 0.9714017E+00

@@ -43,10 +43,3 @@
     ref: 0.6
     proposal: 1
     latex: A_\mathrm{kSZ}
-  Aszxcib:
-    prior:
-      min: 0
-      max: 10
-    ref: 1.0
-    proposal: 1
-    latex: A_\mathrm{SZxCIB}

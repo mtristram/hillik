@@ -150,9 +150,9 @@ class ps(fgmodel):
 #SPT: -1.2 for TT (cirrus but very low amplitude) ?!?
 #Planck: -0.63 for TT, -0.4 for TE
 class dust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=True, survey="", filename=None):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
-        self.name = "Dust Model"        
+        self.name = "Dust Model"
         self.dlg = np.zeros( lmax+1)
 
         if filename is None:
@@ -163,14 +163,14 @@ class dust(fgmodel):
             data = fits.getdata( filename)
             self.dlg[data.ell] = data.dl
         
-    def compute_dl(self, pars):        
+    def compute_dl(self, pars):
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dlg
                        * self._dustRatio(self.fdust[self.survey][f1],353, beta=pars["beta_dust"], T=pars["T_dust"])
                        * self._dustRatio(self.fdust[self.survey][f2],353, beta=pars["beta_dust"], T=pars["T_dust"])
                        )
-        
+
         return pars[f'Adust_{self.survey}'] * np.array(dl)
 
 
@@ -196,7 +196,7 @@ class cib(fgmodel):
                        * self._cibRatio(self.fdust[self.survey][f1],self.feff,pars['beta_cib'])
                        * self._cibRatio(self.fdust[self.survey][f2],self.feff,pars['beta_cib'])
                        )
-
+        
         return pars["Acib"] * np.array(dl)
 
 
@@ -261,5 +261,5 @@ class szxcib(fgmodel):
                 ) / 2
             )
         
-        return -2. * sqrt(pars["Acib"]*pars["Atsz"]) * pars["xi"] * np.array(dl_szxcib)
+        return -2. * np.sqrt(pars["Acib"]*pars["Atsz"]) * pars["xi"] * np.array(dl_szxcib)
 

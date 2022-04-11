@@ -127,7 +127,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         # Get likelihood name and add the associated mode
         likelihood_name = self.__class__.__name__
         likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
-        self._is_mode = {mode: mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
+        self._is_mode = {mode: mode in likelihood_modes for mode in ["tt", "te", "ee"]}
         self.log.debug("mode = {}".format(self._is_mode))
 
         #cut lmin TT
@@ -146,7 +146,7 @@ class ACTPolLikelihood(InstallableLikelihood):
             self.covmat[ishift:ishift+self.b2,ishift:ishift+self.b2] = np.identity(self.b2)*1e10
 
         # Init foreground model
-        self.fgs = {'TT':[],'TE':[],'EE':[]}
+        self.fgs = {'tt':[],'te':[],'ee':[]}
         for tag,is_used in self._is_mode.items():
             if is_used:
                 for name in self.foregrounds[tag.upper()].keys():
@@ -154,14 +154,14 @@ class ACTPolLikelihood(InstallableLikelihood):
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                     self.log.info("Adding '{}' foreground for {}".format(name,tag.upper()))
-                    kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), survey=self.survey)
+                    kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), auto=True, survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[tag.upper()][name])
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
-        if self._is_mode['TT']: self.log.debug(f"nbintt: {self.nbintt}")
-        if self._is_mode['TE']: self.log.debug(f"nbinte: {self.nbinte}")
-        if self._is_mode['EE']: self.log.debug(f"nbinee: {self.nbinee}")
+        if self._is_mode['tt']: self.log.debug(f"nbintt: {self.nbintt}")
+        if self._is_mode['te']: self.log.debug(f"nbinte: {self.nbinte}")
+        if self._is_mode['ee']: self.log.debug(f"nbinee: {self.nbinee}")
 
         self.log.info(f"Init ACTpol_{self.survey} likelihood done")
 
@@ -179,14 +179,14 @@ class ACTPolLikelihood(InstallableLikelihood):
         """
         dl_cmb: Dl TT
         """
-
-        cal = params[f'cal_{self.survey}']
-        ct1 = params[f'cal_{self.survey}_98']  #Cal and leakage errors included in covmat and so fixed to 1
-        ct2 = params[f'cal_{self.survey}_150'] #Cal and leakage errors included in covmat and so fixed to 1
-        yp1 = params['poleff_{self.survey}_98']
-        yp2 = params['poleff_{self.survey}_150']
-        a1  = params['leak_{self.survey}_98']
-        a2  = params['leak_{self.survey}_150']
+        surv = self.survey[:-1]
+        cal = params[f'cal_{surv}']
+        ct1 = params[f'cal_{surv}_98']  #Cal and leakage errors included in covmat and so fixed to 1
+        ct2 = params[f'cal_{surv}_150'] #Cal and leakage errors included in covmat and so fixed to 1
+        yp1 = params[f'poleff_{surv}_98']
+        yp2 = params[f'poleff_{surv}_150']
+        a1  = params[f'leak_{surv}_98']
+        a2  = params[f'leak_{surv}_150']
 
         #Calculate CMB+fg
         dlth = { 'tt':np.zeros( (self.nspectt,self.lmax_win+1) ),
@@ -261,13 +261,13 @@ class ACTPolLikelihood(InstallableLikelihood):
         # Select data
         bstart = 0
         bend   = self.nbint
-        if self._is_mode['TT'] and not _is_mode['TE'] and not _is_mode['EE']:
+        if self._is_mode['tt'] and not _is_mode['te'] and not _is_mode['ee']:
             bstart = 0
             bend   = self.nbintt*self.nspectt
-        if not self._is_mode['TT'] and self._is_mode['TE'] and not self._is_mode['EE']:
+        if not self._is_mode['tt'] and self._is_mode['te'] and not self._is_mode['ee']:
             bstart = self.nbintt*self.nspectt
             bend   = self.nbintt*self.nspectt + self.nbinte*self.nspecte
-        if not self._is_mode['TT'] and not self._is_mode['TE'] and self._is_mode['EE']:
+        if not self._is_mode['tt'] and not self._is_mode['te'] and self._is_mode['ee']:
             bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
             bend   = self.nbint
 

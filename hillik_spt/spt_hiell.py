@@ -76,7 +76,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
             self.log.info("Adding '{}' foreground".format(name))
-            kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, survey=self.survey)
+            kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
             if isinstance(self.foregrounds["TT"][name], str):
                 kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds["TT"][name])
             self.fgs.append(fg_list[name](**kwargs))
@@ -196,11 +196,14 @@ class SPTHiellLikelihood(InstallableLikelihood):
         """
         dl_cmb: Dl TT
         """
-        CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
+        Cal = params[f"cal_{self.survey}"]
+        CalFactors = [params[f"cal_{self.survey}_{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
-        dl_fg = np.zeros( self.nband, self.lmax+1)
+        dl_fg = np.zeros( (self.nband, self.lmax) )
+        print( np.shape(dl_fg))
         for fg in self.fgs:
+            print( f"FG: {fg.name}", np.shape(fg.compute_dl( params)))
             dl_fg += fg.compute_dl( params)
 
         # Loop on nband
@@ -217,7 +220,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
             tmpcb = self.windows[thisoffset:thisoffset+thisbin] @ dl_th
 
             # apply prefactors
-            tmpcb = tmpcb * self.spt_prefactor[k] * self.spt_prefactor[j] * CalFactors[j] * CalFactors[k]
+            tmpcb = tmpcb * self.spt_prefactor[k] * self.spt_prefactor[j] * CalFactors[j] * CalFactors[k] * Cal
 
             cbs[thisoffset : thisoffset + thisbin] = tmpcb
 
@@ -232,9 +235,9 @@ class SPTHiellLikelihood(InstallableLikelihood):
         SPTHiEllLnLike = LnL + detcov
 
         # Add FG priors
-        if self.callFGprior:
-            FGPriorLnLike = self.fg.getForegroundPriorLnL(params)
-            SPTHiEllLnLike += FGPriorLnLike
+#        if self.callFGprior:
+#            FGPriorLnLike = self.fg.getForegroundPriorLnL(params)
+#            SPTHiEllLnLike += FGPriorLnLike
 
         # Add calib LogLike
         delta_calib = np.log(CalFactors)
@@ -251,7 +254,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         self.log.debug(f"Calibration chisq = {2 * CalibLnLike}")
         self.log.debug(f"lnLcov term = {detcov}")
         self.log.debug(f"chisq for cov only: {2 * LnL}")
-        self.log.debug(f"chisq for FG prior: {2 * FGPriorLnLike}")
+#        self.log.debug(f"chisq for FG prior: {2 * FGPriorLnLike}")
         self.log.debug(f"SPTHiEllLnLike chisq (after prior) = {2 * (SPTHiEllLnLike - detcov)}")
 
         return -SPTHiEllLnLike

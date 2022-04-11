@@ -1,3 +1,6 @@
+  cal_SPT:
+    value: 1.0
+    latex: cal^SPT
   cal_SPT_95:
     value: 1.0
     latex: cal^\mathrm{95}

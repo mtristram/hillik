@@ -119,7 +119,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                 self.log.debug("Adding '{}' foreground for TT".format(name))
-                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", survey=self.survey)
+                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", auto=False, survey=self.survey)
                 if isinstance(self.foregrounds["TT"][name], str):
                     kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds["TT"][name])
                 fgsTT.append(fg_list[name](**kwargs))
@@ -289,7 +289,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Nuisances
         cal = []
         for m1, m2 in combinations(range(self._nmap), 2):
-            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + pars[f"cal_{self.survey}_{mapnames[m1]}"] + pars[f"cal_{self.survey}_{mapnames[m2]}"]))
+            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + pars[f"cal_{self.survey}_{self._mapnames[m1]}"] + pars[f"cal_{self.survey}_{self._mapnames[m2]}"]))
 
         # Data
         dldata = self._dldata[mode]
@@ -297,6 +297,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Model
         dlmodel = [dlth[mode]] * self._nxspec
         for fg in self.fgs[mode]:
+            print( f"FG: {fg.name}", np.shape(fg.compute_dl(pars)))
             dlmodel += fg.compute_dl(pars)
 
         # Compute Rl = Dl - Dlth

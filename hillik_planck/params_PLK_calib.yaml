@@ -15,6 +15,7 @@
       dist: norm
       loc: 0.0
       scale: 0.002
+    ref: 0.
     proposal: 0.001
     latex: cal_\mathrm{100A}
   cal_PLK_100B:
@@ -22,6 +23,7 @@
       dist: norm
       loc: 0.0
       scale: 0.002
+    ref: 0.
     proposal: 0.001
     latex: cal_\mathrm{100B}
   cal_PLK_143A:
@@ -32,6 +34,7 @@
       dist: norm
       loc: 0.0
       scale: 0.002
+    ref: 0.
     proposal: 0.001
     latex: cal_\mathrm{143B}
   cal_PLK_217A:
@@ -39,6 +42,7 @@
       dist: norm
       loc: 0.0
       scale: 0.002
+    ref: 0.
     proposal: 0.001
     latex: cal_\mathrm{217A}
   cal_PLK_217B:
@@ -46,5 +50,6 @@
       dist: norm
       loc: 0.0
       scale: 0.002
+    ref: 0.
     proposal: 0.001
     latex: cal_\mathrm{217B}
