@@ -297,7 +297,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Model
         dlmodel = [dlth[mode]] * self._nxspec
         for fg in self.fgs[mode]:
-            print( f"FG: {fg.name}", np.shape(fg.compute_dl(pars)))
+#            print( f"FG: {fg.name}", np.shape(fg.compute_dl(pars)))
             dlmodel += fg.compute_dl(pars)
 
         # Compute Rl = Dl - Dlth

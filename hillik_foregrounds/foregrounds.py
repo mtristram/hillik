@@ -170,7 +170,7 @@ class dust(fgmodel):
                        * self._dustRatio(self.fdust[self.survey][f1],353, beta=pars["beta_dust"], T=pars["T_dust"])
                        * self._dustRatio(self.fdust[self.survey][f2],353, beta=pars["beta_dust"], T=pars["T_dust"])
                        )
-
+#        print( np.array(dl)[:,2:5])
         return pars[f'Adust_{self.survey}'] * np.array(dl)
 
 
