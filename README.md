@@ -19,15 +19,15 @@ The foreground model is coherent over the three datasets and includes several fo
 - a tSZ-CIB correlation consistent with both models above; and
 - unresolved point sources as a Poisson-like power spectrum.
 
-Likelihoods available are ``hillik.planck``, ``hillik.spt``, ``hillik.act``.
-
 It is interfaced with the [``cobaya``](https://cobaya.readthedocs.io/en/latest/) MCMC sampler.
 
 Likelihood versions
 -------------------
 
-* ``planck_2020_hillipop`` Planck 2020 (PR4)
-* ``spt_hiell_2020`` SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197)
+Likelihoods available are:
+* ``hillik_planck``, Planck 2020 (PR4) [Planck Collaboration 2020](https://arxiv.org/abs/2007.04997)
+* ``hillik_spt``, SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197)
+* ``hillik_act``, ACT DR4 Baseline Multi-frquency Likelihood presented in [Choi et al. 2020](https://arxiv.org/abs/2007.07289)
 
 Install
 -------
