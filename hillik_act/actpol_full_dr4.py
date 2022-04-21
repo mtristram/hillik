@@ -203,12 +203,12 @@ class ACTPolLikelihood(InstallableLikelihood):
         #WARNING
         
         for tag in dlth.keys():
-            dlfg = []
+#            dlfg = []
             for fg in self.fgs[tag]:
                 dlth[tag] += fg.compute_dl( params) #array( nspecf, lmax_win+1)
-                dlfg.append( fg.compute_dl(params))
-            print( "write fgs templates")
-            np.save( f"hillik_{self.survey}_fgs_{tag}", np.array(dlfg))
+#                dlfg.append( fg.compute_dl(params))
+#            print( "write fgs templates")
+#            np.save( f"hillik_{self.survey}_fgs_{tag}", np.array(dlfg))
 
         #Get theory in Cls
         X_theory = dlth
