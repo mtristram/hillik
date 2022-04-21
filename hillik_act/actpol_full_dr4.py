@@ -127,7 +127,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         # Get likelihood name and add the associated mode
         likelihood_name = self.__class__.__name__
         likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
-        self._is_mode = {mode: mode in likelihood_modes for mode in ["tt", "te", "ee"]}
+        self._is_mode = {mode.lower(): mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
         self.log.debug("mode = {}".format(self._is_mode))
 
         #cut lmin TT
@@ -203,9 +203,12 @@ class ACTPolLikelihood(InstallableLikelihood):
         #WARNING
         
         for tag in dlth.keys():
+            dlfg = []
             for fg in self.fgs[tag]:
-#                print( f"{fg.name}: ", fg.compute_dl( params)[:,1000:1010])
                 dlth[tag] += fg.compute_dl( params) #array( nspecf, lmax_win+1)
+                dlfg.append( fg.compute_dl(params))
+            print( "write fgs templates")
+            np.save( f"hillik_{self.survey}_fgs_{tag}", np.array(dlfg))
 
         #Get theory in Cls
         X_theory = dlth
@@ -261,7 +264,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         # Select data
         bstart = 0
         bend   = self.nbint
-        if self._is_mode['tt'] and not _is_mode['te'] and not _is_mode['ee']:
+        if self._is_mode['tt'] and not self._is_mode['te'] and not self._is_mode['ee']:
             bstart = 0
             bend   = self.nbintt*self.nspectt
         if not self._is_mode['tt'] and self._is_mode['te'] and not self._is_mode['ee']:
