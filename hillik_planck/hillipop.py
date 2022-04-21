@@ -28,6 +28,7 @@ fg_list = {
     }
 
 
+
 # ------------------------------------------------------------------------------------------------
 # Likelihood
 # ------------------------------------------------------------------------------------------------
@@ -296,9 +297,12 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         # Model
         dlmodel = [dlth[mode]] * self._nxspec
+#        dlfg = []
         for fg in self.fgs[mode]:
-#            print( f"FG: {fg.name}", np.shape(fg.compute_dl(pars)))
             dlmodel += fg.compute_dl(pars)
+#            dlfg.append( fg.compute_dl(pars))
+#        print( "write fgs templates")
+#        np.save( "hillik_plk_fgs", np.array(dlfg))
 
         # Compute Rl = Dl - Dlth
         Rspec = np.array([dldata[xs] - cal[xs] * dlmodel[xs] for xs in range(self._nxspec)])

@@ -8,7 +8,7 @@
     latex: \beta_\mathrm{CIB}
 
   beta_dust:
-    value: 1.5
+    value: 1.63
     latex: \beta_\mathrm{dust}
 
   T_dust:

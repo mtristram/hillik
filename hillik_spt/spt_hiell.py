@@ -201,9 +201,12 @@ class SPTHiellLikelihood(InstallableLikelihood):
         FTSfactor = params["FTS_calibration_error"]
 
         dl_fg = np.zeros( (self.nband, self.lmax) )
+        dlfg = []
         for fg in self.fgs:
-#            print( f"FG: {fg.name}", np.shape(fg.compute_dl( params)))
             dl_fg += fg.compute_dl( params)
+            dlfg.append( fg.compute_dl(pars))
+        print( "write fgs templates")
+        np.save( "hillik_spt_fgs", np.array(dlfg))
 
         # Loop on nband
         cbs = np.zeros(self.nall)
