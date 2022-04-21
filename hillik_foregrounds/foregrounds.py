@@ -246,19 +246,18 @@ class szxcib(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
         self.name = "SZxCIB"
+        self.x_tmpl = np.zeros( lmax+1)
         
         l,dl = np.loadtxt( filename, unpack=True)
-        self.x_tmpl = np.zeros( lmax+1)
         self.x_tmpl[np.array(l[l<=lmax],int)] = dl[l<=lmax]
     
     def compute_dl(self, pars):
         dl_szxcib = []
         for f1, f2 in self._cross_frequencies:
             dl_szxcib.append( self.x_tmpl * (
-                self._f_tsz(self.fsz[self.survey][f2]) * self._cibRatio(self.fdust[self.survey][f1], 150, pars['beta_cib']) +
-                self._f_tsz(self.fsz[self.survey][f1]) * self._cibRatio(self.fdust[self.survey][f2], 150, pars['beta_cib'])
+                self._tszRatio(self.fsz[self.survey][f2],150) * self._cibRatio(self.fdust[self.survey][f1], 150, pars['beta_cib']) +
+                self._tszRatio(self.fsz[self.survey][f1],150) * self._cibRatio(self.fdust[self.survey][f2], 150, pars['beta_cib'])
                 ) / 2
             )
         
         return -2. * np.sqrt(pars["Acib"]*pars["Atsz"]) * pars["xi"] * np.array(dl_szxcib)
-
