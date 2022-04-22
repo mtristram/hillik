@@ -149,6 +149,28 @@ class ps(fgmodel):
 #ACT: -0.6 for TT, -0.4 for TE
 #SPT: -1.2 for TT (cirrus but very low amplitude) ?!?
 #Planck: -0.63 for TT, -0.4 for TE
+## class dust(fgmodel):
+##     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
+##         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+##         self.name = "Dust Model"
+##         self.dlg = np.zeros( lmax+1)
+
+##         if filename is None:
+##             ell = np.arange( 2, lmax+1)
+##             alpha_dust = -2.6 if mode == "TT" else -2.4
+##             self.dlg[2:] = (ell)**(alpha_dust+2)
+##         else:
+##             data = fits.getdata( filename)
+##             self.dlg[data.ell] = data.dl
+        
+##     def compute_dl(self, pars):
+##         dl = []
+##         for f1, f2 in self._cross_frequencies:
+##             dl.append( self.dlg
+##                        * self._dustRatio(self.fdust[self.survey][f1],353, beta=pars["beta_dust"], T=pars["T_dust"])
+##                        * self._dustRatio(self.fdust[self.survey][f2],353, beta=pars["beta_dust"], T=pars["T_dust"])
+##                        )
+##         return pars[f'Adust_{self.survey}'] * np.array(dl)
 class dust(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
@@ -157,20 +179,18 @@ class dust(fgmodel):
 
         if filename is None:
             ell = np.arange( 2, lmax+1)
-            alpha_dust = -2.6 if mode == "TT" else -2.4
+            alpha_dust = -2.5 if mode == "TT" else -2.4
             self.dlg[2:] = (ell)**(alpha_dust+2)
         else:
             data = fits.getdata( filename)
             self.dlg[data.ell] = data.dl
         
     def compute_dl(self, pars):
-        dl = []
+        Ad = []
         for f1, f2 in self._cross_frequencies:
-            dl.append( self.dlg
-                       * self._dustRatio(self.fdust[self.survey][f1],353, beta=pars["beta_dust"], T=pars["T_dust"])
-                       * self._dustRatio(self.fdust[self.survey][f2],353, beta=pars["beta_dust"], T=pars["T_dust"])
-                       )
-        return pars[f'Adust_{self.survey}'] * np.array(dl)
+            Ad.append(pars[f"Adust_{self.survey}_{f1}"]*pars[f"Adust_{self.survey}_{f2}"])
+        
+        return np.array(Ad)[:, None] * self.dlg
 
 
 # CIB clustered (one spectrum for all freqs)

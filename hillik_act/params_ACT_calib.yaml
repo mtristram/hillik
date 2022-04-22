@@ -2,24 +2,26 @@
     prior:
       dist: norm
       loc: 1
-      scale: 0.01
-    proposal: 0.01
+      scale: 0.1
+    proposal: 0.1
     latex: y_\mathrm{cal}^{ACT}
     renames: calACTpol
+
   poleff_ACT_98:
     prior:
       dist: norm
-      loc: 0.9860632E+00
+      loc: 0.9860632
       scale: 0.02
     proposal: 0.01
     latex: y_\mathrm{98}^{ACT}
   poleff_ACT_150:
     prior:
       dist: norm
-      loc: 0.9714017E+00
+      loc: 0.9714017
       scale: 0.02
     proposal: 0.01
     latex: y_\mathrm{150}^{ACT}
+
   cal_ACT_98:
     value: 1.0
     latex: cal_\mathrm{98}^{ACT}

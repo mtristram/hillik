@@ -41,10 +41,24 @@
     proposal: 10
     latex: A^\mathrm{PS}(217x217)
 
-  Adust_PLK:
+  Adust_PLK_100:
     prior:
       min: 0.0
-      max: 1.0
-    ref: 0.1
-    proposal: 0.1
-    latex: A_\mathrm{dust}^{Planck}
+      max: 100.0
+    ref: 7.2
+    proposal: 1.
+    latex: A_\mathrm{dust}^{Planck}(100)
+  Adust_PLK_143:
+    prior:
+      min: 0.0
+      max: 100.0
+    ref: 17.9
+    proposal: 1.
+    latex: A_\mathrm{dust}^{Planck}(143)
+  Adust_PLK_217:
+    prior:
+      min: 0.0
+      max: 100.0
+    ref: 31.8
+    proposal: 1.
+    latex: A_\mathrm{dust}^{Planck}(217)

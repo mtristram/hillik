@@ -10,6 +10,7 @@
     proposal: 0.0005
     latex: y_\mathrm{cal}
     renames: calPlanck
+
   cal_PLK_100A:
     prior:
       dist: norm
