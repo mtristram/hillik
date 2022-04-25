@@ -32,6 +32,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
     frequencies: Sequence[int] = [95, 150, 220]
     ReportFGLmax = 13500
     
+    fgds_folder: Optional[str] = "foregrounds"
     data_folder: Optional[str] = "spt_hiell_2020/likelihood"
     desc_file: Optional[str]
     bp_file: Optional[str]
@@ -60,11 +61,10 @@ class SPTHiellLikelihood(InstallableLikelihood):
         # check data_folder
         self.data_folder = os.path.join(data_file_path, self.data_folder)
         if not os.path.exists(self.data_folder):
-            raise LoggedError(
-                self.log,
-                "The 'data_folder' directory does not exist. Check the given path [%s].",
-                self.data_folder,
-            )
+            raise LoggedError( self.log, f"The 'data_folder' directory does not exist. Check the given path [{self.data_folder}].")
+        self.fgds_folder = os.path.join(data_file_path, self.fgds_folder)
+        if not os.path.exists(self.fgds_folder):
+            raise LoggedError( self.log, f"The 'fgds_folder' directory does not exist. Check the given path [{self.fgds_folder}].")
 
         #define the survey
         self.survey = "SPT"
@@ -78,7 +78,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
             self.log.info("Adding '{}' foreground".format(name))
             kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
             if isinstance(self.foregrounds["TT"][name], str):
-                kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds["TT"][name])
+                kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
             self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location

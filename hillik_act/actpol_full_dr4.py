@@ -26,7 +26,8 @@ class ACTPolLikelihood(InstallableLikelihood):
 
     frequencies: Sequence[int] = [98, 150]
 
-    data_folder: Optional[str]
+    fgds_folder: Optional[str] = "foregrounds"
+    data_folder: Optional[str] = "actpolfull_dr4.01/data"
     spec_filename: Optional[str]
     cov_filename: Optional[str]
     bbl_filename: Optional[str]
@@ -75,11 +76,10 @@ class ACTPolLikelihood(InstallableLikelihood):
         # check data_folder
         self.data_folder = os.path.join(data_file_path, self.data_folder)
         if not os.path.exists(self.data_folder):
-            raise LoggedError(
-                self.log,
-                "The 'data_folder' directory does not exist. Check the given path [%s].",
-                self.data_folder,
-            )
+            raise LoggedError( self.log, f"The 'data_folder' directory does not exist. Check the given path [{self.data_folder}].")
+        self.fgds_folder = os.path.join(data_file_path, self.fgds_folder)
+        if not os.path.exists(self.fgds_folder):
+            raise LoggedError( self.log, f"The 'fgds_folder' directory does not exist. Check the given path [{self.fgds_folder}].")
 
         # Update data_folder location
 #        self.data_folder = os.path.join(self.data_folder, "data/actpol_full_dr4.01/data")
@@ -156,7 +156,7 @@ class ACTPolLikelihood(InstallableLikelihood):
                     self.log.info("Adding '{}' foreground for {}".format(name,tag.upper()))
                     kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), auto=True, survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
-                        kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds[tag.upper()][name])
+                        kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
         if self._is_mode['tt']: self.log.debug(f"nbintt: {self.nbintt}")

@@ -2,42 +2,42 @@
     prior:
       min: 200
       max: 400
-    ref: 283
+    ref: 260
     proposal: 10
     latex: A^\mathrm{PS}(100x100)
   Aps_PLK_100x143:
     prior:
-      min: 100
+      min: 0
       max: 150
-    ref: 128
+    ref: 80
     proposal: 10
     latex: A^\mathrm{PS}(100x143)
   Aps_PLK_100x217:
     prior:
-      min: 50
+      min: 0
       max: 150
-    ref: 90
+    ref: 80
     proposal: 10
     latex: A^\mathrm{PS}(100x217)
   Aps_PLK_143x143:
     prior:
-      min: 20
-      max: 70
-    ref: 49.5
+      min: 0
+      max: 100
+    ref: 55
     proposal: 10
     latex: A^\mathrm{PS}(143x143)
   Aps_PLK_143x217:
     prior:
-      min: 20
-      max: 70
-    ref: 35
+      min: 0
+      max: 100
+    ref: 45
     proposal: 10
     latex: A^\mathrm{PS}(143x217)
   Aps_PLK_217x217:
     prior:
       min: 50
-      max: 100
-    ref: 70
+      max: 150
+    ref: 80
     proposal: 10
     latex: A^\mathrm{PS}(217x217)
 
@@ -45,20 +45,20 @@
     prior:
       min: 0.0
       max: 100.0
-    ref: 7.2
+    ref: 2.
     proposal: 1.
     latex: A_\mathrm{dust}^{Planck}(100)
   Adust_PLK_143:
     prior:
       min: 0.0
       max: 100.0
-    ref: 17.9
+    ref: 5.
     proposal: 1.
     latex: A_\mathrm{dust}^{Planck}(143)
   Adust_PLK_217:
     prior:
       min: 0.0
       max: 100.0
-    ref: 31.8
+    ref: 30.
     proposal: 1.
     latex: A_\mathrm{dust}^{Planck}(217)

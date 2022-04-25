@@ -38,6 +38,8 @@ data_url = "https://portal.nersc.gov/cfs/cmb/planck2020/likelihoods"
 
 class _HillipopLikelihood(InstallableLikelihood):
 
+    fgds_folder: Optional[str] = "foregrounds"
+    data_folder: Optional[str] = "planck_2020/hillipop"
     multipoles_range_file: Optional[str]
     xspectra_basename: Optional[str]
     covariance_matrix_file: Optional[str]
@@ -59,11 +61,10 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         self.data_folder = os.path.join(data_file_path, self.data_folder)
         if not os.path.exists(self.data_folder):
-            raise LoggedError(
-                self.log,
-                "The 'data_folder' directory does not exist. Check the given path [%s].",
-                self.data_folder,
-            )
+            raise LoggedError( self.log, f"The 'data_folder' directory does not exist. Check the given path [{self.data_folder}].")
+        self.fgds_folder = os.path.join(data_file_path, self.fgds_folder)
+        if not os.path.exists(self.fgds_folder):
+            raise LoggedError( self.log, f"The 'fgds_folder' directory does not exist. Check the given path [{self.fgds_folder}].")
 
         self.frequencies = [100, 100, 143, 143, 217, 217]
         self._mapnames = ["100A", "100B", "143A", "143B", "217A", "217B"]
@@ -122,7 +123,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 self.log.debug("Adding '{}' foreground for TT".format(name))
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", auto=False, survey=self.survey)
                 if isinstance(self.foregrounds["TT"][name], str):
-                    kwargs["filename"] = os.path.join(self.data_folder, self.foregrounds["TT"][name])
+                    kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs.append(fgsTT)
 
@@ -133,7 +134,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 if name not in fg_list.keys():
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
                 self.log.debug("Adding '{}' foreground for EE".format(name))
-                filename = os.path.join(self.data_folder, self.foregrounds["EE"].get(name))
+                filename = os.path.join(self.fgds_folder, self.foregrounds["EE"].get(name))
                 fgsEE.append(
                     fg_list[name](self.lmax, self.frequencies, mode="EE", filename=filename)
                 )
@@ -147,7 +148,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 if name not in fg_list.keys():
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
                 self.log.debug("Adding '{}' foreground for TE".format(name))
-                filename = os.path.join(self.data_folder, self.foregrounds["TE"].get(name))
+                filename = os.path.join(self.fgds_folder, self.foregrounds["TE"].get(name))
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, filename=filename)
                 fgsTE.append(fg_list[name](mode="TE", **kwargs))
                 fgsET.append(fg_list[name](mode="ET", **kwargs))

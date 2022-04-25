@@ -5,6 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="hillik",
+    version="0.0.1",
     description="A cobaya high-ell CMB likelihood",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -23,6 +24,8 @@ setup(
     packages=find_packages(),
     python_requires=">=3.5",
     install_requires=["astropy", "cobaya>=3.0"],
-    package_data={"planck_2020_hillipop": ["Hillipop.yaml", "Hillipop.bibtex"],
-                  "spt_hiell_2020": ["spt_hiell_2020.yaml","spt_hiell_2020.bibtex"]},
+    package_data={"hillik_planck": ["Hillipop.yaml", "Hillipop.bibtex"],
+                  "hillik_spt": ["spt_hiell_2020.yaml","spt_hiell_2020.bibtex"],
+                  "hillik_act": ["actpol_full_dr4.yaml","actpol_full_dr4.bibtex"],
+                  },
 )
