@@ -367,7 +367,7 @@ class _HillipopLikelihood(InstallableLikelihood):
             # select multipole range
             Xl += self._select_spectra(Rl / Wl, mode=2)
 
-        Xl = np.array(Xl)
+        Xl = np.asarray(Xl)
         chi2 = Xl @ self._invkll @ Xl
 
         self.log.debug("chi2/ndof = {}/{}".format(chi2, len(Xl)))

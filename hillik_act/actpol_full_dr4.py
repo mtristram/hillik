@@ -281,8 +281,8 @@ class ACTPolLikelihood(InstallableLikelihood):
         fisher = np.linalg.inv( fisher)
 
         #chi2
-        dlnlike = np.sum( diff_vec @ fisher @ diff_vec)
-        
+        dlnlike = diff_vec @ fisher @ diff_vec
+
         self.log.debug(f"lnlike = {dlnlike} / {len(diff_vec)}")
         
         return -0.5*dlnlike
