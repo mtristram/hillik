@@ -24,13 +24,19 @@
     prior:
       min: 0.
       max: 100.0
-    ref: 4.5
+    ref:
+      dist: norm
+      loc: 4.5
+      scale: 1.
     proposal: 1
     latex: A^{ACTd}_\mathrm{dust}(98)
   Adust_ACTd_150:
     prior:
       min: 0.
       max: 100.
-    ref: 11.
+    ref:
+      dist: norm
+      loc: 11.
+      scale: 1.
     proposal: 1
     latex: A^{ACTd}_\mathrm{dust}(150)

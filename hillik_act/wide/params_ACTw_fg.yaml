@@ -24,7 +24,10 @@
     prior:
       min: 0.
       max: 50.0
-    ref: 7.
+    ref:
+      dist: norm
+      loc: 7.
+      scale: 1.
     proposal: 1.
     latex: A^{ACTw}_\mathrm{dust}(98)
 
@@ -32,6 +35,9 @@
     prior:
       min: 0.
       max: 50.0
-    ref: 18.
+    ref:
+      dist: norm
+      loc: 18.
+      scale: 1.
     proposal: 1.
     latex: A^{ACTw}_\mathrm{dust}(150)
