@@ -75,7 +75,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
             if name not in fg_list.keys():
                 raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
-            self.log.info("Adding '{}' foreground".format(name))
+            self.log.debug("Adding '{}' foreground".format(name))
             kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
             if isinstance(self.foregrounds["TT"][name], str):
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
@@ -132,7 +132,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         for i in range(1, self.nband):
             self.offsets.append(self.offsets[i - 1] + self.nbins[i - 1])
 
-        self.log.info("Init SPTlik done")
+        self.log.info("Initialized!")
 
     def _read_windows(self, filename):
         import struct
