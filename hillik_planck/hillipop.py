@@ -368,7 +368,8 @@ class _HillipopLikelihood(InstallableLikelihood):
             Xl += self._select_spectra(Rl / Wl, mode=2)
 
         Xl = np.asarray(Xl)
-        chi2 = Xl @ self._invkll @ Xl
+#        chi2 = Xl @ self._invkll @ Xl
+        chi2 = Xl.dot( self._invkll.dot(Xl))
 
         self.log.debug("chi2/ndof = {}/{}".format(chi2, len(Xl)))
         return chi2
