@@ -84,6 +84,21 @@ class ACTPolLikelihood(InstallableLikelihood):
         # Update data_folder location
 #        self.data_folder = os.path.join(self.data_folder, "data/actpol_full_dr4.01/data")
 
+        #define the survey
+        self.survey = ""
+        if self.use_wide and self.use_deep:
+            raise LoggedError(self.log, "Choose survey DEEP or WIDE, not both")
+        if self.use_wide: self.survey = "ACTw"
+        if self.use_deep: self.survey = "ACTd"
+        self.log.debug( f"Survey = {self.survey}")
+
+        #check modes
+        # Get likelihood name and add the associated mode
+        likelihood_name = self.__class__.__name__
+        likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
+        self._is_mode = {mode.lower(): mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
+        self.log.debug("mode = {}".format(self._is_mode))
+
         #-----------------------------------------------
         #load spectrum
         #-----------------------------------------------
@@ -109,41 +124,46 @@ class ACTPolLikelihood(InstallableLikelihood):
             raise LoggedError(self.log, "Wrong size for Leakage template (%s)" % self.leakd_filename)
 
         #-----------------------------------------------
+        #Select Data
+        #-----------------------------------------------
+        self._bstart = 0
+        self._bend   = self.nbint
+        if self._is_mode['tt'] and not self._is_mode['te'] and not self._is_mode['ee']:
+            self._bstart = 0
+            self._bend   = self.nbintt*self.nspectt
+        if not self._is_mode['tt'] and self._is_mode['te'] and not self._is_mode['ee']:
+            self._bstart = self.nbintt*self.nspectt
+            self._bend   = self.nbintt*self.nspectt + self.nbinte*self.nspecte
+        if not self._is_mode['tt'] and not self._is_mode['te'] and self._is_mode['ee']:
+            self._bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
+            self._bend   = self.nbint
+
+        #-----------------------------------------------
         #Read Covariance Matrix
         #-----------------------------------------------
+
         #covmat (1040,1040)
-        self.covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
-        self.covmat = self.covmat[:self.nbint,:self.nbint]
-
-        #define the survey
-        self.survey = ""
-        if self.use_wide and self.use_deep:
-            raise LoggedError(self.log, "Choose survey DEEP or WIDE, not both")
-        if self.use_wide: self.survey = "ACTw"
-        if self.use_deep: self.survey = "ACTd"
-        self.log.debug( f"Survey = {self.survey}")
-
-        #check modes
-        # Get likelihood name and add the associated mode
-        likelihood_name = self.__class__.__name__
-        likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
-        self._is_mode = {mode.lower(): mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
-        self.log.debug("mode = {}".format(self._is_mode))
+        covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
+        covmat = covmat[:self.nbint,:self.nbint]
 
         #cut lmin TT
         for s in range(self.nspectt):
             ishift = s*self.nbintt
-            self.covmat[ishift:ishift+self.b0,ishift:ishift+self.b0] = np.identity(self.b0)*1e10
+            covmat[ishift:ishift+self.b0,ishift:ishift+self.b0] = np.identity(self.b0)*1e10
 
         #cut lmin TE
         for s in range(self.nspecte):
             ishift = self.nspectt*self.nbintt + s*self.nbinte
-            self.covmat[ishift:ishift+self.b1,ishift:ishift+self.b1] = np.identity(self.b1)*1e10
+            covmat[ishift:ishift+self.b1,ishift:ishift+self.b1] = np.identity(self.b1)*1e10
 
         #cut lmin EE
         for s in range(self.nspecee):
             ishift = self.nspectt*self.nbintt + self.nspecte*self.nbinte + s*self.nbinee
-            self.covmat[ishift:ishift+self.b2,ishift:ishift+self.b2] = np.identity(self.b2)*1e10
+            covmat[ishift:ishift+self.b2,ishift:ishift+self.b2] = np.identity(self.b2)*1e10
+
+        #invert covmat
+        covmat = covmat[self._bstart:self._bend,self._bstart:self._bend]
+        self.fisher = np.linalg.inv( covmat)
 
         # Init foreground model
         self.fgs = {'tt':[],'te':[],'ee':[]}
@@ -153,7 +173,7 @@ class ACTPolLikelihood(InstallableLikelihood):
                     if name not in fg_list.keys():
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
-                    self.log.info("Adding '{}' foreground for {}".format(name,tag.upper()))
+                    self.log.debug("Adding '{}' foreground for {}".format(name,tag.upper()))
                     kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), auto=True, survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
@@ -163,7 +183,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         if self._is_mode['te']: self.log.debug(f"nbinte: {self.nbinte}")
         if self._is_mode['ee']: self.log.debug(f"nbinee: {self.nbinee}")
 
-        self.log.info(f"Init ACTpol_{self.survey} likelihood done")
+        self.log.info("Initialized!")
 
 
     def _dl2cl( self, dl):
@@ -194,13 +214,6 @@ class ACTPolLikelihood(InstallableLikelihood):
                  'ee':np.zeros( (self.nspecee,self.lmax_win+1) )}
         for tag in ['tt','te','ee']:
             dlth[tag][:,:self.tt_lmax+1] = dl_cmb[tag][:self.tt_lmax+1]
-
-        #TEST FORCE MODEL bf_ACTPol_lcdm.minimum.theory_cl
-#        ell, dltt, dlte, dlee, _, _ = np.loadtxt( "/sps/planck/Users/tristram/Soft/Hillik/modules/data/actpolfull_dr4.01/data/bf_ACTPol_lcdm.minimum.theory_cl", unpack=True)
-#        dlth['tt'][:,np.array(ell,int)] = dltt
-#        dlth['ee'][:,np.array(ell,int)] = dlee
-#        dlth['te'][:,np.array(ell,int)] = dlte
-        #WARNING
         
         for tag in dlth.keys():
 #            dlfg = []
@@ -241,13 +254,15 @@ class ACTPolLikelihood(InstallableLikelihood):
         X_model[3*ntt+3*nte:3*ntt+4*nte] += X_model[2*ntt:3*ntt]*a2*self.l150[:nte]   #TE(150x150) <- TT(150x150)
 
         #EE(98x98) <- 2*TE(98x98) + TT(98x98)
-        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] += 2*X_model[3*ntt+0*nte:3*ntt+1*nte]*a1*self.l98[:nte] + X_model[0*ntt:1*ntt]*(a1*self.l98[:nte])**2.
+        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] += ( 2*X_model[3*ntt+0*nte:3*ntt+1*nte]*a1*self.l98[:nte]
+                                                          + X_model[0*ntt:1*ntt]*(a1*self.l98[:nte])**2.)
         #EE(98x150) <- TE(98x150) + TE(150x98) + TT(98x150)
         X_model[3*ntt+4*nte+1*nee:3*ntt+4*nte+2*nee] += ( X_model[3*ntt+1*nte:3*ntt+2*nte]*a1*self.l98[:nte] +
                                                           X_model[3*ntt+2*nte:3*ntt+3*nte]*a2*self.l150[:nte] +
                                                           X_model[1*ntt:2*ntt]*a1*self.l98[:nte]*a2*self.l150[:nte])
         #EE(150x150) <- 2*TE(150x150) + TT(150x150)
-        X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] += 2*X_model[3*ntt+3*nte:3*ntt+4*nte]*a2*self.l150[:nte] + X_model[2*ntt:3*ntt]*(a2*self.l150[:nte])**2.
+        X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] += ( 2*X_model[3*ntt+3*nte:3*ntt+4*nte]*a2*self.l150[:nte]
+                                                          + X_model[2*ntt:3*ntt]*(a2*self.l150[:nte])**2.)
         
         # Calibrate
         X_model[0*ntt:1*ntt] *= cal*ct1*ct1
@@ -262,27 +277,11 @@ class ACTPolLikelihood(InstallableLikelihood):
         X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] *= cal*ct2*ct2*yp2*yp2
         
         # Select data
-        bstart = 0
-        bend   = self.nbint
-        if self._is_mode['tt'] and not self._is_mode['te'] and not self._is_mode['ee']:
-            bstart = 0
-            bend   = self.nbintt*self.nspectt
-        if not self._is_mode['tt'] and self._is_mode['te'] and not self._is_mode['ee']:
-            bstart = self.nbintt*self.nspectt
-            bend   = self.nbintt*self.nspectt + self.nbinte*self.nspecte
-        if not self._is_mode['tt'] and not self._is_mode['te'] and self._is_mode['ee']:
-            bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
-            bend   = self.nbint
-
-        diff_vec = (self.b_dat - X_model)[bstart:bend]
-        fisher   = self.covmat[bstart:bend,bstart:bend]
-
-        # Invert covmat
-        fisher = np.linalg.inv( fisher)
-
+        diff_vec = (self.b_dat - X_model)[self._bstart:self._bend]
+        
         #chi2
-        dlnlike = diff_vec @ fisher @ diff_vec
-
+        dlnlike = diff_vec @ self.fisher @ diff_vec
+        
         self.log.debug(f"lnlike = {dlnlike} / {len(diff_vec)}")
         
         return -0.5*dlnlike
