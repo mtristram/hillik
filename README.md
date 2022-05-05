@@ -48,6 +48,19 @@ The ``-e`` option allow the developer to make changes within the `Hillipop` dire
 to reinstall at every changes. If you plan to just use the likelihood and do not develop it, you can
 remove the ``-e`` option.
 
+Data
+----
+
+Likelihood data are installed automatically by cobaya. Just type
+```shell
+$ cobaya-install -p path/to/data your_file.yaml
+```
+
+For the foregrounds template models, directly untar the tarball:
+```shell
+$ tar zxvf data/foregrounds_template.tar.gz /path/to/data
+```
+
 
 Requirements
 ------------
