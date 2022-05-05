@@ -15,7 +15,6 @@ from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
 import hillik_foregrounds as fg
-from . import tools
 
 #list of available foreground models
 fg_list = {
