@@ -51,7 +51,7 @@ remove the ``-e`` option.
 Data
 ----
 
-Likelihood data are installed automatically by cobaya. Just type
+Data for the likelihoods are installed automatically by cobaya. Just type
 ```shell
 $ cobaya-install -p path/to/data your_file.yaml
 ```
