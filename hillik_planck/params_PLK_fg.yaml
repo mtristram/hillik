@@ -1,44 +1,44 @@
   Aps_PLK_100x100:
     prior:
-      min: 200
+      min: 0
       max: 400
-    ref: 260
+    ref: 220
     proposal: 10
     latex: A^\mathrm{PS}(100x100)
   Aps_PLK_100x143:
     prior:
       min: 0
-      max: 150
-    ref: 80
-    proposal: 10
+      max: 200
+    ref: 85
+    proposal: 8
     latex: A^\mathrm{PS}(100x143)
   Aps_PLK_100x217:
     prior:
       min: 0
       max: 150
     ref: 80
-    proposal: 10
+    proposal: 8
     latex: A^\mathrm{PS}(100x217)
   Aps_PLK_143x143:
     prior:
       min: 0
-      max: 100
+      max: 150
     ref: 55
-    proposal: 10
+    proposal: 6
     latex: A^\mathrm{PS}(143x143)
   Aps_PLK_143x217:
     prior:
       min: 0
       max: 100
     ref: 45
-    proposal: 10
+    proposal: 6
     latex: A^\mathrm{PS}(143x217)
   Aps_PLK_217x217:
     prior:
-      min: 50
+      min: 0
       max: 150
     ref: 80
-    proposal: 10
+    proposal: 8
     latex: A^\mathrm{PS}(217x217)
 
   Adust_PLK_100:

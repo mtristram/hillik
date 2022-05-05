@@ -1,4 +1,4 @@
-  cal_PLK:
+  A_planck:
     prior:
       dist: norm
       loc: 1
@@ -10,6 +10,10 @@
     proposal: 0.0005
     latex: y_\mathrm{cal}
     renames: calPlanck
+
+  cal_PLK:
+    value: "lambda A_planck: A_planck"
+    latex: c^{PLK}
 
   cal_PLK_100A:
     prior:
