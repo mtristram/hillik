@@ -92,15 +92,11 @@ class fgmodel(HasLogger):
 
         # Build the list of cross frequencies
         if auto:
-            if mode == "TE":
-                self._cross_frequencies = list(itertools.product(freqs, repeat=2))
-            else:
-                self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
+            #Use auto spectra and combine TE with ET (e.g. ACT, SPT)
+            self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
         else:
-            if mode == "TE":
-                self._cross_frequencies = list(itertools.permutations(freqs, 2))
-            else:
-                self._cross_frequencies = list(itertools.combinations(freqs, 2))
+            #Remove auto-spectra and use separate TE and ET (e.g. Planck)
+            self._cross_frequencies = list(itertools.combinations(freqs, 2))
 
         self.set_logger()
         pass
@@ -117,7 +113,7 @@ class fgmodel(HasLogger):
 
 
 
-# Point Sources
+# Point Sources (for TT and EE)
 class ps(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
@@ -127,11 +123,14 @@ class ps(fgmodel):
         self.ll2pi = ell * (ell + 1) / 2.0 / np.pi
 
     def compute_dl(self, pars):
-        dl_ps = []
-        for f1, f2 in self._cross_frequencies:
-            dl_ps.append( pars[f"Aps_{self.survey}_{f1}x{f2}"] * 1e-6 * self.ll2pi)
-
-        return np.array(dl_ps)
+        if self.mode == "TE":
+            return 0.
+        else:
+            dl_ps = []
+            for f1, f2 in self._cross_frequencies:
+#                dl_ps.append( pars[f"Aps_{self.survey}_{self.mode}_{f1}x{f2}"] * 1e-6 * self.ll2pi)
+                dl_ps.append( pars[f"Aps_{self.survey}_{f1}x{f2}"] * 1e-6 * self.ll2pi)
+            return np.array(dl_ps)
 
 
 
@@ -179,6 +178,10 @@ class dust(fgmodel):
         Ad = []
         for f1, f2 in self._cross_frequencies:
             Ad.append(pars[f"Adust_{self.survey}_{f1}"]*pars[f"Adust_{self.survey}_{f2}"])
+#            if self.mode == "TT": Ad.append(pars[f"Adust_{self.survey}_{f1}T"]*pars[f"Adust_{self.survey}_{f2}T"])
+#            if self.mode == "TE": Ad.append(pars[f"Adust_{self.survey}_{f1}T"]*pars[f"Adust_{self.survey}_{f2}P"])
+#            if self.mode == "ET": Ad.append(pars[f"Adust_{self.survey}_{f1}P"]*pars[f"Adust_{self.survey}_{f2}T"])
+#            if self.mode == "EE": Ad.append(pars[f"Adust_{self.survey}_{f1}P"]*pars[f"Adust_{self.survey}_{f2}P"])
         
         return np.array(Ad)[:, None] * self.dlg
 
@@ -205,8 +208,10 @@ class cib(fgmodel):
                        * self._cibRatio(self.fdust[self.survey][f1],self.feff,pars['beta_cib'])
                        * self._cibRatio(self.fdust[self.survey][f2],self.feff,pars['beta_cib'])
                        )
-        
-        return pars["Acib"] * np.array(dl)
+        if self.mode == "TT":
+            return pars["Acib"] * np.array(dl)
+        else:
+            return 0.
 
 
 #thermal SZ (one spectrum for all freqs)
@@ -229,7 +234,10 @@ class tsz(fgmodel):
         self.dl_sz = np.array(self.dl_sz)
 
     def compute_dl(self, pars):
-        return pars["Atsz"] * self.dl_sz
+        if self.mode == "TT":
+            return pars["Atsz"] * self.dl_sz
+        else:
+            return 0.
 
 
 #kinetic SZ (one spectrum for all freqs)
@@ -247,7 +255,10 @@ class ksz(fgmodel):
         self.dl_ksz = np.array(self.dl_ksz)
 
     def compute_dl(self, pars):
-        return pars["Aksz"] * self.dl_ksz
+        if self.mode == "TT":
+            return pars["Aksz"] * self.dl_ksz
+        else:
+            return 0.
 
 
 
@@ -269,5 +280,8 @@ class szxcib(fgmodel):
                 self._tszRatio(self.fsz[self.survey][f1],150) * self._cibRatio(self.fdust[self.survey][f2], 150, pars['beta_cib'])
                 ) / 2
             )
-        
-        return -2. * np.sqrt(pars["Acib"]*pars["Atsz"]) * pars["xi"] * np.array(dl_szxcib)
+
+        if self.mode == "TT":
+            return -2. * np.sqrt(pars["Acib"]*pars["Atsz"]) * pars["xi"] * np.array(dl_szxcib)
+        else:
+            return 0.
