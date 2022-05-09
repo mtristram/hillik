@@ -49,7 +49,7 @@ class ACTPolLikelihood(InstallableLikelihood):
     nspectt  = 3   #TT
     nspecte  = 4   #TE
     nspecee  = 3   #EE
-    nbintt = 52    #max nbins in ACT TT data  
+    nbintt = 52    #max nbins in ACT TT data
     nbinte = 52    #max nbins in ACT TE data
     nbinee = 52    #max nbins in ACT EE data
     nbint  = 520   #total bins
