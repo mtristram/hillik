@@ -42,7 +42,7 @@ $ mkdir software
 $ mkdir modules
 ```
 
-It is better to clone this repository 
+Then clone this ``hillik`` repository 
 
 ```shell
 $ git clone https://github.com/mtristram/hillik.git software/hillik
