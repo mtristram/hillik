@@ -42,6 +42,14 @@ $ mkdir software
 $ mkdir modules
 ```
 
+Optionnal: you can make a python virtual env (note that in that case, you need to source at every log)
+```shell
+$ python -m venv pyenv
+$ source pyenv/bin/activate
+$ pip install -U pip
+$ pip install -U ipython
+```
+
 Then clone this ``hillik`` repository 
 
 ```shell
