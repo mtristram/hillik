@@ -87,7 +87,6 @@ Then to test `cobaya`
 $ cobaya-run -p $COBAYA_DIR/modules software/hillik/example/hillik_plk.yaml
 ```
 
-
 Requirements
 ------------
 * Python >= 3.5
