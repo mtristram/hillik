@@ -79,6 +79,14 @@ For the foregrounds template models, directly untar the tarball:
 $ tar zxvf software/hillik/data/foregrounds_template.tar.gz --directory=$COBAYA_DIR/modules
 ```
 
+Run
+---
+
+Then to run `cobaya`
+```shell
+$ cobaya-run -p $COBAYA_DIR/modules your_file.yaml
+```
+
 
 Requirements
 ------------
