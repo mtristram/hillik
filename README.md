@@ -32,16 +32,26 @@ Likelihoods available are:
 Install
 -------
 
+It is better to create a working directory
+
+```shell
+$ mkdir HillikWork
+$ cd HillikWork
+$ export COBAYA_DIR=$PWD
+$ mkdir software
+$ mkdir modules
+```
+
 It is better to clone this repository 
 
 ```shell
-$ git clone https://github.com/mtristram/hillik.git /where/to/clone
+$ git clone https://github.com/mtristram/hillik.git software/hillik
 ```
 
 Then you can install the `Hillik` likelihoods and its dependencies *via*
 
 ```shell
-$ pip install -e /where/to/clone
+$ pip install -e software/hillik
 ```
 
 The ``-e`` option allow the developer to make changes within the `Hillipop` directory without having
@@ -53,12 +63,12 @@ Data
 
 Data for the likelihoods are installed automatically by cobaya. Just type
 ```shell
-$ cobaya-install -p path/to/data your_file.yaml
+$ cobaya-install -p $COBAYA_DIR/modules your_file.yaml
 ```
 
 For the foregrounds template models, directly untar the tarball:
 ```shell
-$ tar zxvf data/foregrounds_template.tar.gz /path/to/data
+$ tar zxvf software/hillik/data/foregrounds_template.tar.gz $COBAYA_DIR/modules
 ```
 
 
