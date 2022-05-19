@@ -4,7 +4,7 @@
       loc: 1.5
       scale: 0.5
     ref: 1.5
-    proposal: 1.5
+    proposal: 1.
     latex: \beta_\mathrm{CIB}
 
   xi:
@@ -19,20 +19,20 @@
     prior:
       min: 0.
       max: 20.
-    ref: 5.0
+    ref: 1.0
     proposal: 1
     latex: A_\mathrm{tSZ}
   Acib:
     prior:
       min: 0.
       max: 20.
-    ref: 5.0
+    ref: 2.0
     proposal: 1
     latex: A_\mathrm{CIB}
   Aksz:
     prior:
       min: 0
       max: 10
-    ref: 0.6
+    ref: 1.
     proposal: 1
     latex: A_\mathrm{kSZ}
