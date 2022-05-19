@@ -1,9 +1,9 @@
   TT:
     galactic_dust: null
-    tsz: /sps/planck/Users/tristram/Soft/Hillik/modules/data/foregrounds/dl_tsz_150_bat.dat
-    ksz: /sps/planck/Users/tristram/Soft/Hillik/modules/data/foregrounds/dl_ksz_bat.dat
-    cib: /sps/planck/Users/tristram/Soft/Hillik/modules/data/foregrounds/cib_extra.dat
-    szxcib: /sps/planck/Users/tristram/Soft/Hillik/modules/data/foregrounds/sz_x_cib_template.dat
+    tsz: dl_tsz_150_bat.dat
+    ksz: dl_ksz_bat.dat
+    cib: cib_extra.dat
+    szxcib: sz_x_cib_template.dat
     poisson: null
   EE:
     galactic_dust: null
