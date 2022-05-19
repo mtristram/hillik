@@ -62,7 +62,7 @@ Then you can install the `Hillik` likelihoods and its dependencies *via*
 $ pip install -e software/hillik
 ```
 
-The ``-e`` option allow the developer to make changes within the `Hillipop` directory without having
+The ``-e`` option allow the developer to make changes within the `Hillik` directory without having
 to reinstall at every changes. If you plan to just use the likelihood and do not develop it, you can
 remove the ``-e`` option.
 
