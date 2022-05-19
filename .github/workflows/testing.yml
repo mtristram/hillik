@@ -34,4 +34,6 @@ jobs:
     - name: Unit tests
       run: |
         pip install camb
-        python -m unittest planck_2020_hillipop.tests.test_hillipop
+        python -m unittest hillik_planck.tests.test_planck
+        python -m unittest hillik_spt.tests.test_spt
+        python -m unittest hillik_act.tests.test_act
