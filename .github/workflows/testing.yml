@@ -17,15 +17,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Setup upterm session
-      uses: xgarrido/action-upterm@v1
-
     - name: Untar foreground templates
       run: |
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
         mkdir -p $COBAYA_PACKAGES_PATH
-        tar zxv data/foregrounds.tar.gz --directory=$COBAYA_PACKAGES_PATH
+        tar zxv data/foregrounds_template.tar.gz --directory=$COBAYA_PACKAGES_PATH
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
