@@ -20,7 +20,7 @@ jobs:
     - name: Setup upterm session
       uses: xgarrido/action-upterm@v1
 
-    - name: Untar FG templates
+    - name: Untar foreground templates
       run: |
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
