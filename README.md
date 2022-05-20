@@ -1,6 +1,7 @@
 HiLLik: High-L Likelihood for CMB
 =================================
-[![Unit test](https://img.shields.io/github/workflow/status/mtristram/hillik/Unit%20test)](https://github.com/mtristram/hillik/actions/workflows/testing.yml)
+
+[![Unit test](https://github.com/mtristram/hillik/actions/workflows/testing.yml/badge.svg)](https://github.com/mtristram/hillik/actions/workflows/testing.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 
