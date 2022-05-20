@@ -3,7 +3,7 @@ name: Unit test
 on: [push]
 
 env:
-  COBAYA_PACKAGES_PATH: $HOME/modules
+  COBAYA_PACKAGES_PATH: ${GITHUB_WORKSPACE}/modules
 
 jobs:
   build:
@@ -19,6 +19,7 @@ jobs:
 
     - name: Untar FG templates
       run: |
+        echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
         mkdir $COBAYA_PACKAGES_PATH
         tar zxv data/foregrounds.tar.gz --directory=$COBAYA_PACKAGES_PATH
