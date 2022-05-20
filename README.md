@@ -38,6 +38,7 @@ It is better to create a working directory
 $ mkdir HillikWork
 $ cd HillikWork
 $ export COBAYA_DIR=$PWD
+$ export COBAYA_PACKAGES_PATH=$PWD/modules
 $ mkdir software
 $ mkdir modules
 ```
