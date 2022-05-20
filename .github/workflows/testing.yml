@@ -22,7 +22,7 @@ jobs:
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
         mkdir -p $COBAYA_PACKAGES_PATH
-        tar zxv data/foregrounds_template.tar.gz --directory=$COBAYA_PACKAGES_PATH
+        tar zxvf data/foregrounds_template.tar.gz --directory=$COBAYA_PACKAGES_PATH
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
