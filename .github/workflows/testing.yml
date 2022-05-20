@@ -2,6 +2,9 @@ name: Unit test
 
 on: [push]
 
+env:
+  COBAYA_PACKAGES_PATH: $HOME/modules
+
 jobs:
   build:
 
@@ -11,15 +14,12 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         python-version: [3.8, 3.9]
 
-    env:
-      COBAYA_PACKAGES_PATH: modules
-
     steps:
     - uses: actions/checkout@v2
 
     - name: Untar FG templates
       run: |
-        echo $PWD
+        echo $COBAYA_PACKAGES_PATH
         mkdir $COBAYA_PACKAGES_PATH
         tar zxv data/foregrounds.tar.gz --directory=$COBAYA_PACKAGES_PATH
 
