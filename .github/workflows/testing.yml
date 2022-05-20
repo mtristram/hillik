@@ -39,11 +39,11 @@ jobs:
     - name: Install dependencies via pip
       run: |
         python -m pip install --upgrade pip
-        pip install .
+        python -m pip install .
 
     - name: Unit tests
       run: |
-        pip install camb
+        python -m pip install camb
         python -m unittest hillik_planck.tests.test_planck
         python -m unittest hillik_spt.tests.test_spt
         python -m unittest hillik_act.tests.test_act
