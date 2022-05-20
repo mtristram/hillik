@@ -19,6 +19,7 @@ jobs:
 
     - name: Untar FG templates
       run: |
+        echo $PWD
         mkdir $COBAYA_PACKAGES_PATH
         tar zxv data/foregrounds.tar.gz --directory=$COBAYA_PACKAGES_PATH
 
