@@ -17,6 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Setup upterm session
+      uses: xgarrido/action-upterm@v1
+
     - name: Untar foreground templates
       run: |
         echo $GITHUB_WORKSPACE
