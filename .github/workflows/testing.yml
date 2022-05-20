@@ -3,7 +3,7 @@ name: Unit test
 on: [push]
 
 env:
-  COBAYA_PACKAGES_PATH: ${GITHUB_WORKSPACE}/modules
+  COBAYA_PACKAGES_PATH: $GITHUB_WORKSPACE/modules
 
 jobs:
   build:
