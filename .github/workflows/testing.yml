@@ -3,7 +3,7 @@ name: Unit test
 on: [push]
 
 env:
-  COBAYA_PACKAGES_PATH: ${GITHUB_WORKSPACE}/modules
+  COBAYA_PACKAGES_PATH: $GITHUB_WORKSPACE/modules
 
 jobs:
   build:
@@ -17,12 +17,12 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Untar FG templates
+    - name: Untar foreground templates
       run: |
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
-        mkdir $COBAYA_PACKAGES_PATH
-        tar zxv data/foregrounds.tar.gz --directory=$COBAYA_PACKAGES_PATH
+        mkdir -p $COBAYA_PACKAGES_PATH
+        tar zxvf data/foregrounds_template.tar.gz --directory=$COBAYA_PACKAGES_PATH
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
@@ -39,11 +39,11 @@ jobs:
     - name: Install dependencies via pip
       run: |
         python -m pip install --upgrade pip
-        pip install .
+        python -m pip install .
 
     - name: Unit tests
       run: |
-        pip install camb
+        python -m pip install camb
         python -m unittest hillik_planck.tests.test_planck
         python -m unittest hillik_spt.tests.test_spt
         python -m unittest hillik_act.tests.test_act

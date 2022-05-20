@@ -1,11 +1,10 @@
 import os
 from typing import Optional, Sequence
 
+import hillik_foregrounds as fg
 import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
-
-import hillik_foregrounds as fg
 
 fg_list = {
     "cib": fg.cib,
@@ -27,7 +26,7 @@ class ACTPolLikelihood(InstallableLikelihood):
     frequencies: Sequence[int] = [98, 150]
 
     fgds_folder: Optional[str] = "foregrounds"
-    data_folder: Optional[str] = "actpolfull_dr4.01/data"
+    data_folder: Optional[str] = "actpol_full_dr4/actpolfull_dr4.01/data"
     spec_filename: Optional[str]
     cov_filename: Optional[str]
     bbl_filename: Optional[str]
@@ -53,7 +52,7 @@ class ACTPolLikelihood(InstallableLikelihood):
     nbinte = 52    #max nbins in ACT TE data
     nbinee = 52    #max nbins in ACT EE data
     nbint  = 520   #total bins
-    lmax_win = 7925 #ell max of the full window functions 
+    lmax_win = 7925 #ell max of the full window functions
     bmax0  = 52     #number of bins in full window function
     b0=5           # setting bins discarded in TT (i.e., ell>600)
     b1=0           # bins discarded for TE
@@ -188,7 +187,7 @@ class ACTPolLikelihood(InstallableLikelihood):
 
     def _dl2cl( self, dl):
         cl2dl = np.ones( self.lmax_win+1)
-        
+
         lth = np.arange( self.lmax_win+1)
         cl2dl[1:] = (lth*(lth+1)/2./np.pi)[1:]
 
@@ -214,7 +213,7 @@ class ACTPolLikelihood(InstallableLikelihood):
                  'ee':np.zeros( (self.nspecee,self.lmax_win+1) )}
         for tag in ['tt','te','ee']:
             dlth[tag][:,:self.tt_lmax+1] = dl_cmb[tag][:self.tt_lmax+1]
-        
+
         for tag in dlth.keys():
 #            dlfg = []
             for fg in self.fgs[tag]:
@@ -244,13 +243,13 @@ class ACTPolLikelihood(InstallableLikelihood):
 
         # Add leakage (Warning: need same binning in tt, te and ee)
         # TiEj = TiEj + TiTj*gamma_j
-        # EiEj = EiEj + TiEj*gamma_i + TjEi*gamma_j + TiTj*gamma_i*gamma_j 
+        # EiEj = EiEj + TiEj*gamma_i + TjEi*gamma_j + TiTj*gamma_i*gamma_j
         ntt = self.nbintt
         nte = self.nbinte
         nee = self.nbinee
-        X_model[3*ntt+0*nte:3*ntt+1*nte] += X_model[0*ntt:1*ntt]*a1*self.l98[:nte]    #TE(98x98)   <- TT(98x98)  
-        X_model[3*ntt+1*nte:3*ntt+2*nte] += X_model[1*ntt:2*ntt]*a2*self.l150[:nte]   #TE(98x150)  <- TT(98x150) 
-        X_model[3*ntt+2*nte:3*ntt+3*nte] += X_model[1*ntt:2*ntt]*a1*self.l98[:nte]    #TE(150x98)  <- TT(98x150) 
+        X_model[3*ntt+0*nte:3*ntt+1*nte] += X_model[0*ntt:1*ntt]*a1*self.l98[:nte]    #TE(98x98)   <- TT(98x98)
+        X_model[3*ntt+1*nte:3*ntt+2*nte] += X_model[1*ntt:2*ntt]*a2*self.l150[:nte]   #TE(98x150)  <- TT(98x150)
+        X_model[3*ntt+2*nte:3*ntt+3*nte] += X_model[1*ntt:2*ntt]*a1*self.l98[:nte]    #TE(150x98)  <- TT(98x150)
         X_model[3*ntt+3*nte:3*ntt+4*nte] += X_model[2*ntt:3*ntt]*a2*self.l150[:nte]   #TE(150x150) <- TT(150x150)
 
         #EE(98x98) <- 2*TE(98x98) + TT(98x98)
@@ -263,7 +262,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         #EE(150x150) <- 2*TE(150x150) + TT(150x150)
         X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] += ( 2*X_model[3*ntt+3*nte:3*ntt+4*nte]*a2*self.l150[:nte]
                                                           + X_model[2*ntt:3*ntt]*(a2*self.l150[:nte])**2.)
-        
+
         # Calibrate
         X_model[0*ntt:1*ntt] *= cal*ct1*ct1
         X_model[1*ntt:2*ntt] *= cal*ct1*ct2
@@ -272,18 +271,18 @@ class ACTPolLikelihood(InstallableLikelihood):
         X_model[3*ntt+1*nte:3*ntt+2*nte] *= cal*ct1*ct2*yp2
         X_model[3*ntt+2*nte:3*ntt+3*nte] *= cal*ct1*ct2*yp1
         X_model[3*ntt+3*nte:3*ntt+4*nte] *= cal*ct1*ct2*yp2
-        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] *= cal*ct1*ct1*yp1*yp1 
+        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] *= cal*ct1*ct1*yp1*yp1
         X_model[4*nte+3*ntt+1*nee:3*ntt+4*nte+2*nee] *= cal*ct1*ct2*yp1*yp2
         X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] *= cal*ct2*ct2*yp2*yp2
-        
+
         # Select data
         diff_vec = (self.b_dat - X_model)[self._bstart:self._bend]
-        
+
         #chi2
         dlnlike = diff_vec @ self.fisher @ diff_vec
-        
+
         self.log.debug(f"lnlike = {dlnlike} / {len(diff_vec)}")
-        
+
         return -0.5*dlnlike
 
     def get_requirements(self):
@@ -293,4 +292,3 @@ class ACTPolLikelihood(InstallableLikelihood):
     def logp(self, **params_values):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
-
