@@ -1,43 +1,37 @@
   Aps_ACTw_98x98:
     prior:
-      min: 0 
+      min: 100
       max: 200
-    ref: 78.5
-    proposal: 100
+    ref: 121.2
+    proposal: 2.
     latex: A^{ACTw}_\mathrm{PS}(98x98)
   Aps_ACTw_98x150:
     prior:
       min: 0
-      max: 200
-    ref: 37.4
-    proposal: 100
+      max: 100
+    ref: 53.8
+    proposal: 1.
     latex: A^{ACTw}_\mathrm{PS}(98x150)
   Aps_ACTw_150x150:
     prior:
       min: 0
-      max: 200
-    ref: 21.6
-    proposal: 100 
+      max: 100
+    ref: 31.2
+    proposal: 0.8
     latex: A^{ACTw}_\mathrm{PS}(150x150)
 
   Adust_ACTw_98:
     prior:
       min: 0.
-      max: 50.0
-    ref:
-      dist: norm
-      loc: 7.
-      scale: 1.
-    proposal: 1.
+      max: 10.0
+    ref: 1.24
+    proposal: 1.1
     latex: A^{ACTw}_\mathrm{dust}(98)
 
   Adust_ACTw_150:
     prior:
       min: 0.
-      max: 50.0
-    ref:
-      dist: norm
-      loc: 18.
-      scale: 1.
-    proposal: 1.
+      max: 10.0
+    ref: 1.95
+    proposal: 1.2
     latex: A^{ACTw}_\mathrm{dust}(150)

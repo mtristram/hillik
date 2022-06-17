@@ -29,31 +29,31 @@ calib_params = {
 }
 
 extgal_params = {
-    "Acib": 2.8,
-    "Atsz": 0.6,
-    "Aksz": 1.5,
-    "xi": 0.6,
-    "beta_cib": 2.15,
+    "Acib": 1.95,
+    "Atsz": 2.16,
+    "Aksz": 5.1,
+    "xi": 0.5,
+    "beta_cib": 1.5,
 }
 
 fg_params = {
     "wide": dict(
-        Aps_ACTw_98x98=82.3,
-        Aps_ACTw_98x150=36.1,
-        Aps_ACTw_150x150=20.6,
-        Adust_ACTw_98=12.1,
-        Adust_ACTw_150=11.1,
+        Aps_ACTw_98x98=121.2,
+        Aps_ACTw_98x150=53.8,
+        Aps_ACTw_150x150=31.2,
+        Adust_ACTw_98=1.24,
+        Adust_ACTw_150=1.95,
         ),
     "deep": dict(
-        Aps_ACTd_98x98=13.4,
-        Aps_ACTd_98x150=7.5,
-        Aps_ACTd_150x150=7.8,
-        Adust_ACTd_98=9.7,
-        Adust_ACTd_150=5.6,
+        Aps_ACTd_98x98=20.2,
+        Aps_ACTd_98x150=11.1,
+        Aps_ACTd_150x150=11.8,
+        Adust_ACTd_98=2.9,
+        Adust_ACTd_150=1.0,
         ),
-}        
+}
 
-chi2s = {"wide": 149.27,"deep": 152.59}
+chi2s = {"wide": 148.178,"deep": 145.75}
 
 
 class ACTLikeTest(unittest.TestCase):

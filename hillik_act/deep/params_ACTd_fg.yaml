@@ -2,41 +2,35 @@
     prior:
       min: 0
       max: 50
-    ref: 13
-    proposal: 100
+    ref: 20.25
+    proposal: 1.5
     latex: A^{ACTd}_\mathrm{PS}(98x98)
   Aps_ACTd_98x150:
     prior:
       min: 0
-      max: 50
-    ref: 7.5
-    proposal: 100
+      max: 20
+    ref: 11.15
+    proposal: 0.8
     latex: A^{ACTd}_\mathrm{PS}(98x150)
   Aps_ACTd_150x150:
     prior:
       min: 0
-      max: 50
-    ref: 7.8
-    proposal: 100
+      max: 20
+    ref: 11.78
+    proposal: 0.6
     latex: A^{ACTd}_\mathrm{PS}(150x150)
 
   Adust_ACTd_98:
     prior:
       min: 0.
-      max: 100.0
-    ref:
-      dist: norm
-      loc: 4.5
-      scale: 1.
-    proposal: 1
+      max: 10.0
+    ref: 2.9
+    proposal: 1.4
     latex: A^{ACTd}_\mathrm{dust}(98)
   Adust_ACTd_150:
     prior:
       min: 0.
-      max: 100.
-    ref:
-      dist: norm
-      loc: 11.
-      scale: 1.
-    proposal: 1
+      max: 10.
+    ref: 1.0
+    proposal: 0.9
     latex: A^{ACTd}_\mathrm{dust}(150)
