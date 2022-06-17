@@ -29,20 +29,20 @@ calib_params = {
 
 nuisance_params = {
     "TT": {
-        "Adust_PLK_100": 2.42,
-        "Adust_PLK_143": 5.10,
-        "Adust_PLK_217": 30.4,
-        "Acib": 2.8,
-        "Atsz": 0.6,
-        "Aksz": 1.5,
-        "xi": 0.6,
-        "beta_cib": 2.15,
-        "Aps_PLK_100x100": 277.,
-        "Aps_PLK_100x143": 120.,
-        "Aps_PLK_100x217": 78.,
-        "Aps_PLK_143x143": 64.,
-        "Aps_PLK_143x217": 48.,
-        "Aps_PLK_217x217": 93.,
+        "Adust_PLK_100": 0.6,
+        "Adust_PLK_143": 1.24,
+        "Adust_PLK_217": 7.9,
+        "Acib": 3.2,
+        "Atsz": 2.3,
+        "Aksz": 5.5,
+        "xi": 5.6,
+        "beta_cib": 1.5,
+        "Aps_PLK_100x100": 428.,
+        "Aps_PLK_100x143": 211.,
+        "Aps_PLK_100x217": 200.,
+        "Aps_PLK_143x143": 130.,
+        "Aps_PLK_143x217": 128.,
+        "Aps_PLK_217x217": 151.,
         },
     "EE": {
         "Ad100P": 0.016,
@@ -68,7 +68,7 @@ nuisance_params["TTTEEE"] = {
 }
 
 #chi2s = {"TT": 11415.58, "EE": 9244.86, "TE": 9916.65}
-chi2s = {"TT": 11647.068}
+chi2s = {"TT": 11636.29}
 
 
 class HillikPlkTest(unittest.TestCase):

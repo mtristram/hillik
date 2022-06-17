@@ -69,7 +69,7 @@ class fgmodel(HasLogger):
     def _dustRatio( self, f, f0, beta=1.5, T=19.6):
         return (f/f0)**beta * (self._f_Planck(f,T)/self._f_Planck(f0,T)) / ( self._dBdT(f)/self._dBdT(f0) )
     
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
         """
         Create model for foreground
         """
@@ -77,6 +77,7 @@ class fgmodel(HasLogger):
         self.lmax = lmax
         self.name = None
         self.survey = survey
+        self.lnorm = lnorm #to normalize templates in cl
 
         #check effective freqs
         if self.survey not in self.fsz.keys():
@@ -101,6 +102,41 @@ class fgmodel(HasLogger):
         self.set_logger()
         pass
 
+    def _gen_dl_powerlaw( self, alpha):
+        """
+        Generate power-law Dl template
+        Input: alpha in Cl
+        """
+        lmax = self.lmax if self.lnorm is None else max(self.lmax,self.lnorm)
+        ell = np.arange( 2, lmax+1)
+
+        template = np.zeros( lmax+1)
+        template[np.array(ell,int)] = ell*(ell+1)/2/np.pi * ell**(alpha)
+
+        #normalize l=3000
+        if self.lnorm is not None:
+            template = template / template[self.lnorm]
+
+        return template[:self.lmax+1]
+
+    def _read_dl_template( self, filename):
+        """
+        Read FG template
+        WARNING: need to check file before reading...
+        """
+
+        #read dl template
+        l,data = np.loadtxt( filename, unpack=True)
+
+        template = np.zeros( max(self.lmax,int(max(l))) + 1)
+        template[np.array(l,int)] = data
+
+        #normalize l=3000
+        if self.lnorm is not None:
+            template = template / template[self.lnorm] #* self.lnorm*(self.lnorm+1)/2/np.pi
+        
+        return template[:self.lmax+1]
+
     def compute_dl(self, pars):
         """
         Return spectra model for each cross-spectra
@@ -113,24 +149,21 @@ class fgmodel(HasLogger):
 
 
 
-# Point Sources (for TT and EE)
+# Point Sources (for TT)
 class ps(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "PS"
-        # Amplitudes of the point sources power spectrum per xfreq
-        ell = np.arange(lmax + 1)
-        self.ll2pi = ell * (ell + 1) / 2.0 / np.pi
+        self.dltemp = self._gen_dl_powerlaw(0.)
 
     def compute_dl(self, pars):
-        if self.mode == "TE":
-            return 0.
-        else:
+        if self.mode == "TT":
             dl_ps = []
             for f1, f2 in self._cross_frequencies:
-#                dl_ps.append( pars[f"Aps_{self.survey}_{self.mode}_{f1}x{f2}"] * 1e-6 * self.ll2pi)
-                dl_ps.append( pars[f"Aps_{self.survey}_{f1}x{f2}"] * 1e-6 * self.ll2pi)
+                dl_ps.append( pars[f"Aps_{self.survey}_{f1}x{f2}"] * self.dltemp)
             return np.array(dl_ps)
+        else:
+            return 0.
 
 
 
@@ -138,41 +171,16 @@ class ps(fgmodel):
 #ACT: -0.6 for TT, -0.4 for TE
 #SPT: -1.2 for TT (cirrus but very low amplitude) ?!?
 #Planck: -0.63 for TT, -0.4 for TE
-## class dust(fgmodel):
-##     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-##         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
-##         self.name = "Dust Model"
-##         self.dlg = np.zeros( lmax+1)
-
-##         if filename is None:
-##             ell = np.arange( 2, lmax+1)
-##             alpha_dust = -2.6 if mode == "TT" else -2.4
-##             self.dlg[2:] = (ell)**(alpha_dust+2)
-##         else:
-##             data = fits.getdata( filename)
-##             self.dlg[data.ell] = data.dl
-        
-##     def compute_dl(self, pars):
-##         dl = []
-##         for f1, f2 in self._cross_frequencies:
-##             dl.append( self.dlg
-##                        * self._dustRatio(self.fdust[self.survey][f1],353, beta=pars["beta_dust"], T=pars["T_dust"])
-##                        * self._dustRatio(self.fdust[self.survey][f2],353, beta=pars["beta_dust"], T=pars["T_dust"])
-##                        )
-##         return pars[f'Adust_{self.survey}'] * np.array(dl)
 class dust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "Dust Model"
-        self.dlg = np.zeros( lmax+1)
 
         if filename is None:
-            ell = np.arange( 2, lmax+1)
             alpha_dust = -2.5 if mode == "TT" else -2.4
-            self.dlg[2:] = (ell)**(alpha_dust+2)
+            self.dlg = self._gen_dl_powerlaw( alpha_dust)
         else:
-            data = fits.getdata( filename)
-            self.dlg[data.ell] = data.dl
+            self.dlg = self._read_dl_template( filename)
         
     def compute_dl(self, pars):
         Ad = []
@@ -188,18 +196,15 @@ class dust(fgmodel):
 
 # CIB clustered (one spectrum for all freqs)
 class cib(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "clustered CIB"
-        self.dl_cib = np.zeros(lmax + 1)
 
         if filename is None:
-            ell = np.arange( 2, lmax+1)
             alpha_cib = -1.3
-            self.dlg[2:] = (ell)**(alpha_cib+2)
+            self.dl_cib = self._gen_dl_powerlaw( alpha_cib)
         else:
-            l,dl = np.loadtxt( filename, unpack=True)
-            self.dl_cib[np.array(l[l<=lmax],int)] = dl[l<=lmax]
+            self.dl_cib = self._read_dl_template( filename)
 
     def compute_dl(self, pars):
         dl = []
@@ -216,14 +221,12 @@ class cib(fgmodel):
 
 #thermal SZ (one spectrum for all freqs)
 class tsz(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "tSZ"
         
         self.dl_sz = []
-        l,dl = np.loadtxt( filename, unpack=True)
-        sz_tmpl = np.zeros( lmax+1)
-        sz_tmpl[np.array(l[l<=lmax],int)] = dl[l<=lmax]
+        sz_tmpl = self._read_dl_template( filename)
         
         self.dl_sz = []
         for f1, f2 in self._cross_frequencies:
@@ -242,14 +245,12 @@ class tsz(fgmodel):
 
 #kinetic SZ (one spectrum for all freqs)
 class ksz(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "kSZ"
 
         self.dl_ksz = []
-        l,dl = np.loadtxt( filename, unpack=True)
-        ksz_tmpl = np.zeros( lmax+1)
-        ksz_tmpl[np.array(l[l<=lmax],int)] = dl[l<=lmax]
+        ksz_tmpl = self._read_dl_template( filename)
         for f1, f2 in self._cross_frequencies:
             self.dl_ksz.append(ksz_tmpl)
         self.dl_ksz = np.array(self.dl_ksz)
@@ -264,13 +265,11 @@ class ksz(fgmodel):
 
 # SZxCIB model (one spectrum for all freqs)
 class szxcib(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "SZxCIB"
-        self.x_tmpl = np.zeros( lmax+1)
         
-        l,dl = np.loadtxt( filename, unpack=True)
-        self.x_tmpl[np.array(l[l<=lmax],int)] = dl[l<=lmax]
+        self.x_tmpl = self._read_dl_template(filename)
     
     def compute_dl(self, pars):
         dl_szxcib = []

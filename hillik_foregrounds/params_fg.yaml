@@ -19,20 +19,20 @@
     prior:
       min: 0.
       max: 20.
-    ref: 1.0
+    ref: 3.0
     proposal: 1
     latex: A_\mathrm{tSZ}
   Acib:
     prior:
       min: 0.
       max: 20.
-    ref: 2.0
+    ref: 4.0
     proposal: 1
     latex: A_\mathrm{CIB}
   Aksz:
     prior:
       min: 0
-      max: 10
+      max: 20
     ref: 1.
     proposal: 1
     latex: A_\mathrm{kSZ}

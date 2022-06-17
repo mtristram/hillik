@@ -27,23 +27,23 @@ calib_params = {
 }
 
 fg_params = dict(
-    Acib=2.8,
-    Atsz=0.6,
-    Aksz=1.5,
-    xi=0.6,
-    beta_cib=2.15,
-    Aps_SPT_95x95=5.5,
-    Aps_SPT_95x150=4.1,
-    Aps_SPT_95x220=8.2,
-    Aps_SPT_150x150=7.1,
-    Aps_SPT_150x220=19.1,
-    Aps_SPT_220x220=53.9,
-    Adust_SPT_95=4.2,
-    Adust_SPT_150=8.5,
-    Adust_SPT_220=33.2,
+    Acib=4.6,
+    Atsz=2.6,
+    Aksz=1.3,
+    xi=0.12,
+    beta_cib=1.5,
+    Aps_SPT_95x95=8.4,
+    Aps_SPT_95x150=5.9,
+    Aps_SPT_95x220=10.5,
+    Aps_SPT_150x150=9.8,
+    Aps_SPT_150x220=27.4,
+    Aps_SPT_220x220=83.2,
+    Adust_SPT_95=0.4,
+    Adust_SPT_150=1.2,
+    Adust_SPT_220=8.0,
 )
 
-chi2s = {"TT": 307.19}
+chi2s = {"TT": 290.185}
 
 
 class SPTLikeTest(unittest.TestCase):
