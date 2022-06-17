@@ -22,7 +22,7 @@ jobs:
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
         mkdir -p $COBAYA_PACKAGES_PATH/data/foregrounds
-        cp data/* $GITHUB_WORKSPACE/modules/data/foregrounds/*
+        cp data/* $COBAYA_PACKAGES_PATH/data/foregrounds/*
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
