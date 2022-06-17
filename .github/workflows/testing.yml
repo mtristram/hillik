@@ -22,7 +22,7 @@ jobs:
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
         mkdir -p $COBAYA_PACKAGES_PATH
-        ln -sf $COBAYA_DIR/software/hillik/data $COBAYA_DIR/modules/data/foregrounds
+        ln -sf $GITHUB_WORKSPACE/software/hillik/data $GITHUB_WORKSPACE/modules/data/foregrounds
 
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
