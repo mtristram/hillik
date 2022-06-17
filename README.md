@@ -78,7 +78,7 @@ $ cobaya-install -p $COBAYA_DIR/modules your_file.yaml
 
 For the foregrounds template models, you need to untar manually the tarball:
 ```shell
-$ tar zxvf software/hillik/data/foregrounds_template.tar.gz --directory=$COBAYA_DIR/modules
+$ ln -s $COBAYA_DIR/software/hillik/data $COBAYA_DIR/modules/data/foregrounds
 ```
 
 Test
