@@ -9,7 +9,7 @@
 
   xi:
     prior:
-      min: 0.
+      min: -5.
       max: 10.
     ref: 0.1
     proposal: 0.1
