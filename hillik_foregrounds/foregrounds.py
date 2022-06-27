@@ -121,7 +121,7 @@ class fgmodel(HasLogger):
 
     def _read_dl_template( self, filename):
         """
-        Read FG template
+        Read FG template (in Dl, muK^2)
         WARNING: need to check file before reading...
         """
 
