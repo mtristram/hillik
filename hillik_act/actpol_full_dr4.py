@@ -42,21 +42,22 @@ class ACTPolLikelihood(InstallableLikelihood):
     #----------------------------------------------------------------
     # likelihood terms from ACT data
     #----------------------------------------------------------------
-    nnu      = 2   # number of frequencies
-    nspectot = 10  #nspecf*nspec+2 TE for 90x150 and 150x90
-    nspecf   = 3   #95x95, 95x150, 150
-    nspectt  = 3   #TT
-    nspecte  = 4   #TE
-    nspecee  = 3   #EE
-    nbintt = 52    #max nbins in ACT TT data
-    nbinte = 52    #max nbins in ACT TE data
-    nbinee = 52    #max nbins in ACT EE data
-    nbint  = 520   #total bins
-    lmax_win = 7925 #ell max of the full window functions
-    bmax0  = 52     #number of bins in full window function
-    b0=5           # setting bins discarded in TT (i.e., ell>600)
-    b1=0           # bins discarded for TE
-    b2=0           # bins discarded for EE
+    nnu      = 2     # number of frequencies
+    nspectot = 10    #nspecf*nspec+2 TE for 90x150 and 150x90
+    nspecf   = 3     #95x95, 95x150, 150
+    nspectt  = 3     #TT
+    nspecte  = 4     #TE
+    nspecee  = 3     #EE
+    nbintt = 52      #max nbins in ACT TT data
+    nbinte = 52      #max nbins in ACT TE data
+    nbinee = 52      #max nbins in ACT EE data
+    nbint  = 520     #total bins
+    lmax_win = 7925  #ell max of the full window functions
+    bmax0  = 52      #number of bins in full window function
+#    b0=5             # setting bins discarded in TT (i.e., ell>600) (b=33, ell>2000)
+    b0=33            # setting bins discarded in TT (i.e., ell>2000)
+    b1=0             # bins discarded for TE
+    b2=0             # bins discarded for EE
 
     def initialize(self):
         # Set path to data
@@ -281,7 +282,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         #chi2
         dlnlike = diff_vec @ self.fisher @ diff_vec
 
-        self.log.debug(f"lnlike = {dlnlike} / {len(diff_vec)}")
+        self.log.debug(f"chisq = {dlnlike} / {sum(np.diag(self.fisher>1e-9))}")
 
         return -0.5*dlnlike
 

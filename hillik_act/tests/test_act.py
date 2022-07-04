@@ -53,7 +53,8 @@ fg_params = {
         ),
 }
 
-chi2s = {"wide": 148.178,"deep": 145.75}
+#chi2s = {"wide": 148.178,"deep": 145.75}
+chi2s = {"wide": 60.75,"deep": 48.06}   #ell>2000
 
 
 class ACTLikeTest(unittest.TestCase):
