@@ -43,7 +43,7 @@ fg_params = dict(
     Adust_SPT_220=8.0,
 )
 
-chi2s = {"TT": 290.185}
+chi2s = {"TT": 290.1516}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -58,7 +58,7 @@ class SPTLikeTest(unittest.TestCase):
 
         #camb
         camb_cosmo = cosmo_params.copy()
-        camb_cosmo.update({"lmax": 13500, "lens_potential_accuracy": 1})
+        camb_cosmo.update({"lmax": hillik_spt.TT.BoltzmannLmax, "lens_potential_accuracy": 1})
         pars = camb.set_params(**camb_cosmo)
         results = camb.get_results(pars)
         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")

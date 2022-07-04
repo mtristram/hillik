@@ -31,6 +31,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
     frequencies: Sequence[int] = [95, 150, 220]
     ReportFGLmax = 13500
+    BoltzmannLmax = 10000
     
     fgds_folder: Optional[str] = "foregrounds"
     data_folder: Optional[str] = "spt_hiell_2020/likelihood"
@@ -93,7 +94,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         self.log.debug(f"spt_windows_lmax: {self.spt_windows_lmax}")
 
         self.lmin = self.spt_windows_lmin
-        self.lmax = self.spt_windows_lmax + 1  # to match fortran convention
+        self.lmax = self.spt_windows_lmax
 
         if self.spt_windows_lmax > self.ReportFGLmax:
             raise LoggedError(self.log, "Hard-wired lmax in foregrounds is too low for SPT_hiell")
@@ -192,7 +193,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
         return chi2 / 2.0, detcov / 2.0
 
-    def loglike(self, dl_cmb, **params):
+    def loglike(self, dl_boltz, **params):
         """
         dl_cmb: Dl TT
         """
@@ -200,7 +201,10 @@ class SPTHiellLikelihood(InstallableLikelihood):
         CalFactors = [params[f"cal_{self.survey}_{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
-        dl_fg = np.zeros( (self.nband, self.lmax) )
+        dl_cmb = np.zeros( self.lmax+1)
+        dl_cmb[:self.BoltzmannLmax] = dl_boltz[:self.BoltzmannLmax]
+
+        dl_fg = np.zeros( (self.nband, self.lmax+1) )
 #        dlfg = []
         for fg in self.fgs:
             dl_fg += fg.compute_dl( params)
@@ -216,7 +220,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
             thisbin = self.nbins[i]
 
             # get theory spectra
-            dl_th = dl_cmb[self.lmin : self.lmax] + dl_fg[i, self.lmin : self.lmax]
+            dl_th = dl_cmb[self.lmin : self.lmax+1] + dl_fg[i, self.lmin : self.lmax+1]
 
             # bin theory with window functions
             tmpcb = self.windows[thisoffset:thisoffset+thisbin] @ dl_th
@@ -257,12 +261,12 @@ class SPTHiellLikelihood(InstallableLikelihood):
         self.log.debug(f"lnLcov term = {detcov}")
         self.log.debug(f"chisq for cov only: {2 * LnL}")
 #        self.log.debug(f"chisq for FG prior: {2 * FGPriorLnLike}")
-        self.log.debug(f"SPTHiEllLnLike chisq (after prior) = {2 * (SPTHiEllLnLike - detcov)}")
+        self.log.debug(f"SPTHiEllLnLike chisq (after prior) = {2 * SPTHiEllLnLike}")
 
         return -SPTHiEllLnLike
 
     def get_requirements(self):
-        requirements = dict(Cl={mode: self.lmax for mode in ["tt"]})
+        requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
         return requirements
 
     def logp(self, **params_values):
