@@ -14,6 +14,11 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         python-version: [3.8, 3.9]
 
+    paths-ignore:
+      - 'scripts/**'
+      - 'example/**'
+      - 'data/**'
+
     steps:
     - uses: actions/checkout@v2
 
