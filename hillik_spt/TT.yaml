@@ -10,4 +10,4 @@ applyFTSprior: true
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_fg,params_SPT_fg,params_SPT_calib]
+params: !defaults [params_extragal,params_SPT_fg,params_SPT_calib]

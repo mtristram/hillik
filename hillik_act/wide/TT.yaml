@@ -5,7 +5,7 @@ leakd_filename: data_act/leak_TE_wide_200519.txt
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_fg,params_ACT_calib, params_ACTw_fg]
+params: !defaults [params_extragal,params_ACT_calib, params_ACTw_fg]
 
 use_wide: True
 use_deep: False
