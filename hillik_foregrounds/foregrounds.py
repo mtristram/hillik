@@ -185,11 +185,11 @@ class dust(fgmodel):
     def compute_dl(self, pars):
         Ad = []
         for f1, f2 in self._cross_frequencies:
-            Ad.append(pars[f"Adust_{self.survey}_{f1}"]*pars[f"Adust_{self.survey}_{f2}"])
-#            if self.mode == "TT": Ad.append(pars[f"Adust_{self.survey}_{f1}T"]*pars[f"Adust_{self.survey}_{f2}T"])
-#            if self.mode == "TE": Ad.append(pars[f"Adust_{self.survey}_{f1}T"]*pars[f"Adust_{self.survey}_{f2}P"])
-#            if self.mode == "ET": Ad.append(pars[f"Adust_{self.survey}_{f1}P"]*pars[f"Adust_{self.survey}_{f2}T"])
-#            if self.mode == "EE": Ad.append(pars[f"Adust_{self.survey}_{f1}P"]*pars[f"Adust_{self.survey}_{f2}P"])
+#            Ad.append(pars[f"Adust_{self.survey}_{f1}"]*pars[f"Adust_{self.survey}_{f2}"])
+            if self.mode == "TT": Ad.append(pars[f"Adust_{self.survey}_{f1}T"]*pars[f"Adust_{self.survey}_{f2}T"])
+            if self.mode == "TE": Ad.append(pars[f"Adust_{self.survey}_{f1}T"]*pars[f"Adust_{self.survey}_{f2}P"])
+            if self.mode == "ET": Ad.append(pars[f"Adust_{self.survey}_{f1}P"]*pars[f"Adust_{self.survey}_{f2}T"])
+            if self.mode == "EE": Ad.append(pars[f"Adust_{self.survey}_{f1}P"]*pars[f"Adust_{self.survey}_{f2}P"])
         
         return np.array(Ad)[:, None] * self.dlg
 

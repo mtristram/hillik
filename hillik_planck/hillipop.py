@@ -147,7 +147,6 @@ class _HillipopLikelihood(InstallableLikelihood):
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
                 
                 self.log.debug("Adding '{}' foreground for TE".format(name))
-                filename = os.path.join(self.fgds_folder, self.foregrounds["TE"].get(name))
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, auto=False, survey=self.survey)
                 fgsTE.append(fg_list[name](mode="TE", **kwargs))
                 fgsET.append(fg_list[name](mode="ET", **kwargs))
@@ -430,14 +429,14 @@ class _HillipopLikelihood(InstallableLikelihood):
 # ------------------------------------------------------------------------------------------------
 
 
-## class TTTEEE(_HillipopLikelihood):
-##     """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
-##     with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-##     split-frequency maps
+class TTTEEE(_HillipopLikelihood):
+    """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
+    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
+    split-frequency maps
 
-##     """
+    """
 
-##     install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_v1.1.tar.gz".format(data_url)}
+    install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_v1.1.tar.gz".format(data_url)}
 
 
 ## class TTTE(_HillipopLikelihood):
@@ -470,11 +469,11 @@ class EE(_HillipopLikelihood):
     install_options = {"download_url": "{}/planck_2020_hillipop_EE_v1.1.tar.gz".format(data_url)}
 
 
-## class TE(_HillipopLikelihood):
-##     """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-##     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-##     maps
+class TE(_HillipopLikelihood):
+    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+    maps
 
-##     """
+    """
 
-##     install_options = {"download_url": "{}/planck_2020_hillipop_TE_v1.1.tar.gz".format(data_url)}
+    install_options = {"download_url": "{}/planck_2020_hillipop_TE_v1.1.tar.gz".format(data_url)}

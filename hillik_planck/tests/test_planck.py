@@ -29,9 +29,9 @@ calib_params = {
 
 nuisance_params = {
     "TT": {
-        "Adust_PLK_100": 1.6,
-        "Adust_PLK_143": 2.1,
-        "Adust_PLK_217": 8.5,
+        "Adust_PLK_100T": 1.6,
+        "Adust_PLK_143T": 2.1,
+        "Adust_PLK_217T": 8.5,
         "Acib": 4.3,
         "Atsz": 9.3,
         "Aksz": 11.3,
@@ -45,31 +45,29 @@ nuisance_params = {
         "Aps_PLK_217x217": 125.,
         },
     "EE": {
-        "Adust_PLK_100": 0.15,
-        "Adust_PLK_143": 0.3,
-        "Adust_PLK_217": 1.1,
+        "Adust_PLK_100P": 0.15,
+        "Adust_PLK_143P": 0.3,
+        "Adust_PLK_217P": 1.1,
         },
     "TE": {
-        "Ad100T": 0.02,
-        "Ad143T": 0.04,
-        "Ad217T": 0.13,
-        "Ad100P": 0.016,
-        "Ad143P": 0.035,
-        "Ad217P": 0.130,
+        "Adust_PLK_100T": 1.6,
+        "Adust_PLK_143T": 2.1,
+        "Adust_PLK_217T": 8.5,
+        "Adust_PLK_100P": 0.15,
+        "Adust_PLK_143P": 0.3,
+        "Adust_PLK_217P": 1.1,
         },
 }
-nuisance_params["TTTE"] = {
+nuisance_params["TTTEEE"] = {
     **nuisance_params["TT"],
     **nuisance_params["TE"],
-}
-nuisance_params["TTTEEE"] = {
-    **nuisance_params["TTTE"],
     **nuisance_params["EE"],
 }
 
 #chi2s = {"TT": 11415.58, "EE": 9244.86, "TE": 9916.65}
 #chi2s = {"TT": 11636.29}
-chi2s = {"TT": 10472.62, 'EE':9413.73}  #ell<2000
+chi2s = {"TT": 10472.62}  #ell<2000
+chi2s = {"TT": 10472.62, 'EE':9413.73, 'TE':10079.78, 'TTTEEE':30772.38}
 
 
 class HillikPlkTest(unittest.TestCase):
@@ -86,7 +84,7 @@ class HillikPlkTest(unittest.TestCase):
     def test_hillipop(self):
         import camb
         import hillik_planck
-
+        
         camb_cosmo = cosmo_params.copy()
         camb_cosmo.update({"lmax": 2500, "lens_potential_accuracy": 1})
         pars = camb.set_params(**camb_cosmo)

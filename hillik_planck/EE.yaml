@@ -5,4 +5,4 @@ covariance_matrix_file: data/invfll_NPIPE_detset_ext_EE.fits
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_PLK_calib,params_PLK_dust]
+params: !defaults [params_PLK_calib,params_PLK_dust_P]

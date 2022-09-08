@@ -1,19 +1,19 @@
   #Dust
-  Adust_PLK_100:
+  Adust_PLK_100T:
     prior:
       min: 0.0
       max: 20.0
     ref: 0.6
     proposal: 0.5
     latex: A_\mathrm{dust}^{Planck}(100)
-  Adust_PLK_143:
+  Adust_PLK_143T:
     prior:
       min: 0.0
       max: 20.0
     ref: 1.24
     proposal: 0.5
     latex: A_\mathrm{dust}^{Planck}(143)
-  Adust_PLK_217:
+  Adust_PLK_217T:
     prior:
       min: 0.0
       max: 20.0

@@ -1,2 +1,2 @@
-from .hillipop import TT, EE
+from .hillipop import TT, EE, TE, TTTEEE
 
