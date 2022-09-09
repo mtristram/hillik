@@ -1,3 +1,13 @@
+""".. module:: ACTpol_full_DR4
+
+:Synopsis: Definition of python-native CMB likelihood for ACT likelihood.
+Adapted from Fortran likelihood code
+https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
+full ACTPol spectra at 98x98, 98x150 and 150x150 GHz from 350 < l < 8000 measured during 2013-2016 in temperature and polarization
+
+:Author: Matthieu Tristram
+
+"""
 import os
 from typing import Optional, Sequence
 
