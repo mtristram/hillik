@@ -1,4 +1,3 @@
-data_folder: actpolfull_dr4.01/data
 spec_filename: data_act/coadd_cl_15mJy_data_200124.txt
 cov_filename: data_act/coadd_cov_15mJy_200519.txt
 bbl_filename: data_act/coadd_bpwf_15mJy_191127_lmin2.txt
@@ -6,7 +5,7 @@ leakd_filename: data_act/leak_TE_deep_200519.txt
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_calib, params_fg]
+params: !defaults [params_extragal,params_ACT_calib,params_ACTd_ps,params_ACTd_dust_T,params_ACTd_dust_P]
 
 use_deep: true
 use_wide: false

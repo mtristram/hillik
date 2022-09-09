@@ -99,6 +99,8 @@ class HillikPlkTest(unittest.TestCase):
             self.assertLess( abs(-2 * loglike - chi2), 1)
 
     def test_cobaya(self):
+        from cobaya.model import get_model
+
         for mode, chi2 in chi2s.items():
             info = {
                 "debug": True,
@@ -107,7 +109,6 @@ class HillikPlkTest(unittest.TestCase):
                 "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
                 "packages_path": packages_path,
             }
-            from cobaya.model import get_model
 
             model = get_model(info)
             self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)

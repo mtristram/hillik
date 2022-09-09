@@ -93,8 +93,11 @@ class fgmodel(HasLogger):
 
         # Build the list of cross frequencies
         if auto:
-            #Use auto spectra and combine TE with ET (e.g. ACT, SPT)
-            self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
+            #Use auto spectra and separate TE and ET (e.g. ACT, SPT) -> check SPT !
+            if mode == "TE":
+                self._cross_frequencies = list(itertools.product(freqs, repeat=2))
+            else:
+                self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
         else:
             #Remove auto-spectra and use separate TE and ET (e.g. Planck)
             self._cross_frequencies = list(itertools.combinations(freqs, 2))

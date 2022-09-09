@@ -19,18 +19,3 @@
     ref: 11.78
     proposal: 0.6
     latex: A^{ACTd}_\mathrm{PS}(150x150)
-
-  Adust_ACTd_98:
-    prior:
-      min: 0.
-      max: 10.0
-    ref: 2.9
-    proposal: 1.4
-    latex: A^{ACTd}_\mathrm{dust}(98)
-  Adust_ACTd_150:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 1.0
-    proposal: 0.9
-    latex: A^{ACTd}_\mathrm{dust}(150)

@@ -141,7 +141,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         #-----------------------------------------------
         #Read Covariance Matrix
         #-----------------------------------------------
-
+        
         #covmat (1040,1040)
         covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
         covmat = covmat[:self.nbint,:self.nbint]
