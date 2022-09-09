@@ -256,12 +256,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
             FTSLnLike = 0.5 * (FTSfactor / 0.3) ** 2
             SPTHiEllLnLike += FTSLnLike
 
-        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
+#        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
         self.log.debug(f"Calibration chisq = {2 * CalibLnLike}")
-        self.log.debug(f"lnLcov term = {detcov}")
-        self.log.debug(f"chisq for cov only: {2 * LnL}")
-#        self.log.debug(f"chisq for FG prior: {2 * FGPriorLnLike}")
-        self.log.debug(f"SPTHiEllLnLike chisq (after prior) = {2 * SPTHiEllLnLike}")
+#        self.log.debug(f"lnLcov term = {detcov}")
+        self.log.debug(f"chisq for cov only: {2 * LnL} / {len(delta_cb)}")
+        self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
         return -SPTHiEllLnLike
 

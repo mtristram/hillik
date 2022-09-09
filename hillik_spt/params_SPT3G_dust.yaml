@@ -1,0 +1,22 @@
+  #Dust
+  Adust_SPT_95P:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 0.4
+    proposal: 0.4
+    latex: A_\mathrm{dust}^{SPT}(95P)
+  Adust_SPT_150P:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.17
+    proposal: 0.8
+    latex: A_\mathrm{dust}^{SPT}(150P)
+  Adust_SPT_220P:
+    prior:
+      min: 0.
+      max: 30.
+    ref: 8.0
+    proposal: 2.5
+    latex: A_\mathrm{dust}^{SPT}(220P)

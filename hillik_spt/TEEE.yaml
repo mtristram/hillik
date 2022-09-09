@@ -1,0 +1,24 @@
+#SPT3g
+
+path: null
+
+# Bandpower file
+bp_file: SPT3G_Y1_EETE_bandpowers.dat
+
+# Covariance file
+cov_file: SPT3G_Y1_EETE_covariance.dat
+
+# Beam covariance file
+beam_cov_file: SPT3G_Y1_EETE_beam_covariance.dat
+
+# Calibration (mapT, mapP) covariance
+calib_cov_file: SPT3G_Y1_EETE_cal_covariance.dat
+
+# Windows directory
+window_dir: windows
+
+# Foregrounds
+foregrounds: !defaults [foregrounds]
+
+#Parameters
+params: !defaults [params_SPT3G_dust,params_SPT3G_calib]

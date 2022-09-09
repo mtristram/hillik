@@ -26,7 +26,7 @@ calib_params = {
     "FTS_calibration_error": 1.0,
 }
 
-fg_params = dict(
+fgT_params = dict(
     Acib=4.6,
     Atsz=2.6,
     Aksz=1.3,
@@ -38,12 +38,25 @@ fg_params = dict(
     Aps_SPT_150x150=9.8,
     Aps_SPT_150x220=27.4,
     Aps_SPT_220x220=83.2,
-    Adust_SPT_95=0.4,
-    Adust_SPT_150=1.2,
-    Adust_SPT_220=8.0,
+    Adust_SPT_95T=0.4,
+    Adust_SPT_150T=1.2,
+    Adust_SPT_220T=8.0,
 )
 
-chi2s = {"TT": 290.1516}
+fgP_params = dict(
+    Aps_SPT_95x95=8.4,
+    Aps_SPT_95x150=5.9,
+    Aps_SPT_95x220=10.5,
+    Aps_SPT_150x150=9.8,
+    Aps_SPT_150x220=27.4,
+    Aps_SPT_220x220=83.2,
+    Adust_SPT_95T=0.4,
+    Adust_SPT_150T=1.2,
+    Adust_SPT_220T=8.0,
+)
+
+lnLs = {"TT": 145.07}
+lnLs = {"TEEE": 145.07}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -51,36 +64,38 @@ class SPTLikeTest(unittest.TestCase):
         from cobaya.install import install
 
         install({"likelihood": {"hillik_spt.TT": None}}, path=packages_path)
+        install({"likelihood": {"hillik_spt.TEEE": None}}, path=packages_path)
 
-    def test_spt(self):
-        import camb
-        import hillik_spt
+##     def test_spt(self):
+##         import camb
+##         import hillik_spt
 
-        #camb
-        camb_cosmo = cosmo_params.copy()
-        camb_cosmo.update({"lmax": hillik_spt.TT.BoltzmannLmax, "lens_potential_accuracy": 1})
-        pars = camb.set_params(**camb_cosmo)
-        results = camb.get_results(pars)
-        powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-        dl_tt = powers["total"][:,0]
+##         #camb
+##         camb_cosmo = cosmo_params.copy()
+##         camb_cosmo.update({"lmax": hillik_spt.TT.BoltzmannLmax, "lens_potential_accuracy": 1})
+##         pars = camb.set_params(**camb_cosmo)
+##         results = camb.get_results(pars)
+##         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
+##         dl_tt = powers["total"][:,0]
 
-        _spt = hillik_spt.TT(dict(packages_path=packages_path))
-        loglike = _spt.loglike(dl_tt, **fg_params,**calib_params)
-        self.assertAlmostEqual(-2 * loglike, chi2s['TT'], 2)
+##         _spt = hillik_spt.TT(dict(packages_path=packages_path))
+##         loglike = _spt.loglike(dl_tt, **fgT_params,**calib_params)
+##         self.assertAlmostEqual(-2 * loglike, lnLs['TT'], 2)
 
     def test_cobaya(self):
-        for mode, chi2 in chi2s.items():
+        from cobaya.model import get_model
+
+        for mode, lnL in lnLs.items():
             info = {
                 "debug": True,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_params, **calib_params, **fg_params},
+                "params": {**cosmo_params, **calib_params, **fgT_params},
                 "packages_path": packages_path,
             }
-            from cobaya.model import get_model
-
+ 
             model = get_model(info)
-            self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 2)
+            self.assertLess( abs(-model.loglikes({})[0][0] - lnL), 2)
 
 
 if __name__ == "__main__":

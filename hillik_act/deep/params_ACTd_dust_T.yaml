@@ -1,0 +1,15 @@
+  Adust_ACTd_98T:
+    prior:
+      min: 0.
+      max: 10.0
+    ref: 2.9
+    proposal: 1.4
+    latex: A^{ACTd}_\mathrm{dust}(98T)
+
+  Adust_ACTd_150T:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.0
+    proposal: 0.9
+    latex: A^{ACTd}_\mathrm{dust}(150T)
