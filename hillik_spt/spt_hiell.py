@@ -202,7 +202,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         FTSfactor = params["FTS_calibration_error"]
 
         dl_cmb = np.zeros( self.lmax+1)
-        dl_cmb[:self.BoltzmannLmax] = dl_boltz[:self.BoltzmannLmax]
+        dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
 
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
 #        dlfg = []
@@ -269,7 +269,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         return requirements
 
     def logp(self, **params_values):
-        dl = self.theory.get_Cl(units="muK2", ell_factor=True)["tt"]
+        dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
 

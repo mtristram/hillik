@@ -50,6 +50,7 @@ class SPT3GPrototype(InstallableLikelihood):
     bin_max: Optional[int] = 44
     windows_lmin: Optional[int] = 1
     windows_lmax: Optional[int] = 3200
+    BoltzmannLmax = 3500
 
     aberration_coefficient: Optional[float] = -0.0004826
     super_sample_lensing: Optional[bool] = True
@@ -96,7 +97,7 @@ class SPT3GPrototype(InstallableLikelihood):
 
         # Get likelihood name and add the associated mode
         lkl_name = self.__class__.__name__.lower()
-        self.use_cl = [lkl_name[i : i + 2] for i in range(0, len(lkl_name), 2)]
+        self.use_cl = [lkl_name[i : i + 2].upper() for i in range(0, len(lkl_name), 2)]
         self.log.debug("mode = {}".format(self.use_cl))
 
         self.nbins = self.bin_max - self.bin_min + 1
@@ -128,7 +129,7 @@ class SPT3GPrototype(InstallableLikelihood):
 
         # Compute cross-spectra frequencies and mode given the spectra name to fit
         r = re.compile("(.+?)_(.)x(.+?)_(.)")        
-        self.spectra_to_fit = self.spectra_to_fit[["".join(r.search(spec).group(2, 4)) in self.use_cl for spec in self.spectra_to_fit]]
+        self.spectra_to_fit = [spec for spec in self.spectra_to_fit if "".join(r.search(spec).group(2, 4)) in self.use_cl]
         self.cross_spectra = ["".join(r.search(spec).group(2, 4)) for spec in self.spectra_to_fit]
         self.cross_frequencies = [r.search(spec).group(1, 3) for spec in self.spectra_to_fit]
         self.frequencies = sorted(
@@ -150,7 +151,7 @@ class SPT3GPrototype(InstallableLikelihood):
         self.cov = self.cov[np.ix_(cov_indices, cov_indices)]
         self.beam_cov = self.beam_cov[np.ix_(cov_indices, cov_indices)] * self.beam_cov_scaling
         self.log.debug(f"Selected bp indices: {vec_indices}")
-        self.log.debug(f"Selected cov indices: {cov_indices}")
+#        self.log.debug(f"Selected cov indices: {cov_indices}")
 
         # Read in calibration covariance and select mode/frequencies
         # The order of the cal covariance is T90, T150, T220, E90, E150, E220
@@ -172,7 +173,7 @@ class SPT3GPrototype(InstallableLikelihood):
         self.lmax = self.windows_lmax + 1  # to match fortran convention
         self.ells = np.arange(self.lmin, self.lmax)
 
-        self.fgs = {"TE":[],"EE":[]}
+        self.fgs = {"TE":[],"ET":[],"EE":[]}
         for tag in self.fgs.keys():
             for name in ["galactic_dust"]:  #,"poisson"]:
                 if name not in fg_list.keys():
@@ -180,32 +181,31 @@ class SPT3GPrototype(InstallableLikelihood):
 
                 self.log.debug("Adding '{}' foreground for {}".format(name,tag))
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode=tag, auto=True, survey=self.survey)
-                if isinstance(self.foregrounds[tag][name], str):
-                    kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag][name])
                 self.fgs[tag].append(fg_list[name](**kwargs))
 
     def get_requirements(self):
         # State requisites to the theory code
-        return {"Cl": {cl: self.lmax for cl in self.use_cl}}
+        return {"Cl": {cl.lower(): self.BoltzmannLmax for cl in self.use_cl}}
 
-    def loglike(self, dlte, dlee, **params_values):
+    def loglike(self, dl_boltz, **params_values):
         
         lmin, lmax = self.lmin, self.lmax
         ells = np.arange(lmin, lmax + 2)
-        print( lmin, lmax)
+        print( self.cross_spectra)
+        print( self.cross_frequencies)
+        dlfg = {}
+        for mode in self.use_cl:
+            dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),lmax+1))
+            if mode == "EE":
+                for fg in self.fgs["EE"]: dlfg[mode] += fg.compute_dl( params_values)
+            if mode == "TE":
+                for fg in self.fgs["TE"]: dlfg[mode] += fg.compute_dl( params_values) / 2.
+                for fg in self.fgs["ET"]: dlfg[mode] += fg.compute_dl( params_values) / 2.
         
-        dlfg = {'EE':np.zeros((,lmax+2)),'TE':[]}
-        for mode in dlfg.keys():
-            for fg in self.fgs[mode]:
-                dlfg[mode] += fg.compute_dl( params_values)
-
-        print( self.use_cl)
         dbs = np.empty_like(self.bandpowers)
         for i, (cross_spectrum, cross_frequency) in enumerate(zip(self.cross_spectra, self.cross_frequencies)):
-            print( cross_spectrum, cross_frequency)
-            if cross_spectrum not in self.use_cl: continue
-
-            dl_cmb = dlee if cross_spectrum == "EE" else dlte
+            
+            dl_cmb = dl_boltz[cross_spectrum.lower()]
             
             # Calculate derivatives for this position in parameter space.
             cl_derivative = dl_cmb[ells] * 2 * np.pi / (ells * (ells + 1))
@@ -213,7 +213,7 @@ class SPT3GPrototype(InstallableLikelihood):
             
             # Add CMB
             dls = dl_cmb[self.ells]
-
+            
             # Add super sample lensing
             # (In Cl space) SSL = -k/l^2 d/dln(l) (l^2Cl) = -k(l*dCl/dl + 2Cl)
             if self.super_sample_lensing:
@@ -222,7 +222,7 @@ class SPT3GPrototype(InstallableLikelihood):
                     self.ells ** 2 * (self.ells + 1) / (2 * np.pi) * cl_derivative
                     + 2 * dl_cmb[self.ells]
                 )
-
+            
             # Aberration correction
             # AC = beta*l(l+1)dCl/dln(l)/(2pi)
             # Note that the CosmoMC internal aberration correction and the SPTpol Henning likelihood differ
@@ -267,17 +267,30 @@ class SPT3GPrototype(InstallableLikelihood):
         delta_cal = np.log(np.array([1./params_values.get(p) for p in self.calib_params]))
         cal_prior = delta_cal @ self.inv_calib_cov @ delta_cal
 
-        self.log.debug(f"SPT3G X²/ndof = {chi2:.2f}/{len(delta_cb)}")
+        self.log.debug(f"SPT3G chi2/ndof = {chi2:.2f}/{len(delta_cb)}")
         self.log.debug(f"SPT3G detcov = {slogdet:.2f}")
         self.log.debug(f"SPT3G cal. prior = {cal_prior:.2f}")
+        self.log.debug(f"SPT3G lnL = {0.5 * (chi2 + slogdet + cal_prior):.2f}")
         return -0.5 * (chi2 + slogdet + cal_prior)
 
     def logp(self, **data_params):
         Cls = self.provider.get_Cl(ell_factor=True)
-        return self.loglike(Cls.get("te"), Cls.get("ee"), **data_params)
+        return self.loglike(Cls, **data_params)
 
 
 class TEEE(SPT3GPrototype):
+    r"""
+    Likelihood for Dutcher et al. 2020
+    SPT-3G Y1 95, 150, 220GHz bandpowers, l=300-3000, EE/TE
+    """
+
+class TE(SPT3GPrototype):
+    r"""
+    Likelihood for Dutcher et al. 2020
+    SPT-3G Y1 95, 150, 220GHz bandpowers, l=300-3000, EE/TE
+    """
+
+class EE(SPT3GPrototype):
     r"""
     Likelihood for Dutcher et al. 2020
     SPT-3G Y1 95, 150, 220GHz bandpowers, l=300-3000, EE/TE
