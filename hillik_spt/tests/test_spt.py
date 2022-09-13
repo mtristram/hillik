@@ -19,41 +19,51 @@ cosmo_params = {
 }
 
 calib_params = {
-    "cal_SPT": 1.0,
-    "cal_SPT_95": 1.0,
-    "cal_SPT_150": 1.0,
-    "cal_SPT_220": 1.0,
-    "FTS_calibration_error": 1.0,
+    "TT": {
+        "cal_SPT": 1.0,
+        "cal_SPT_95": 1.0,
+        "cal_SPT_150": 1.0,
+        "cal_SPT_220": 1.0,
+        "FTS_calibration_error": 1.0,
+        },
+    "TEEE": {
+        "cal_SPT3G": 1.0,
+        "cal_SPT3G_T90": 1.0,
+        "cal_SPT3G_T150": 1.0,
+        "cal_SPT3G_T220": 1.0,        
+        "cal_SPT3G_P90": 1.0,
+        "cal_SPT3G_P150": 1.0,
+        "cal_SPT3G_P220": 1.0,        
+        "kappa": 0.0
+        }
 }
 
-fgT_params = dict(
-    Acib=4.6,
-    Atsz=2.6,
-    Aksz=1.3,
-    xi=0.12,
-    beta_cib=1.5,
-    Aps_SPT_95x95=8.4,
-    Aps_SPT_95x150=5.9,
-    Aps_SPT_95x220=10.5,
-    Aps_SPT_150x150=9.8,
-    Aps_SPT_150x220=27.4,
-    Aps_SPT_220x220=83.2,
-    Adust_SPT_95T=0.4,
-    Adust_SPT_150T=1.2,
-    Adust_SPT_220T=8.0,
-)
-
-fgP_params = dict(
-    Aps_SPT_95x95=8.4,
-    Aps_SPT_95x150=5.9,
-    Aps_SPT_95x220=10.5,
-    Aps_SPT_150x150=9.8,
-    Aps_SPT_150x220=27.4,
-    Aps_SPT_220x220=83.2,
-    Adust_SPT_95T=0.4,
-    Adust_SPT_150T=1.2,
-    Adust_SPT_220T=8.0,
-)
+fg_params = {
+    "TT": dict(
+        Acib=4.6,
+        Atsz=2.6,
+        Aksz=1.3,
+        xi=0.12,
+        beta_cib=1.5,
+        Aps_SPT_95x95=8.4,
+        Aps_SPT_95x150=5.9,
+        Aps_SPT_95x220=10.5,
+        Aps_SPT_150x150=9.8,
+        Aps_SPT_150x220=27.4,
+        Aps_SPT_220x220=83.2,
+        Adust_SPT_95T=0.4,
+        Adust_SPT_150T=1.2,
+        Adust_SPT_220T=8.0,
+        ),
+    "TEEE": dict(
+        Adust_SPT3G_90T=0.4,
+        Adust_SPT3G_150T=1.2,
+        Adust_SPT3G_220T=8.0,
+        Adust_SPT3G_90P=0.4,
+        Adust_SPT3G_150P=1.2,
+        Adust_SPT3G_220P=8.0,
+        )
+    }
 
 lnLs = {"TT": 145.07}
 lnLs = {"TEEE": 145.07}
@@ -90,7 +100,7 @@ class SPTLikeTest(unittest.TestCase):
                 "debug": True,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_params, **calib_params, **fgT_params},
+                "params": {**cosmo_params, **calib_params[mode], **fg_params[mode]},
                 "packages_path": packages_path,
             }
  
