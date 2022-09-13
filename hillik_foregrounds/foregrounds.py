@@ -80,15 +80,30 @@ class fgmodel(HasLogger):
         self.lnorm = lnorm #to normalize templates in cl
 
         # Build the list of cross frequencies
-        if auto:
-            #Use auto spectra and separate TE and ET (ACT, SPT) -> check SPT !
+        if survey == "PLK":
+            #Remove auto-spectra and use separate TE and ET (e.g. Planck)
+            self._cross_frequencies = list(itertools.combinations(freqs, 2))
+        elif "ACT" in survey:
+            #Use auto spectra and TE and ET in the same batch (ACT)
             if mode == "TE":
                 self._cross_frequencies = list(itertools.product(freqs, repeat=2))
             else:
                 self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
+        elif "SPT" in survey:
+            #Use auto spectra and separate TE and ET (SPT)
+            self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
         else:
-            #Remove auto-spectra and use separate TE and ET (e.g. Planck)
-            self._cross_frequencies = list(itertools.combinations(freqs, 2))
+            raiseError( f"Survey {survey} not supported")
+            
+#        if auto:
+#            #Use auto spectra and separate TE and ET (ACT, SPT) -> check SPT !
+#            if mode == "TE":
+#                self._cross_frequencies = list(itertools.product(freqs, repeat=2))
+#            else:
+#                self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
+#        else:
+#            #Remove auto-spectra and use separate TE and ET (e.g. Planck)
+#            self._cross_frequencies = list(itertools.combinations(freqs, 2))
 
         self.set_logger()
         pass
