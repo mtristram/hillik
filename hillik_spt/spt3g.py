@@ -40,7 +40,7 @@ fg_list = {
 
 class SPT3GPrototype(InstallableLikelihood):
     install_options = {
-        "download_url": "https://pole.uchicago.edu/public/data/dutcher21/SPT3G_2018_EETE_likelihood.tar.gz",
+        "download_url": "https://pole.uchicago.edu/public/data/dutcher21/SPT3G_2018_EETE_likelihood_v3.zip",
         "data_path": "spt3g_2018",
     }
 
