@@ -79,21 +79,9 @@ class fgmodel(HasLogger):
         self.survey = survey
         self.lnorm = lnorm #to normalize templates in cl
 
-        #check effective freqs
-        if self.survey not in self.fsz.keys():
-            raise ValueError( f"Missing SZ effective frequency for {self.survey}")
-        if self.survey not in self.fdust.keys():
-            raise ValueError( f"Missing DUST effective frequency for {self.survey}")
-
-        for f in freqs:
-            if f not in self.fsz[self.survey].keys():
-                raise ValueError( f"Missing SZ effective frequency for {f}")
-            if f not in self.fdust[self.survey].keys():
-                raise ValueError( f"Missing Dust effective frequency for {f}")
-
         # Build the list of cross frequencies
         if auto:
-            #Use auto spectra and separate TE and ET (e.g. ACT, SPT) -> check SPT !
+            #Use auto spectra and separate TE and ET (ACT, SPT) -> check SPT !
             if mode == "TE":
                 self._cross_frequencies = list(itertools.product(freqs, repeat=2))
             else:
@@ -203,6 +191,13 @@ class cib(fgmodel):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "clustered CIB"
 
+        #check effective freqs
+        if self.survey not in self.fdust.keys():
+            raise ValueError( f"Missing DUST effective frequency for {self.survey}")
+        for f in freqs:
+            if f not in self.fdust[self.survey].keys():
+                raise ValueError( f"Missing Dust effective frequency for {f}")
+
         if filename is None:
             alpha_cib = -1.3
             self.dl_cib = self._gen_dl_powerlaw( alpha_cib)
@@ -227,7 +222,14 @@ class tsz(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "tSZ"
-        
+
+        #check effective freqs
+        if self.survey not in self.fsz.keys():
+            raise ValueError( f"Missing SZ effective frequency for {self.survey}")
+        for f in freqs:
+            if f not in self.fsz[self.survey].keys():
+                raise ValueError( f"Missing SZ effective frequency for {f}")
+
         self.dl_sz = []
         sz_tmpl = self._read_dl_template( filename)
         
@@ -271,6 +273,20 @@ class szxcib(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "SZxCIB"
+
+        #check effective freqs for SZ
+        if self.survey not in self.fsz.keys():
+            raise ValueError( f"Missing SZ effective frequency for {self.survey}")
+        for f in freqs:
+            if f not in self.fsz[self.survey].keys():
+                raise ValueError( f"Missing SZ effective frequency for {f}")
+
+        #check effective freqs for dust
+        if self.survey not in self.fdust.keys():
+            raise ValueError( f"Missing DUST effective frequency for {self.survey}")
+        for f in freqs:
+            if f not in self.fdust[self.survey].keys():
+                raise ValueError( f"Missing Dust effective frequency for {f}")
         
         self.x_tmpl = self._read_dl_template(filename)
     
