@@ -64,10 +64,12 @@ class ACTPolLikelihood(InstallableLikelihood):
     nbint  = 520     #total bins
     lmax_win = 7925  #ell max of the full window functions
     bmax0  = 52      #number of bins in full window function
-#    b0=5             # setting bins discarded in TT (i.e., ell>600) (b=33, ell>2000)
+#    b0=5             # setting bins discarded in TT (i.e., ell>600)
+#    b1=0             # bins discarded for TE
+#    b2=0             # bins discarded for EE
     b0=33            # setting bins discarded in TT (i.e., ell>2000)
-    b1=0             # bins discarded for TE
-    b2=0             # bins discarded for EE
+    b1=23            # bins discarded for TE (i.e. ell>1500)
+    b2=13            # bins discarded for EE (i.e. ell>1000)
 
     def initialize(self):
         # Set path to data
