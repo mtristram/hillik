@@ -101,7 +101,8 @@ fg_params = {
         )
     }
 
-lnLs = {"TT": 145.075,"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
+#lnLs = {"TT": 145.075,"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
+lnLs = {"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -111,23 +112,23 @@ class SPTLikeTest(unittest.TestCase):
         install({"likelihood": {"hillik_spt.TT": None}}, path=packages_path)
         install({"likelihood": {"hillik_spt.TEEE": None}}, path=packages_path)
 
-    def test_spt(self):
-        import camb
-        import hillik_spt
+##     def test_spt(self):
+##         import camb
+##         import hillik_spt
 
-        #camb
-        camb_cosmo = cosmo_params.copy()
-        for mode, lnL in lnLs.items():
-            _spt = getattr(hillik_spt, mode)(dict(packages_path=packages_path))
+##         #camb
+##         camb_cosmo = cosmo_params.copy()
+##         for mode, lnL in lnLs.items():
+##             _spt = getattr(hillik_spt, mode)(dict(packages_path=packages_path))
 
-            camb_cosmo.update({"lmax": _spt.BoltzmannLmax, "lens_potential_accuracy": 1})
-            pars = camb.set_params(**camb_cosmo)
-            results = camb.get_results(pars)
-            powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-            cl_boltz = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
+##             camb_cosmo.update({"lmax": _spt.BoltzmannLmax, "lens_potential_accuracy": 1})
+##             pars = camb.set_params(**camb_cosmo)
+##             results = camb.get_results(pars)
+##             powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
+##             cl_boltz = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
             
-            loglike = _spt.loglike(cl_boltz, **fg_params[mode],**calib_params[mode])
-            self.assertAlmostEqual(-loglike, lnL, 2)
+##             loglike = _spt.loglike(cl_boltz, **fg_params[mode],**calib_params[mode])
+##             self.assertAlmostEqual(-loglike, lnL, 2)
 
     def test_cobaya(self):
         from cobaya.model import get_model

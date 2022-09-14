@@ -46,6 +46,10 @@ class SPT3GPrototype(InstallableLikelihood):
 
     bibtex_file = "spt3g.bibtex"
 
+    nbin_all: Optional[int] = 44
+    #bin=14 ell>1000
+    #bin=24 ell>1500
+    #bin=34 ell>2000
     bin_min: Optional[int] = 1
     bin_max: Optional[int] = 44
     windows_lmin: Optional[int] = 1
@@ -107,6 +111,7 @@ class SPT3GPrototype(InstallableLikelihood):
         #     raise LoggedError(self.log, "Sorry, current code wont work for multiple freqs")
         if self.windows_lmin < 1 or self.windows_lmin >= self.windows_lmax:
             raise LoggedError(self.log, "Invalid ell ranges for SPTPol")
+        self.log.debug(f"Using {self.nbins} bins")
 
         # Read in bandpowers (remove index column)
         self.bandpowers = np.loadtxt(os.path.join(self.data_folder, self.bp_file), unpack=True)[1:]
@@ -140,12 +145,11 @@ class SPT3GPrototype(InstallableLikelihood):
         self.log.debug(f"Using {self.frequencies} GHz frequency bands")
 
         # Compute spectra/cov indices given spectra to fit
+        bin_indices = np.arange(self.bin_min,self.bin_max+1)-1
         vec_indices = np.array([default_spectra_list.index(spec) for spec in self.spectra_to_fit])
-        self.bandpowers = self.bandpowers[vec_indices].flatten()
+        self.bandpowers = self.bandpowers[np.ix_(vec_indices,bin_indices)].flatten()
         self.windows = self.windows[:, vec_indices, :]
-        cov_indices = np.array(
-            [np.arange(i * self.nbins, (i + 1) * self.nbins) for i in vec_indices]
-        )
+        cov_indices = np.array([i * self.nbin_all + bin_indices for i in vec_indices])
         cov_indices = cov_indices.flatten()
         # Select spectra/cov elements given indices
         self.cov = self.cov[np.ix_(cov_indices, cov_indices)]
@@ -204,7 +208,6 @@ class SPT3GPrototype(InstallableLikelihood):
         
         dbs = np.empty_like(self.bandpowers)
         for i, (cross_spectrum, cross_frequency) in enumerate(zip(self.cross_spectra, self.cross_frequencies)):
-            
             dl_cmb = dl_boltz[cross_spectrum.lower()]
             
             # Calculate derivatives for this position in parameter space.
@@ -252,7 +255,7 @@ class SPT3GPrototype(InstallableLikelihood):
             dls *= calibration
 
             # Binning via window and concatenate
-            dbs[i * self.nbins : (i + 1) * self.nbins] = self.windows[:, i, :] @ dls
+            dbs[i * self.nbins: (i+1) * self.nbins] = self.windows[:, i, :] @ dls
 
         # Take the difference to the measured bandpower
         delta_cb = dbs - self.bandpowers
