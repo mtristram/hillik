@@ -84,9 +84,9 @@ nuisance_params = {
 #chi2s = {"wide.TT": 60.75,"deep.TT": 48.058}   #ell>2000
 chi2s = {
     "wide.TT":  60.75, "deep.TT": 48.058,
-    "wide.EE": 229.24, "deep.EE": 157.24,
-    "wide.TE": 221.21, "deep.TE": 203.97,
-    "wide.TTTEEE": 503.86, "deep.TTTEEE": 439.23
+    "wide.EE": 177.98, "deep.EE": 126.33,
+    "wide.TE": 126.34, "deep.TE": 111.82,
+    "wide.TTTEEE": 364.04, "deep.TTTEEE": 293.56
     }
 
 
