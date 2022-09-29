@@ -468,7 +468,8 @@ class TT(_HillipopLikelihood):
 
     """
 
-    install_options = {"download_url": "https://mycore.core-cloud.net/index.php/s/iWz1HR55BHVhVCB/download"}
+    install_options = {"download_url": "{}/planck_2020_hillipop_TT_v1.1.tar.gz".format(data_url)}
+#    install_options = {"download_url": "https://mycore.core-cloud.net/index.php/s/iWz1HR55BHVhVCB/download"}
 
 
 class EE(_HillipopLikelihood):
