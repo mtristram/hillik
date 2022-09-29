@@ -47,7 +47,7 @@ class ACTPolLikelihood(InstallableLikelihood):
     #--------------------------------------------------------------
     # general settings
     #--------------------------------------------------------------
-    tt_lmax = 6000
+    BoltzmannLmax = 6000
 
     #----------------------------------------------------------------
     # likelihood terms from ACT data
@@ -64,12 +64,12 @@ class ACTPolLikelihood(InstallableLikelihood):
     nbint  = 520     #total bins
     lmax_win = 7925  #ell max of the full window functions
     bmax0  = 52      #number of bins in full window function
-#    b0=5             # setting bins discarded in TT (i.e., ell>600)
-#    b1=0             # bins discarded for TE
-#    b2=0             # bins discarded for EE
-    b0=33            # setting bins discarded in TT (i.e., ell>2000)
-    b1=23            # bins discarded for TE (i.e. ell>1500)
-    b2=13            # bins discarded for EE (i.e. ell>1000)
+    bminTT=5             # setting bins discarded in TT (i.e., ell>600)
+    bminTE=0             # bins discarded for TE
+    bminEE=0             # bins discarded for EE
+#    bminTT=33            # setting bins discarded in TT (i.e., ell>2000)
+#    bminTE=23            # bins discarded for TE (i.e. ell>1500)
+#    bminEE=13            # bins discarded for EE (i.e. ell>1000)
 
     def initialize(self):
         # Set path to data
@@ -161,17 +161,17 @@ class ACTPolLikelihood(InstallableLikelihood):
         #cut lmin TT
         for s in range(self.nspectt):
             ishift = s*self.nbintt
-            covmat[ishift:ishift+self.b0,ishift:ishift+self.b0] = np.identity(self.b0)*1e10
+            covmat[ishift:ishift+self.bminTT,ishift:ishift+self.bminTT] = np.identity(self.bminTT)*1e10
 
         #cut lmin TE
         for s in range(self.nspecte):
             ishift = self.nspectt*self.nbintt + s*self.nbinte
-            covmat[ishift:ishift+self.b1,ishift:ishift+self.b1] = np.identity(self.b1)*1e10
+            covmat[ishift:ishift+self.bminTE,ishift:ishift+self.bminTE] = np.identity(self.bminTE)*1e10
 
         #cut lmin EE
         for s in range(self.nspecee):
             ishift = self.nspectt*self.nbintt + self.nspecte*self.nbinte + s*self.nbinee
-            covmat[ishift:ishift+self.b2,ishift:ishift+self.b2] = np.identity(self.b2)*1e10
+            covmat[ishift:ishift+self.bminEE,ishift:ishift+self.bminEE] = np.identity(self.bminEE)*1e10
 
         #invert covmat
         covmat = covmat[self._bstart:self._bend,self._bstart:self._bend]
@@ -225,7 +225,7 @@ class ACTPolLikelihood(InstallableLikelihood):
                  'te':np.zeros( (self.nspecte,self.lmax_win+1) ),
                  'ee':np.zeros( (self.nspecee,self.lmax_win+1) )}
         for tag in ['tt','te','ee']:
-            dlth[tag][:,:self.tt_lmax+1] = dl_cmb[tag][:self.tt_lmax+1]
+            dlth[tag][:,:self.BoltzmannLmax+1] = dl_cmb[tag][:self.BoltzmannLmax+1]
 
         for tag in dlth.keys():
 #            dlfg = []
@@ -289,19 +289,35 @@ class ACTPolLikelihood(InstallableLikelihood):
         X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] *= cal*ct2*ct2*yp2*yp2
 
         # Select data
-        diff_vec = (self.b_dat - X_model)[self._bstart:self._bend]
+        self.delta_cl = (self.b_dat - X_model)[self._bstart:self._bend]
 
         #chi2
-        dlnlike = diff_vec @ self.fisher @ diff_vec
+        dlnlike = self.delta_cl @ self.fisher @ self.delta_cl
 
         self.log.debug(f"chisq = {dlnlike} / {sum(np.diag(self.fisher>1e-9))}")
 
         return -0.5*dlnlike
 
     def get_requirements(self):
-        requirements = dict(Cl={mode:self.tt_lmax for mode in ["tt","te","ee"]})
+        requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","ee"]})
         return requirements
 
     def logp(self, **params_values):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
+
+    def reduction_matrix( self, mode='tt'):
+        if mode == 'tt':
+            nbin,nspec = self.nbintt, self.nspectt
+        elif mode == 'te':
+            nbin,nspec = self.nbinte, self.nspecte
+        elif mode == 'ee':
+            nbin,nspec = self.nbinee, self.nspecee
+
+        X = np.zeros( (len(self.delta_cl), nbin) )
+        
+        for ix in range(nspec):
+            for ib in range(nbin):
+                X[ix*nbin+ib,ib] = 1.
+
+        return X
