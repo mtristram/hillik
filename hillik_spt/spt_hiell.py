@@ -231,13 +231,13 @@ class SPTHiellLikelihood(InstallableLikelihood):
             cbs[thisoffset : thisoffset + thisbin] = tmpcb
 
         # Residuals
-        delta_cb = cbs - self.spec
+        self.delta_cl = cbs - self.spec
 
         # Dl covariance (with beams)
         cov_w_beam = self.cov + self.beam_err * np.outer(cbs, cbs)
 
         # compute LogLike
-        LnL, detcov = self._gaussian_loglike(cov_w_beam, delta_cb)
+        LnL, detcov = self._gaussian_loglike(cov_w_beam, self.delta_cl)
         SPTHiEllLnLike = LnL + detcov
 
         # Add FG priors
@@ -259,7 +259,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 #        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
         self.log.debug(f"Calibration chisq = {2 * CalibLnLike}")
 #        self.log.debug(f"lnLcov term = {detcov}")
-        self.log.debug(f"chisq for cov only: {2 * LnL} / {len(delta_cb)}")
+        self.log.debug(f"chisq for cov only: {2 * LnL} / {len(self.delta_cl)}")
         self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
         return -SPTHiEllLnLike
@@ -271,6 +271,18 @@ class SPTHiellLikelihood(InstallableLikelihood):
     def logp(self, **params_values):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
+
+
+    def reduction_matrix(self):
+        X = np.zeros( (sum(self.nbins), 15) )
+
+        i=0
+        for nb in self.nbins:
+            for ib in range(nb):
+                X[i,ib] = 1.
+                i += 1
+
+        return X
 
 
 class TT(SPTHiellLikelihood):
