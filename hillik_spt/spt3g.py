@@ -195,8 +195,8 @@ class SPT3GPrototype(InstallableLikelihood):
         
         lmin, lmax = self.lmin, self.lmax
         ells = np.arange(lmin, lmax + 2)
-        print( self.cross_spectra)
-        print( self.cross_frequencies)
+#        print( self.cross_spectra)
+#        print( self.cross_frequencies)
         dlfg = {}
         for mode in self.use_cl:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),lmax+1))
