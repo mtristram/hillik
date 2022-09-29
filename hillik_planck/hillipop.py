@@ -364,13 +364,25 @@ class _HillipopLikelihood(InstallableLikelihood):
                 Wl = Wl + WlET
             # select multipole range
             Xl += self._select_spectra(Rl / Wl, mode=2)
+        
+        self.delta_cl = np.asarray(Xl)
+#        chi2 = self.delta_cl @ self._invkll @ self.delta_cl
+        chi2 = self.delta_cl.dot( self._invkll.dot(self.delta_cl))
 
-        Xl = np.asarray(Xl)
-#        chi2 = Xl @ self._invkll @ Xl
-        chi2 = Xl.dot( self._invkll.dot(Xl))
-
-        self.log.debug("chi2/ndof = {}/{}".format(chi2, len(Xl)))
+        self.log.debug("chi2/ndof = {}/{}".format(chi2, len(self.delta_cl)))
         return chi2
+
+    def reduction_matrix(self, mode=0):
+        X = np.zeros( (len(self.delta_cl),self.lmax+1) )
+        x0 = 0
+        for xf in range(self._nxfreq):
+            lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
+            lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
+            for il,l in enumerate(range(lmin,lmax+1)):
+                X[x0+il,l] = 1
+            x0 += (lmax-lmin+1)
+        
+        return X
 
     def get_requirements(self):
         return dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
