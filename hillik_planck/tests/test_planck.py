@@ -86,7 +86,7 @@ class HillikPlkTest(unittest.TestCase):
         import hillik_planck
         
         camb_cosmo = cosmo_params.copy()
-        camb_cosmo.update({"lmax": 2500, "lens_potential_accuracy": 1})
+        camb_cosmo.update({"lmax": 2000, "lens_potential_accuracy": 1})
         pars = camb.set_params(**camb_cosmo)
         results = camb.get_results(pars)
         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
