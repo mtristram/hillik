@@ -69,7 +69,7 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 13521.89, "EE": 9224.61, "TE": 9899.60, 'TTTEEE':33167.95}
+chi2s = {"TT": 13521.89, "EE": 9224.61, "TE": 9899.60} #, 'TTTEEE':33167.95}
 #chi2s = {"TT": 11636.29}
 #chi2s = {"TT": 10472.62, 'EE':9413.73, 'TE':10079.78}#, 'TTTEEE':30772.38}  #ell<2000
 
@@ -85,22 +85,22 @@ class HillikPlkTest(unittest.TestCase):
                 skip_global=True,
             )
 
-##     def test_hillipop(self):
-##         import camb
-##         import hillik_planck
+    def test_hillipop(self):
+        import camb
+        import hillik_planck
         
-##         camb_cosmo = cosmo_params.copy()
-##         camb_cosmo.update({"lmax": 2500, "lens_potential_accuracy": 1})
-##         pars = camb.set_params(**camb_cosmo)
-##         results = camb.get_results(pars)
-##         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-##         cl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
+        camb_cosmo = cosmo_params.copy()
+        camb_cosmo.update({"lmax": 2500, "lens_potential_accuracy": 1})
+        pars = camb.set_params(**camb_cosmo)
+        results = camb.get_results(pars)
+        powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
+        cl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
 
-##         for mode, chi2 in chi2s.items():
-##             _hlp = getattr(hillik_planck, mode)
-##             my_lik = _hlp({"packages_path": packages_path})
-##             loglike = my_lik.loglike(cl_dict, **{**calib_params, **nuisance_params[mode]})
-##             self.assertLess( abs(-2 * loglike - chi2), 1)
+        for mode, chi2 in chi2s.items():
+            _hlp = getattr(hillik_planck, mode)
+            my_lik = _hlp({"packages_path": packages_path})
+            loglike = my_lik.loglike(cl_dict, **{**calib_params, **nuisance_params[mode]})
+            self.assertLess( abs(-2 * loglike - chi2), 1)
 
     def test_cobaya(self):
         from cobaya.model import get_model

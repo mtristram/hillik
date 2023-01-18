@@ -19,21 +19,31 @@ cosmo_params = {
 }
 
 calib_params = {
-    "TT": {
+    "TThighl": {
         "cal_SPT": 1.0,
         "cal_SPT_95": 1.0,
         "cal_SPT_150": 1.0,
         "cal_SPT_220": 1.0,
         "FTS_calibration_error": 1.0,
         },
+    "TT": {
+        "cal_SPT3G": 1.0,
+        "cal_SPT3G_T90": 1.0,
+        "cal_SPT3G_T150": 1.0,
+        "cal_SPT3G_T220": 1.0,        
+        "cal_SPT3G_E90": 1.0,
+        "cal_SPT3G_E150": 1.0,
+        "cal_SPT3G_E220": 1.0,        
+        "kappa": 0.0
+        },
     "EE": {
         "cal_SPT3G": 1.0,
         "cal_SPT3G_T90": 1.0,
         "cal_SPT3G_T150": 1.0,
         "cal_SPT3G_T220": 1.0,        
-        "cal_SPT3G_P90": 1.0,
-        "cal_SPT3G_P150": 1.0,
-        "cal_SPT3G_P220": 1.0,        
+        "cal_SPT3G_E90": 1.0,
+        "cal_SPT3G_E150": 1.0,
+        "cal_SPT3G_E220": 1.0,        
         "kappa": 0.0
         },
     "TE": {
@@ -41,76 +51,105 @@ calib_params = {
         "cal_SPT3G_T90": 1.0,
         "cal_SPT3G_T150": 1.0,
         "cal_SPT3G_T220": 1.0,        
-        "cal_SPT3G_P90": 1.0,
-        "cal_SPT3G_P150": 1.0,
-        "cal_SPT3G_P220": 1.0,        
+        "cal_SPT3G_E90": 1.0,
+        "cal_SPT3G_E150": 1.0,
+        "cal_SPT3G_E220": 1.0,        
         "kappa": 0.0
         },
-    "TEEE": {
+    "TTTEEE": {
         "cal_SPT3G": 1.0,
         "cal_SPT3G_T90": 1.0,
         "cal_SPT3G_T150": 1.0,
         "cal_SPT3G_T220": 1.0,        
-        "cal_SPT3G_P90": 1.0,
-        "cal_SPT3G_P150": 1.0,
-        "cal_SPT3G_P220": 1.0,        
+        "cal_SPT3G_E90": 1.0,
+        "cal_SPT3G_E150": 1.0,
+        "cal_SPT3G_E220": 1.0,        
         "kappa": 0.0
-        }
+        },
 }
 
 fg_params = {
-    "TT": dict(
-        Acib=4.6,
-        Atsz=2.6,
-        Aksz=1.3,
+    "TThighl": dict(
+        Acib=4.0,
+        Atsz=3.0,
+        Aksz=1.,
         xi=0.12,
         beta_cib=1.5,
-        Aps_SPT_95x95=8.4,
-        Aps_SPT_95x150=5.9,
-        Aps_SPT_95x220=10.5,
-        Aps_SPT_150x150=9.8,
+        Aps_SPT_95x95=8.36,
+        Aps_SPT_95x150=5.94,
+        Aps_SPT_95x220=10.55,
+        Aps_SPT_150x150=9.83,
         Aps_SPT_150x220=27.4,
         Aps_SPT_220x220=83.2,
         Adust_SPT_95T=0.4,
-        Adust_SPT_150T=1.2,
+        Adust_SPT_150T=1.17,
         Adust_SPT_220T=8.0,
         ),
+    "TT": dict(
+        Adust_SPT3G_90T=0.44,
+        Adust_SPT3G_150T=1.08,
+        Adust_SPT3G_220T=3.19,
+        Acib=4.0,
+        Atsz=3.0,
+        Aksz=1.,
+        xi=0.12,
+        beta_cib=1.5,
+        Aps_SPT3G_90x90=62.61,
+        Aps_SPT3G_90x150=27.9,
+        Aps_SPT3G_90x220=24.3,
+        Aps_SPT3G_150x150=16.7,
+        Aps_SPT3G_150x220=28.6,
+        Aps_SPT3G_220x220=78.5,
+        ),
     "TE": dict(
-        Adust_SPT3G_90T=0.4,
-        Adust_SPT3G_150T=0.2,
-        Adust_SPT3G_220T=0.0,
-        Adust_SPT3G_90P=0.4,
-        Adust_SPT3G_150P=0.2,
-        Adust_SPT3G_220P=0.0,
+        Adust_SPT3G_90T=0.44,
+        Adust_SPT3G_150T=1.08,
+        Adust_SPT3G_220T=3.19,
+        Adust_SPT3G_90P=0.064,
+        Adust_SPT3G_150P=0.16,
+        Adust_SPT3G_220P=0.47,
         ),
     "EE": dict(
-        Adust_SPT3G_90T=0.4,
-        Adust_SPT3G_150T=0.2,
-        Adust_SPT3G_220T=0.0,
-        Adust_SPT3G_90P=0.4,
-        Adust_SPT3G_150P=0.2,
-        Adust_SPT3G_220P=0.0,
+        Adust_SPT3G_90P=0.064,
+        Adust_SPT3G_150P=0.16,
+        Adust_SPT3G_220P=0.47,
         ),
-    "TEEE": dict(
-        Adust_SPT3G_90T=0.4,
-        Adust_SPT3G_150T=0.2,
-        Adust_SPT3G_220T=0.0,
-        Adust_SPT3G_90P=0.4,
-        Adust_SPT3G_150P=0.2,
-        Adust_SPT3G_220P=0.0,
+    "TTTEEE": dict(
+        Adust_SPT3G_90T=0.44,
+        Adust_SPT3G_150T=1.08,
+        Adust_SPT3G_220T=3.19,
+        Adust_SPT3G_90P=0.064,
+        Adust_SPT3G_150P=0.16,
+        Adust_SPT3G_220P=0.47,
+        Acib=4.0,
+        Atsz=3.0,
+        Aksz=1.,
+        xi=0.12,
+        beta_cib=1.5,
+        Aps_SPT3G_90x90=62.61,
+        Aps_SPT3G_90x150=27.9,
+        Aps_SPT3G_90x220=24.3,
+        Aps_SPT3G_150x150=16.7,
+        Aps_SPT3G_150x220=28.6,
+        Aps_SPT3G_220x220=78.5,
         )
     }
 
 #lnLs = {"TT": 145.075,"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
-lnLs = {"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
+#lnLs = {"TTTEEE": 568.3323,"TT": 218.2485,"EE": 218.2485,"TE": 356.61}
+lnLs = {"TThighl":147.88, "TT":557.36, "EE":215.80, "TE":340.59, "TTTEEE":1112.51}
 
 
 class SPTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
-        install({"likelihood": {"hillik_spt.TT": None}}, path=packages_path)
-        install({"likelihood": {"hillik_spt.TEEE": None}}, path=packages_path)
+        for mode in lnLs.keys():
+            install(
+                {"likelihood": {"hillik_spt.{}".format(mode): None}},
+                path=packages_path,
+                skip_global=True,
+            )
 
 ##     def test_spt(self):
 ##         import camb
