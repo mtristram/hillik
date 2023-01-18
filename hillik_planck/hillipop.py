@@ -127,7 +127,6 @@ class _HillipopLikelihood(InstallableLikelihood):
                     filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                     filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                     kwargs["filenames"] = (filename_tsz,filename_cib)
-                print(kwargs)
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs.append(fgsTT)
 
@@ -187,13 +186,13 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         lmins = []
         lmaxs = []
-        for hdu in [0, 1, 3, 3]:  # file HDU [TT,EE,BB,TE]
-            tags = ["TT", "EE", "BB", "TE", "TB", "EB"]
+        for ihdu,hdu in enumerate([0, 1, 3, 3]):  # file HDU [TT,EE,BB,TE]
+            tags = ["TT", "EE", "TE", "ET"]
             data = fits.getdata(filename, hdu + 1)
             lmins.append(np.array(data.field(0), int))
             lmaxs.append(np.array(data.field(1), int))
-            if self._is_mode[tags[hdu]]:
-                self.log.debug("%s" % (tags[hdu]))
+            if self._is_mode[tags[ihdu]]:
+                self.log.debug("%s" % (tags[ihdu]))
                 self.log.debug("lmin: {}".format(np.array(data.field(0), int)))
                 self.log.debug("lmax: {}".format(np.array(data.field(1), int)))
 

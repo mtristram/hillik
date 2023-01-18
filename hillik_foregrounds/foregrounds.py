@@ -169,7 +169,6 @@ class ps(fgmodel):
             dl_ps = []
             for f1, f2 in self._cross_frequencies:
                 dl_ps.append( pars[f"Aps_{self.survey}_{f1}x{f2}"] * self.dltemp)
-            print( np.array(dl_ps)[:,500])
             return np.array(dl_ps)
         else:
             return 0.
