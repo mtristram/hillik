@@ -3,20 +3,20 @@
     prior:
       min: 0.0
       max: 20.0
-    ref: 0.6
+    ref: 0.19
     proposal: 0.5
     latex: A_\mathrm{dust}^{Planck}(100P)
   Adust_PLK_143P:
     prior:
       min: 0.0
       max: 20.0
-    ref: 1.24
+    ref: 0.47
     proposal: 0.5
     latex: A_\mathrm{dust}^{Planck}(143P)
   Adust_PLK_217P:
     prior:
       min: 0.0
       max: 20.0
-    ref: 7.9
+    ref: 0.99
     proposal: 0.4
     latex: A_\mathrm{dust}^{Planck}(217P)
