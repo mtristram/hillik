@@ -80,6 +80,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
             kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
             if isinstance(self.foregrounds["TT"][name], str):
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+            elif name == "szxcib":
+                filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                kwargs["filenames"] = (filename_tsz,filename_cib)
+            print(kwargs)
             self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location
@@ -202,7 +207,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         FTSfactor = params["FTS_calibration_error"]
 
         dl_cmb = np.zeros( self.lmax+1)
-        dl_cmb[:self.BoltzmannLmax] = dl_boltz[:self.BoltzmannLmax]
+        dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
 
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
 #        dlfg = []
@@ -231,13 +236,13 @@ class SPTHiellLikelihood(InstallableLikelihood):
             cbs[thisoffset : thisoffset + thisbin] = tmpcb
 
         # Residuals
-        delta_cb = cbs - self.spec
+        self.delta_cl = cbs - self.spec
 
         # Dl covariance (with beams)
         cov_w_beam = self.cov + self.beam_err * np.outer(cbs, cbs)
 
         # compute LogLike
-        LnL, detcov = self._gaussian_loglike(cov_w_beam, delta_cb)
+        LnL, detcov = self._gaussian_loglike(cov_w_beam, self.delta_cl)
         SPTHiEllLnLike = LnL + detcov
 
         # Add FG priors
@@ -256,12 +261,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
             FTSLnLike = 0.5 * (FTSfactor / 0.3) ** 2
             SPTHiEllLnLike += FTSLnLike
 
-        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
+#        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
         self.log.debug(f"Calibration chisq = {2 * CalibLnLike}")
-        self.log.debug(f"lnLcov term = {detcov}")
-        self.log.debug(f"chisq for cov only: {2 * LnL}")
-#        self.log.debug(f"chisq for FG prior: {2 * FGPriorLnLike}")
-        self.log.debug(f"SPTHiEllLnLike chisq (after prior) = {2 * SPTHiEllLnLike}")
+#        self.log.debug(f"lnLcov term = {detcov}")
+        self.log.debug(f"chisq for cov only: {2 * LnL} / {len(self.delta_cl)}")
+        self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
         return -SPTHiEllLnLike
 
@@ -270,11 +274,23 @@ class SPTHiellLikelihood(InstallableLikelihood):
         return requirements
 
     def logp(self, **params_values):
-        dl = self.theory.get_Cl(units="muK2", ell_factor=True)["tt"]
+        dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
 
-class TT(SPTHiellLikelihood):
+    def reduction_matrix(self):
+        X = np.zeros( (sum(self.nbins), 15) )
+
+        i=0
+        for nb in self.nbins:
+            for ib in range(nb):
+                X[i,ib] = 1.
+                i += 1
+
+        return X
+
+
+class TThighl(SPTHiellLikelihood):
     """
     CMB likelihood with SPT-SZ and SPTpol surveys (Reichard et al. 2020)
     """

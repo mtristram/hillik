@@ -1,0 +1,49 @@
+  #Dust
+  Aps_SPT3G_90x90:
+    prior:
+      dist: norm
+      loc: 51.3
+      scale: 9.4
+    ref: 62.61
+    proposal: 5.
+    latex: A_\mathrm{ps}^{SPT3G}(90x90)
+  Aps_SPT3G_90x150:
+    prior:
+      dist: norm
+      loc: 22.4
+      scale: 7.1
+    ref: 27.9
+    proposal: 5.
+    latex: A_\mathrm{ps}^{SPT3G}(90x150)
+  Aps_SPT3G_90x220:
+    prior:
+      dist: norm
+      loc: 20.7
+      scale: 5.9
+    ref: 24.3
+    proposal: 5.
+    latex: A_\mathrm{ps}^{SPT3G}(90x220)
+  Aps_SPT3G_150x150:
+    prior:
+      dist: norm
+      loc: 15.3
+      scale: 4.1
+    ref: 16.7
+    proposal: 4.
+    latex: A_\mathrm{ps}^{SPT3G}(150x150)
+  Aps_SPT3G_150x220:
+    prior:
+      dist: norm
+      loc: 28.4
+      scale: 4.2
+    ref: 28.6
+    proposal: 4.
+    latex: A_\mathrm{ps}^{SPT3G}(150x220)
+  Aps_SPT3G_220x220:
+    prior:
+      dist: norm
+      loc: 76.0
+      scale: 14.9
+    ref: 78.5
+    proposal: 10.
+    latex: A_\mathrm{ps}^{SPT3G}(220x220)

@@ -1,5 +1,5 @@
 #
-# HILLIPOP
+# HILLIPOP cut a lmax=2000
 #
 # Sep 2020   - M. Tristram -
 import glob
@@ -73,17 +73,17 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._nxspec = self._nmap * (self._nmap - 1) // 2
         self._xspec2xfreq = self._xspec2xfreq()
         self.log.debug("frequencies = {}".format(self.frequencies))
-
+        
         # Define the survey
         self.survey = "PLK"
-
+        
         # Get likelihood name and add the associated mode
         likelihood_name = self.__class__.__name__
         likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
         self._is_mode = {mode: mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
         self._is_mode["ET"] = self._is_mode["TE"]
         self.log.debug("mode = {}".format(self._is_mode))
-
+        
         # Multipole ranges
         filename = os.path.join(self.data_folder, self.multipoles_range_file)
         self._lmins, self._lmaxs = self._set_multipole_ranges(filename)
@@ -92,7 +92,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Data
         basename = os.path.join(self.data_folder, self.xspectra_basename)
         self._dldata = self._read_dl_xspectra(basename, field=1)
-
+        
         # Weights
         dlsig = self._read_dl_xspectra(basename, field=2)
         dlsig[dlsig == 0] = np.inf
@@ -123,6 +123,11 @@ class _HillipopLikelihood(InstallableLikelihood):
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", auto=False, survey=self.survey)
                 if isinstance(self.foregrounds["TT"][name], str):
                     kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+                elif name == "szxcib":
+                    filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                    filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                    kwargs["filenames"] = (filename_tsz,filename_cib)
+                print(kwargs)
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs.append(fgsTT)
 
@@ -132,11 +137,10 @@ class _HillipopLikelihood(InstallableLikelihood):
             for name in self.foregrounds["EE"].keys():
                 if name not in fg_list.keys():
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
+
                 self.log.debug("Adding '{}' foreground for EE".format(name))
-                filename = os.path.join(self.fgds_folder, self.foregrounds["EE"].get(name))
-                fgsEE.append(
-                    fg_list[name](self.lmax, self.frequencies, mode="EE", filename=filename)
-                )
+                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="EE", auto=False, survey=self.survey)
+                fgsEE.append(fg_list[name](**kwargs))
         self.fgs.append(fgsEE)
 
         # Init foregrounds TE
@@ -146,9 +150,9 @@ class _HillipopLikelihood(InstallableLikelihood):
             for name in self.foregrounds["TE"].keys():
                 if name not in fg_list.keys():
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
+                
                 self.log.debug("Adding '{}' foreground for TE".format(name))
-                filename = os.path.join(self.fgds_folder, self.foregrounds["TE"].get(name))
-                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, filename=filename)
+                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, auto=False, survey=self.survey)
                 fgsTE.append(fg_list[name](mode="TE", **kwargs))
                 fgsET.append(fg_list[name](mode="ET", **kwargs))
         self.fgs.append(fgsTE)
@@ -290,7 +294,19 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Nuisances
         cal = []
         for m1, m2 in combinations(range(self._nmap), 2):
-            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + pars[f"cal_{self.survey}_{self._mapnames[m1]}"] + pars[f"cal_{self.survey}_{self._mapnames[m2]}"]))
+            if mode == 0:
+                cal1 = pars[f"cal_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"cal_{self.survey}_{self._mapnames[m2]}"]
+            elif mode == 1:
+                cal1 = pars[f"calE_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"calE_{self.survey}_{self._mapnames[m2]}"]
+            elif mode == 2:
+                cal1 = pars[f"cal_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"calE_{self.survey}_{self._mapnames[m2]}"]
+            elif mode == 3:
+                cal1 = pars[f"calE_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"cal_{self.survey}_{self._mapnames[m2]}"]
+            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + cal1 + cal2))
 
         # Data
         dldata = self._dldata[mode]
@@ -365,13 +381,25 @@ class _HillipopLikelihood(InstallableLikelihood):
                 Wl = Wl + WlET
             # select multipole range
             Xl += self._select_spectra(Rl / Wl, mode=2)
+        
+        self.delta_cl = np.asarray(Xl)
+#        chi2 = self.delta_cl @ self._invkll @ self.delta_cl
+        chi2 = self.delta_cl.dot( self._invkll.dot(self.delta_cl))
 
-        Xl = np.asarray(Xl)
-#        chi2 = Xl @ self._invkll @ Xl
-        chi2 = Xl.dot( self._invkll.dot(Xl))
-
-        self.log.debug("chi2/ndof = {}/{}".format(chi2, len(Xl)))
+        self.log.debug("chi2/ndof = {}/{}".format(chi2, len(self.delta_cl)))
         return chi2
+
+    def reduction_matrix(self, mode=0):
+        X = np.zeros( (len(self.delta_cl),self.lmax+1) )
+        x0 = 0
+        for xf in range(self._nxfreq):
+            lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
+            lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
+            for il,l in enumerate(range(lmin,lmax+1)):
+                X[x0+il,l] = 1
+            x0 += (lmax-lmin+1)
+        
+        return X
 
     def get_requirements(self):
         return dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
@@ -430,24 +458,24 @@ class _HillipopLikelihood(InstallableLikelihood):
 # ------------------------------------------------------------------------------------------------
 
 
-class TTTEEE(_HillipopLikelihood):
-    """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
-    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-    split-frequency maps
+## class TTTEEE(_HillipopLikelihood):
+##     """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
+##     with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
+##     split-frequency maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_v1.1.tar.gz".format(data_url)}
 
 
-class TTTE(_HillipopLikelihood):
-    """High-L TT+TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
-    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-    split-frequency maps
+## class TTTE(_HillipopLikelihood):
+##     """High-L TT+TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
+##     with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
+##     split-frequency maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TTTE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_TTTE_v1.1.tar.gz".format(data_url)}
 
 
 class TT(_HillipopLikelihood):
@@ -458,23 +486,24 @@ class TT(_HillipopLikelihood):
     """
 
     install_options = {"download_url": "{}/planck_2020_hillipop_TT_v1.1.tar.gz".format(data_url)}
+#    install_options = {"download_url": "https://mycore.core-cloud.net/index.php/s/iWz1HR55BHVhVCB/download"}
 
 
-class EE(_HillipopLikelihood):
-    """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
+## class EE(_HillipopLikelihood):
+##     """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+##     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+##     maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_EE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_EE_v1.1.tar.gz".format(data_url)}
 
 
-class TE(_HillipopLikelihood):
-    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
+## class TE(_HillipopLikelihood):
+##     """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+##     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+##     maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_TE_v1.1.tar.gz".format(data_url)}

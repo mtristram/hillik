@@ -9,16 +9,14 @@
 
   poleff_ACT_98:
     prior:
-      dist: norm
-      loc: 0.9860632
-      scale: 0.02
+      min: 0.9
+      max: 1.1
     proposal: 0.01
     latex: y_\mathrm{98}^{ACT}
   poleff_ACT_150:
     prior:
-      dist: norm
-      loc: 0.9714017
-      scale: 0.02
+      min: 0.9
+      max: 1.1
     proposal: 0.01
     latex: y_\mathrm{150}^{ACT}
 

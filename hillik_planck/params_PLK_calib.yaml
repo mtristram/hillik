@@ -58,3 +58,23 @@
     ref: 0.
     proposal: 0.001
     latex: cal_\mathrm{217B}
+
+  calE_PLK_100A:
+    value: "lambda cal_PLK_100A: cal_PLK_100A"
+    latex: calP_\mathrm{100A}
+  calE_PLK_100B:
+    value: "lambda cal_PLK_100B: cal_PLK_100B"
+    latex: calP_\mathrm{100B}
+  calE_PLK_143A:
+    value: "lambda cal_PLK_143A: cal_PLK_143A"
+    latex: calP_\mathrm{143A}
+  calE_PLK_143B:
+    value: "lambda cal_PLK_143B: cal_PLK_143B"
+    latex: calP_\mathrm{143B}
+  calE_PLK_217A:
+    value: "lambda cal_PLK_217A: cal_PLK_217A"
+    latex: calP_\mathrm{217A}
+  calE_PLK_217B:
+    value: "lambda cal_PLK_217B: cal_PLK_217B"
+    latex: calP_\mathrm{217B}
+
