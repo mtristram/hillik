@@ -243,7 +243,7 @@ class SPT3GPrototype(InstallableLikelihood):
         # Initialise foreground model
         self.fgs = {"TT":[],"TE":[],"EE":[]}
         for tag in self.fgs.keys():
-            if tag is self.cross_spectra:
+            if tag in self.cross_spectra:
                 for name in self.foregrounds[tag.upper()].keys():
                     if name not in fg_list.keys():
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
@@ -268,7 +268,7 @@ class SPT3GPrototype(InstallableLikelihood):
     def loglike(self, dl_cmb, **params):
 
         ells = np.arange(self.lmin, self.lmax+1)
-        
+        print(self.use_cl)
         dlfg = {}
         for mode in self.use_cl:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
