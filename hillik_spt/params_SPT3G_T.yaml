@@ -1,4 +1,54 @@
+  #Calib
+  cal_SPT3G_T90:
+    prior:
+      min: 0.85
+      max: 1.15
+    ref: 1.0
+    proposal: 0.01
+    latex: T_{\rm{cal}^{90}}
+
+  cal_SPT3G_T150:
+    prior:
+      min: 0.85
+      max: 1.15
+    ref: 0.9975
+    proposal: 0.01
+    latex: T_{\rm{cal}^{150}}
+
+  cal_SPT3G_T220:
+    prior:
+      min: 0.85
+      max: 1.15
+    ref: 0.9930
+    proposal: 0.01
+    latex: T_{\rm{cal}^{220}}
+
+
   #Dust
+  Adust_SPT3G_90T:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 0.44399
+    proposal: 0.4
+    latex: A_\mathrm{dust}^{SPT3G}(90T)
+  Adust_SPT3G_150T:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.0875
+    proposal: 0.8
+    latex: A_\mathrm{dust}^{SPT3G}(150T)
+  Adust_SPT3G_220T:
+    prior:
+      min: 0.
+      max: 30.
+    ref: 3.1932
+    proposal: 2.5
+    latex: A_\mathrm{dust}^{SPT3G}(220T)
+
+
+  #Poisson
   Aps_SPT3G_90x90:
     prior:
       dist: norm

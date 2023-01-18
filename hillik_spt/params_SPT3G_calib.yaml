@@ -7,54 +7,6 @@
     latex: c^{SPT3G}
 
 
-  cal_SPT3G_T90:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.0
-    proposal: 0.01
-    latex: T_{\rm{cal}^{90}}
-
-  cal_SPT3G_T150:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 0.9975
-    proposal: 0.01
-    latex: T_{\rm{cal}^{150}}
-
-  cal_SPT3G_T220:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 0.9930
-    proposal: 0.01
-    latex: T_{\rm{cal}^{220}}
-
-  cal_SPT3G_E90:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.0009
-    proposal: 0.01
-    latex: P_{\rm{cal}^{90}}
-
-  cal_SPT3G_E150:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.0020
-    proposal: 0.01
-    latex: P_{\rm{cal}^{150}}
-
-  cal_SPT3G_E220:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.019
-    proposal: 0.01
-    latex: P_{\rm{cal}^{220}}
-
   #super sample lensing
   kappa:
     prior:

@@ -31,16 +31,10 @@ calib_params = {
         "cal_SPT3G_T90": 1.0,
         "cal_SPT3G_T150": 1.0,
         "cal_SPT3G_T220": 1.0,        
-        "cal_SPT3G_E90": 1.0,
-        "cal_SPT3G_E150": 1.0,
-        "cal_SPT3G_E220": 1.0,        
         "kappa": 0.0
         },
     "EE": {
         "cal_SPT3G": 1.0,
-        "cal_SPT3G_T90": 1.0,
-        "cal_SPT3G_T150": 1.0,
-        "cal_SPT3G_T220": 1.0,        
         "cal_SPT3G_E90": 1.0,
         "cal_SPT3G_E150": 1.0,
         "cal_SPT3G_E220": 1.0,        

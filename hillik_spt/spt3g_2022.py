@@ -231,11 +231,11 @@ class SPT3GPrototype(InstallableLikelihood):
 
         # Effective band centres
         nu_eff = np.loadtxt(os.path.join(self.data_folder, self.nu_eff_filename))
-        self.nu_eff_gal_cirrus = dict(zip(["90", "150", "220"], nu_eff[0]))
+        self.nu_eff_gal_cirrus   = dict(zip(["90", "150", "220"], nu_eff[0]))
         self.nu_eff_pol_gal_dust = dict(zip(["90", "150", "220"], nu_eff[1]))
-        self.nu_eff_DSFG = dict(zip(["90", "150", "220"], nu_eff[2]))
-        self.nu_eff_radio = dict(zip(["90", "150", "220"], nu_eff[3]))
-        self.nu_eff_tSZ = dict(zip(["90", "150", "220"], nu_eff[4]))
+        self.nu_eff_DSFG         = dict(zip(["90", "150", "220"], nu_eff[2]))
+        self.nu_eff_radio        = dict(zip(["90", "150", "220"], nu_eff[3]))
+        self.nu_eff_tSZ          = dict(zip(["90", "150", "220"], nu_eff[4]))
 
         self.lmin = self.windows_lmin
         self.lmax = self.windows_lmax
@@ -268,7 +268,7 @@ class SPT3GPrototype(InstallableLikelihood):
     def loglike(self, dl_cmb, **params):
 
         ells = np.arange(self.lmin, self.lmax+1)
-        print(self.use_cl)
+
         dlfg = {}
         for mode in self.use_cl:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
@@ -302,7 +302,6 @@ class SPT3GPrototype(InstallableLikelihood):
             
             # Binning via window and concatenate
             db_model[i] = self.windows[:, i, :] @ dl_model
-#            print(cross_frequency, db_model[i])
 
         # Select bins and calculate difference of theory and data
         self.log.debug("Compute residuals")
@@ -319,10 +318,10 @@ class SPT3GPrototype(InstallableLikelihood):
         # Add the beam coariance to the band power covariance
         self.log.debug("Add beam cov")
         cov_for_logl = self.bp_cov_posdef + self.beam_cov * np.outer(dbs, dbs)
-
+        
         # Final crop to ignore select band powers
         # MT: not implemented
-
+        
         # Compute chisq
         self.log.debug("Compute chi2")
         chi2, slogdet = self._gaussian_loglike(cov_for_logl, delta_data_model, cholesky=True)
