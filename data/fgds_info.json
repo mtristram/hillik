@@ -111,20 +111,6 @@
         "used_in": null,
         "website": null
     },
-    "comment_fgds.py~": {
-        "authors": null,
-        "comments": null,
-        "extrapolated": false,
-        "filetype": ".py~",
-        "freq": null,
-        "lmax": null,
-        "lmin": null,
-        "reference": null,
-        "type": null,
-        "typebis": "",
-        "used_in": null,
-        "website": null
-    },
     "dl_CIB_1h_2h_Abi_545_13500.dat": {
         "authors": "Abi",
         "comments": null,
@@ -210,14 +196,14 @@
         "website": null
     },
     "dl_ksz_AGRF.dat": {
-        "authors": null,
+        "authors": "Gorce",
         "comments": null,
         "extrapolated": false,
         "filetype": ".dat",
         "freq": null,
         "lmax": 13500,
         "lmin": 0,
-        "reference": null,
+        "reference": "Gorce et al 2022 ",
         "type": "kSZ",
         "typebis": "",
         "used_in": null,
@@ -243,8 +229,8 @@
         "extrapolated": false,
         "filetype": ".dat",
         "freq": null,
-        "lmax": 13500,
-        "lmin": 0,
+        "lmax": 10000,
+        "lmin": 2,
         "reference": "",
         "type": "kSZ",
         "typebis": "",
