@@ -123,6 +123,11 @@ class _HillipopLikelihood(InstallableLikelihood):
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", auto=False, survey=self.survey)
                 if isinstance(self.foregrounds["TT"][name], str):
                     kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+                elif name == "szxcib":
+                    filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                    filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                    kwargs["filenames"] = (filename_tsz,filename_cib)
+                print(kwargs)
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs.append(fgsTT)
 
@@ -289,7 +294,19 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Nuisances
         cal = []
         for m1, m2 in combinations(range(self._nmap), 2):
-            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + pars[f"cal_{self.survey}_{self._mapnames[m1]}"] + pars[f"cal_{self.survey}_{self._mapnames[m2]}"]))
+            if mode == 0:
+                cal1 = pars[f"cal_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"cal_{self.survey}_{self._mapnames[m2]}"]
+            elif mode == 1:
+                cal1 = pars[f"calE_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"calE_{self.survey}_{self._mapnames[m2]}"]
+            elif mode == 2:
+                cal1 = pars[f"cal_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"calE_{self.survey}_{self._mapnames[m2]}"]
+            elif mode == 3:
+                cal1 = pars[f"calE_{self.survey}_{self._mapnames[m1]}"]
+                cal2 = pars[f"cal_{self.survey}_{self._mapnames[m2]}"]
+            cal.append(pars[f"cal_{self.survey}"] ** 2 * (1. + cal1 + cal2))
 
         # Data
         dldata = self._dldata[mode]

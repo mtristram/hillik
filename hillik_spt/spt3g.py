@@ -200,11 +200,7 @@ class SPT3GPrototype(InstallableLikelihood):
         dlfg = {}
         for mode in self.use_cl:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),lmax+1))
-            if mode == "EE":
-                for fg in self.fgs["EE"]: dlfg[mode] += fg.compute_dl( params_values)
-            if mode == "TE":
-                for fg in self.fgs["TE"]: dlfg[mode] += fg.compute_dl( params_values) / 2.
-                for fg in self.fgs["ET"]: dlfg[mode] += fg.compute_dl( params_values) / 2.
+            for fg in self.fgs[mode]: dlfg[mode] += fg.compute_dl( params_values)
         
         dbs = np.empty_like(self.bandpowers)
         for i, (cross_spectrum, cross_frequency) in enumerate(zip(self.cross_spectra, self.cross_frequencies)):
@@ -252,7 +248,7 @@ class SPT3GPrototype(InstallableLikelihood):
                     params_values.get(f"cal_SPT3G_T{freq1}") * params_values.get(f"cal_SPT3G_P{freq2}") +
                     params_values.get(f"cal_SPT3G_T{freq2}") * params_values.get(f"cal_SPT3G_P{freq1}")
                     )
-            dls *= calibration
+            dls *= params_values.get(f"cal_SPT3G") * calibration
 
             # Binning via window and concatenate
             dbs[i * self.nbins: (i+1) * self.nbins] = self.windows[:, i, :] @ dls

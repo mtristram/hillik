@@ -80,6 +80,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
             kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
             if isinstance(self.foregrounds["TT"][name], str):
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+            elif name == "szxcib":
+                filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                kwargs["filenames"] = (filename_tsz,filename_cib)
+            print(kwargs)
             self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location
@@ -285,7 +290,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         return X
 
 
-class TT(SPTHiellLikelihood):
+class TThighl(SPTHiellLikelihood):
     """
     CMB likelihood with SPT-SZ and SPTpol surveys (Reichard et al. 2020)
     """

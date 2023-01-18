@@ -1,2 +1,2 @@
-from .spt_hiell import TT
-from .spt3g import TEEE, EE, TE
+from .spt_hiell import TThighl
+from .spt3g_2022 import TTTEEE, TT, EE, TE

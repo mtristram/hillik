@@ -36,3 +36,6 @@
     ref: 1.
     proposal: 1
     latex: A_\mathrm{kSZ}
+  T_cib:
+    value: 9.7
+    latex: T^{CIB}

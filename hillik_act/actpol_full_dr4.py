@@ -53,8 +53,8 @@ class ACTPolLikelihood(InstallableLikelihood):
     # likelihood terms from ACT data
     #----------------------------------------------------------------
     nnu      = 2     # number of frequencies
-    nspectot = 10    #nspecf*nspec+2 TE for 90x150 and 150x90
-    nspecf   = 3     #95x95, 95x150, 150
+    nspectot = 10    #TT90x90, TT90x150, TT150x150, TE90x90, TE90x150, TE150x90, TE150x150, EE90x90, EE90x150, EE150x150
+    nspecf   = 3     #95x95, 95x150, 150x150
     nspectt  = 3     #TT
     nspecte  = 4     #TE
     nspecee  = 3     #EE
@@ -189,6 +189,10 @@ class ACTPolLikelihood(InstallableLikelihood):
                     kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), auto=True, survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
+                    elif name == "szxcib":
+                        filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                        filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                        kwargs["filenames"] = (filename_tsz,filename_cib)
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
         if self._is_mode['tt']: self.log.debug(f"nbintt: {self.nbintt}")

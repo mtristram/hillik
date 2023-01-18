@@ -1,0 +1,22 @@
+  #Dust
+  Adust_SPT3G_90P:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 0.0637
+    proposal: 0.4
+    latex: A_\mathrm{dust}^{SPT3G}(90P)
+  Adust_SPT3G_150P:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 0.158
+    proposal: 0.8
+    latex: A_\mathrm{dust}^{SPT3G}(150P)
+  Adust_SPT3G_220P:
+    prior:
+      min: 0.
+      max: 30.
+    ref: 0.471
+    proposal: 2.5
+    latex: A_\mathrm{dust}^{SPT3G}(220P)
