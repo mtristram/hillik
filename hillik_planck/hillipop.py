@@ -458,14 +458,14 @@ class _HillipopLikelihood(InstallableLikelihood):
 # ------------------------------------------------------------------------------------------------
 
 
-class TTTEEE(_HillipopLikelihood):
-    """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
-    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-    split-frequency maps
+## class TTTEEE(_HillipopLikelihood):
+##     """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
+##     with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
+##     split-frequency maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_v1.1.tar.gz".format(data_url)}
 
 
 ## class TTTE(_HillipopLikelihood):
@@ -489,21 +489,21 @@ class TT(_HillipopLikelihood):
 #    install_options = {"download_url": "https://mycore.core-cloud.net/index.php/s/iWz1HR55BHVhVCB/download"}
 
 
-class EE(_HillipopLikelihood):
-    """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
+## class EE(_HillipopLikelihood):
+##     """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+##     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+##     maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_EE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_EE_v1.1.tar.gz".format(data_url)}
 
 
-class TE(_HillipopLikelihood):
-    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
+## class TE(_HillipopLikelihood):
+##     """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+##     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+##     maps
 
-    """
+##     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TE_v1.1.tar.gz".format(data_url)}
+##     install_options = {"download_url": "{}/planck_2020_hillipop_TE_v1.1.tar.gz".format(data_url)}
