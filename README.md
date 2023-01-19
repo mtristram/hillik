@@ -27,7 +27,7 @@ Likelihood versions
 
 Likelihoods available are:
 * ``hillik_planck``, Planck 2020 (PR4) [Planck Collaboration 2020](https://arxiv.org/abs/2007.04997)
-* ``hillik_spt``, SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197) et SPT3G (Balkenhol et al. 2022](https://arxiv.org/abs/2212.05642)
+* ``hillik_spt``, SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197) et SPT3G [Balkenhol et al. 2022](https://arxiv.org/abs/2212.05642)
 * ``hillik_act``, ACT DR4 Baseline Multi-frquency Likelihood presented in [Choi et al. 2020](https://arxiv.org/abs/2007.07289)
 
 Install
