@@ -27,7 +27,7 @@ jobs:
       run: |
         echo $GITHUB_WORKSPACE
         echo $COBAYA_PACKAGES_PATH
-        mkdir $COBAYA_PACKAGES_PATH/data
+        mkdir -p $COBAYA_PACKAGES_PATH/data
         ln -s $PWD/data $COBAYA_PACKAGES_PATH/data/foregrounds
 
     - name: Set up Python ${{ matrix.python-version }}
