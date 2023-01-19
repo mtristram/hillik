@@ -69,7 +69,7 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 13521.89, "EE": 9224.61, "TE": 9899.60} #, 'TTTEEE':33167.95}
+chi2s = {"TT": 13360.63, "EE": 9224.61, "TE": 9899.60} #, 'TTTEEE':33167.95}
 #chi2s = {"TT": 11636.29}
 #chi2s = {"TT": 10472.62, 'EE':9413.73, 'TE':10079.78}#, 'TTTEEE':30772.38}  #ell<2000
 
@@ -98,7 +98,7 @@ class HillikPlkTest(unittest.TestCase):
 
         for mode, chi2 in chi2s.items():
             _hlp = getattr(hillik_planck, mode)
-            my_lik = _hlp({"packages_path": packages_path})
+            my_lik = _hlp({"debug": True,"packages_path": packages_path})
             loglike = my_lik.loglike(cl_dict, **{**calib_params, **nuisance_params[mode]})
             self.assertLess( abs(-2 * loglike - chi2), 1)
 

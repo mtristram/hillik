@@ -1,7 +1,7 @@
   TT:
     galactic_dust: null
-    tsz: dl_shaw_tsz_s10_153ghz_norm1_fake25000.txt
-    ksz: dl_ksz_CSFplusPATCHY_13sep2011_norm1_fake25000.txt
+    tsz: dl_tsz_planck_13500.dat
+    ksz: dl_ksz_planck_2_13500.dat
     cib: cib_extra.dat
     szxcib: null
     poisson: null
