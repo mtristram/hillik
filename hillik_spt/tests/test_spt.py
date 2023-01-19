@@ -131,7 +131,7 @@ fg_params = {
 
 #lnLs = {"TT": 145.075,"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
 #lnLs = {"TTTEEE": 568.3323,"TT": 218.2485,"EE": 218.2485,"TE": 356.61}
-lnLs = {"TThighl":147.88, "TT":557.36, "EE":215.80, "TE":340.59, "TTTEEE":1112.51}
+lnLs = {"TThighl":151.15, "TT":568.86, "EE":215.80, "TE":340.59, "TTTEEE":1123.73}
 
 
 class SPTLikeTest(unittest.TestCase):

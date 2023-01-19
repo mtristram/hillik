@@ -69,7 +69,7 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 13360.63, "EE": 9224.61, "TE": 9899.60} #, 'TTTEEE':33167.95}
+chi2s = {"TT": 13327.19, "EE": 9224.61, "TE": 9899.60} #, 'TTTEEE':33167.95}
 #chi2s = {"TT": 11636.29}
 #chi2s = {"TT": 10472.62, 'EE':9413.73, 'TE':10079.78}#, 'TTTEEE':30772.38}  #ell<2000
 

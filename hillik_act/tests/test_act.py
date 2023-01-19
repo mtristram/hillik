@@ -88,10 +88,10 @@ nuisance_params = {
 #    "wide.TTTEEE": 364.04, "deep.TTTEEE": 293.56
 #    }
 chi2s = {
-    "wide.TT": 148.60, "deep.TT": 145.06,
-    "wide.EE": 229.25, "deep.EE": 157.25,
+    "wide.TT": 149.00, "deep.TT": 145.89,
+    "wide.EE": 229.25, "deep.EE": 157.26,
     "wide.TE": 221.21, "deep.TE": 203.97,
-    "wide.TTTEEE": 586.27, "deep.TTTEEE": 543.19
+    "wide.TTTEEE": 585.96, "deep.TTTEEE": 542.08
     }
 
 
