@@ -31,7 +31,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
     frequencies: Sequence[int] = [95, 150, 220]
     ReportFGLmax = 13500
-    BoltzmannLmax = 10000
+    BoltzmannLmax: Optional[int] = 10000
     
     fgds_folder: Optional[str] = "foregrounds"
     data_folder: Optional[str] = "spt_hiell_2020/likelihood"
@@ -40,11 +40,12 @@ class SPTHiellLikelihood(InstallableLikelihood):
     cov_file: Optional[str]
     beamerr_file: Optional[str]
     window_file: Optional[str]
-
+    bin0: Optional[int] = 0 #cut first bins
+    
     normalizeSZ_143GHz: Optional[bool] = True
     callFGprior: Optional[bool] = True
     applyFTSprior: Optional[bool] = True
-
+    
     def initialize(self):
         # Set path to data
         if (not getattr(self, "path", None)) and (not getattr(self, "packages_path", None)):
@@ -97,6 +98,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         self.log.debug(f"nfreq: {self.nfreq}")
         self.log.debug(f"spt_windows_lmin: {self.spt_windows_lmin}")
         self.log.debug(f"spt_windows_lmax: {self.spt_windows_lmax}")
+        self.log.debug(f"Boltzmann lmax: {self.BoltzmannLmax}")
 
         self.lmin = self.spt_windows_lmin
         self.lmax = self.spt_windows_lmax
@@ -218,28 +220,33 @@ class SPTHiellLikelihood(InstallableLikelihood):
 #        np.save( "hillik_spt_fgs", np.array(dlfg))
 
         # Loop on nband
-        cbs = np.zeros(self.nall)
+        cbs = []
+        cbd = []
         for i in range(self.nband):
             j, k = self.indices[i]
             thisoffset = self.offsets[i]
-            thisbin = self.nbins[i]
+            thisnbin = self.nbins[i]
 
             # get theory spectra
             dl_th = dl_cmb[self.lmin : self.lmax+1] + dl_fg[i, self.lmin : self.lmax+1]
 
             # bin theory with window functions
-            tmpcb = self.windows[thisoffset:thisoffset+thisbin] @ dl_th
+            tmpcb = self.windows[thisoffset+self.bin0:thisoffset+thisnbin] @ dl_th
 
             # apply prefactors
             tmpcb = tmpcb * self.spt_prefactor[k] * self.spt_prefactor[j] * CalFactors[j] * CalFactors[k] * Cal
 
-            cbs[thisoffset : thisoffset + thisbin] = tmpcb
-
+            cbs += list(tmpcb)
+            cbd += list(self.spec[thisoffset+self.bin0:thisoffset+thisnbin])
+            
         # Residuals
-        self.delta_cl = cbs - self.spec
+        self.delta_cl = np.array(cbs) - np.array(cbd)
 
         # Dl covariance (with beams)
-        cov_w_beam = self.cov + self.beam_err * np.outer(cbs, cbs)
+        indices = []
+        for i in range(self.nband):
+            indices += list(np.arange(self.offsets[i]+self.bin0,self.offsets[i]+self.nbins[i]))
+        cov_w_beam = self.cov[np.ix_(indices,indices)] + self.beam_err[np.ix_(indices,indices)] * np.outer(cbs, cbs)
 
         # compute LogLike
         LnL, detcov = self._gaussian_loglike(cov_w_beam, self.delta_cl)
