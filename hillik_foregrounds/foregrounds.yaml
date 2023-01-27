@@ -3,7 +3,7 @@
     tsz: dl_tsz_planck_13500.dat
     ksz: dl_ksz_planck_2_13500.dat
     cib: cib_extra.dat
-    szxcib: null
+    szxcib: sz_x_cib_template_13500.dat
     poisson: null
   EE:
     galactic_dust: null

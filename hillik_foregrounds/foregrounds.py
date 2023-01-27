@@ -317,30 +317,18 @@ class szxcib(fgmodel):
         if self._is_template:
             self.x_tmpl = self._read_dl_template(filename)
         elif "filenames" in kwargs:
-            self._tsz = tsz( lmax, freqs, mode=mode, auto=auto, survey=survey, filename=kwargs["filenames"][0], lnorm=lnorm)
-            self._cib = cib( lmax, freqs, mode=mode, auto=auto, survey=survey, filename=kwargs["filenames"][1], lnorm=lnorm)
+            self.x_tmpl = self._read_dl_template(kwargs["filenames"][0])*self._read_dl_template(kwargs["filenames"][1])
         else:
             raise ValueError( f"Missing template for SZxCIB  for {self.survey}")
             
     def compute_dl(self, pars):
-        if self._is_template:
-            dl_szxcib = []
-            for f1, f2 in self._cross_frequencies:
-                dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]*pars["Atsz"]) * (
-                    self._tszRatio(self.fsz[self.survey][f2],self.feff) * self._cibRatio(self.fcib[self.survey][f1], self.feff, pars['beta_cib']) +
-                    self._tszRatio(self.fsz[self.survey][f1],self.feff) * self._cibRatio(self.fcib[self.survey][f2], self.feff, pars['beta_cib'])
-                    )
+        dl_szxcib = []
+        for f1, f2 in self._cross_frequencies:
+            dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]*pars["Atsz"]) * (
+                self._tszRatio(self.fsz[self.survey][f2],self.feff) * self._cibRatio(self.fcib[self.survey][f1], self.feff, pars['beta_cib']) +
+                self._tszRatio(self.fsz[self.survey][f1],self.feff) * self._cibRatio(self.fcib[self.survey][f2], self.feff, pars['beta_cib'])
                 )
-        else:
-            dl_cib = self._cib.compute_dl( pars)
-            dl_tsz = self._tsz.compute_dl( pars)
-            
-            dl_szxcib = []
-            for f1, f2 in self._cross_frequencies:
-                dl_szxcib.append(
-                    np.sqrt( dl_tsz[self._cross_frequencies.index((f1,f1))]*dl_cib[self._cross_frequencies.index((f2,f2))] ) +
-                    np.sqrt( dl_tsz[self._cross_frequencies.index((f2,f2))]*dl_cib[self._cross_frequencies.index((f1,f1))] )
-                    )
+            )
 
         if self.mode == "TT":
             return -1. * pars["xi"] * np.array(dl_szxcib)
