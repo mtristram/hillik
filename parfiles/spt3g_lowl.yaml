@@ -1,0 +1,70 @@
+debug: False
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  spt3g_2022.TTTEEE: null
+
+params:
+  # Boltzmann
+  cosmomc_theta:
+    prior:
+      min: 0.0103
+      max: 0.0105
+    ref: 0.010475
+    proposal: 1.5e-6
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    proposal: 0.0036
+    ref: 3.037
+    drop: True
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+  ns:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 0.964
+    proposal: 0.0033
+  ombh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    ref: 0.02216
+    proposal: 6.5e-5
+  omch2:
+    prior:
+      min: 0.09
+      max: 0.15
+    ref: 0.1185
+    proposal: 0.0011
+  tau:
+    prior:
+      dist: norm
+      loc: 0.0540
+      scale: 0.0074
+    ref: 0.054
+    proposal: 0.007
+
+  #derived
+  H0:
+
+  sigma8:
+
+  Asexptau:
+    derived: "lambda As,tau: 1e9*As*np.exp(-2.*tau)" 
+
+theory:
+  camb:
+    stop_at_error: True
+    extra_args:
+      lens_potential_accuracy: 1
+
+sampler:
+  mcmc:
+
+output: chains/mcmc
+
+force: true

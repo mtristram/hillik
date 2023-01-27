@@ -1,0 +1,105 @@
+debug: False
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_hillipop.TT: null
+
+params:
+  # Cosmo
+  cosmomc_theta:
+    prior:
+      min: 0.0103
+      max: 0.0105
+    proposal: 1.5e-6
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    proposal: 0.0036
+    drop: True
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+  ns:
+    prior:
+      min: 0.9
+      max: 1.0
+    proposal: 0.0033
+  ombh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    proposal: 6.5e-5
+  omch2:
+    prior:
+      min: 0.09
+      max: 0.15
+    proposal: 0.0011
+  tau:
+    prior:
+      min: 0.01
+      max: 0.15
+    proposal: 0.007
+
+
+  Aps_100x100:
+    prior:
+      min: 0
+      max: 400
+    ref: 283
+    proposal: 10
+  Aps_100x143:
+    prior:
+      min: 0
+      max: 200
+    ref: 128
+    proposal: 10
+  Aps_100x217:
+    prior:
+      min: 0
+      max: 150
+    ref: 90
+    proposal: 10
+  Aps_143x143:
+    prior:
+      min: 0
+      max: 100
+    ref: 49.5
+    proposal: 10
+  Aps_143x217:
+    prior:
+      min: 0
+      max: 100
+    ref: 35
+    proposal: 10
+  Aps_217x217:
+    prior:
+      min: 0
+      max: 150
+    ref: 70
+    proposal: 10
+  Asz:
+    prior:
+      min: 0.
+      max: 10.
+    proposal: 0.1
+  Acib:
+    prior:
+      min: 0.
+      max: 10.
+    proposal: 0.1
+
+
+prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.015)'
+
+
+theory:
+  pico:
+    picofile: /sps/planck/camel/pico4_tailmonty_v35_py3.dat
+
+sampler:
+  mcmc:
+
+output: chains/mcmc
+
+force: true

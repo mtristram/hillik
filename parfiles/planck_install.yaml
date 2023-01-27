@@ -1,0 +1,13 @@
+debug: False
+
+likelihood:
+  planck_2018_lensing.clik: null
+  planck_2018_lowl.TT: null
+
+theory:
+  camb:
+
+sampler:
+  mcmc:
+
+output: chains/mcmc

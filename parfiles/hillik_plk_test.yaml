@@ -1,0 +1,62 @@
+debug: true
+
+likelihood:
+  hillik_planck.TT: null
+  planck_2018_lowl.TT: null
+
+
+params:
+  # Cosmo
+  cosmomc_theta: 0.0104
+  logA: 3.1
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+  ns: 0.96
+  ombh2: 0.022
+  omch2: 0.12
+  tau: 0.055
+
+  # nuisance
+#  cal_PLK: 1.
+  cal_PLK_100A: 0.
+  cal_PLK_100B: 0.
+  cal_PLK_143A: 0.
+  cal_PLK_143B: 0.
+  cal_PLK_217A: 0.
+  cal_PLK_217B: 0.
+
+  #foregrounds
+#  Adust_PLK_100: 3.
+#  Adust_PLK_143: 1.
+#  Adust_PLK_217: 6.
+
+#  Aps_PLK_100x100: 140.   #405
+#  Aps_PLK_100x143: 25.    #183
+#  Aps_PLK_100x217: 0.     #129
+#  Aps_PLK_143x143: 0.     #70
+#  Aps_PLK_143x217: 16.    #50
+#  Aps_PLK_217x217: 135.   #100
+
+#  Atsz: 3.
+#  Aksz: 1.
+#  xi: 0.1
+#  Acib: 4.
+  beta_cib: 1.6
+
+theory:
+  camb:
+    stop_at_error: True
+    extra_args:
+      lens_potential_accuracy: 1
+
+sampler:
+  mcmc:
+#  scan:
+#    param: Aps_PLK_143x143
+#    min: 0.
+#    max: 1.
+#    N: 11
+
+output: chains/mcmc
+
+force: true
