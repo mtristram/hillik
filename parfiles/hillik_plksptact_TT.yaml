@@ -5,9 +5,10 @@ likelihood:
   hillik_planck.TT:
     multipoles_range_file: data/binning_lmax2000.fits
     covariance_matrix_file: data/invfll_NPIPE_detset_ext_lmax2000_TT.fits
-  hillik_spt.TThigh:
-    bin0: 5
-  hillik_spt.TT: null
+  hillik_spt.TThighl: null
+  hillik_spt.TT:
+    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
   hillik_act.wide.TT:
     bminTT: 33
   hillik_act.deep.TT:

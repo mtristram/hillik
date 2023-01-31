@@ -3,9 +3,10 @@ debug: false
 likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
-  hillik_spt.TTTEEE: null
-  hillik_spt.TThighl:
-    bin0: 5
+  hillik_spt.TTTEEE:
+    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]  
+  hillik_spt.TThighl: null
 
 params:
 #  cal_SPT: 1.00
