@@ -1,20 +1,17 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  hillik_planck.TT: null
-  hillik_spt.TT: null
-  hillik_act.wide.TT: null
-  hillik_act.deep.TT: null
-
+  hillik_spt.EE: null
 
 params:
+  cal_SPT3G: 1.00
+
   # Cosmo
   cosmomc_theta:
     prior:
       min: 0.0103
       max: 0.0105
-    ref: 0.0104
+    ref: 0.0104025
     proposal: 1.5e-6
     latex: \theta_\mathrm{MC}
   logA:
@@ -22,7 +19,7 @@ params:
       min: 2.6
       max: 3.5
     proposal: 0.0036
-    ref: 3.044
+    ref: 3.037
     drop: True
     latex: \log(10^{10} A_\mathrm{s})
   As:
@@ -32,44 +29,47 @@ params:
     prior:
       min: 0.9
       max: 1.1
-    ref: 0.9649
+    ref: 0.97
     proposal: 0.0033
     latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
-    ref: 0.02237
+    ref: 0.02224
     proposal: 6.5e-5
     latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
-    ref: 0.1200
+    ref: 0.1166
     proposal: 0.0011
     latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
       min: 0.01
       max: 0.15
-    ref: 0.055
+    ref: 0.054
     proposal: 0.007
     latex: \tau_\mathrm{reio}
 
+  #derived
+  H0:
+
+  sigma8:
 
 prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.007)'
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:
-    stop_at_error: True
+    stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plksptact.covmat
 
 output: chains/mcmc
 
