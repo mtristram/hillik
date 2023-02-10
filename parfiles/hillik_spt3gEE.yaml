@@ -1,7 +1,6 @@
-debug: False
+debug: false
 
 likelihood:
-  planck_2020_lollipop.lowlE: null
   hillik_spt.EE: null
 
 params:
@@ -60,10 +59,12 @@ params:
 
   sigma8:
 
+prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:
-    stop_at_error: True
+    stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
 

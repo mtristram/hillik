@@ -85,7 +85,6 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                 filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                 kwargs["filenames"] = (filename_tsz,filename_cib)
-            print(kwargs)
             self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location

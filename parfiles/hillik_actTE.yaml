@@ -1,14 +1,12 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
   hillik_act.wide.TE: null
   hillik_act.deep.TE: null
 
 
 params:
-  cal_ACT: 1.018
+  cal_ACT: 1.0
 
   # Cosmo
   cosmomc_theta:
@@ -64,6 +62,8 @@ params:
 
   sigma8:
 
+prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:

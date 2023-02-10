@@ -1,12 +1,12 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
   hillik_planck.EE: null
   hillik_spt.EE: null
-  hillik_act.wide.EE: null
-  hillik_act.deep.EE: null
+  hillik_act.wide.EE:
+    bminEE: 13
+  hillik_act.deep.EE:
+    bminEE: 13
 
 
 params:
@@ -64,6 +64,8 @@ params:
 
   sigma8:
 
+prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:

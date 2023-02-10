@@ -1,7 +1,6 @@
-debug: False
+debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
   hillik_spt.TT: null
 
 params:
@@ -61,7 +60,7 @@ params:
   sigma8:
 
 prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.007)'
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:

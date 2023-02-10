@@ -1,12 +1,12 @@
-debug: False
+debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
   hillik_act.wide.TT: null
   hillik_act.deep.TT: null
 
+
 params:
-  cal_ACT: 1.018
+  cal_ACT: 1.00
 
   # Cosmo
   cosmomc_theta:
@@ -62,7 +62,7 @@ params:
   sigma8:
 
 prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.007)'
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:

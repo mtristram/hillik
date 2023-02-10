@@ -1,0 +1,45 @@
+debug: false
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
+  hillik_spt.TTTEEE:
+    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
+  hillik_spt.TThighl: null
+  hillik_act.wide.TTTEEE:
+    bminTT: 33
+  hillik_act.deep.TTTEEE:
+    bminTT: 33
+
+
+params:
+  # Cosmo
+  cosmomc_theta: 0.01040535
+  logA: 3.045323
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_\mathrm{s}
+  ns: 0.964715
+  ombh2: 0.022138
+  omch2: 0.120955
+  tau: 0.055451
+
+  #derived
+  H0:
+
+  sigma8:
+
+theory:
+  camb:
+    stop_at_error: True
+    extra_args:
+      lens_potential_accuracy: 1
+
+sampler:
+  mcmc:
+
+output: chains/mcmc
+
+force: true

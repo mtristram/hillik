@@ -1,12 +1,9 @@
-debug: False
+debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
   hillik_spt.TTTEEE: null
 
 params:
-#  cal_SPT: 0.96
   cal_SPT3G: 1.00
 
   # Cosmo
@@ -62,6 +59,8 @@ params:
 
   sigma8:
 
+prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 theory:
   camb:
@@ -71,6 +70,7 @@ theory:
 
 sampler:
   mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_spt3gTTTEEE.covmat 
 
 output: chains/mcmc
 

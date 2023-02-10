@@ -131,7 +131,7 @@ fg_params = {
 
 #lnLs = {"TT": 145.075,"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
 #lnLs = {"TTTEEE": 568.3323,"TT": 218.2485,"EE": 218.2485,"TE": 356.61}
-lnLs = {"TThighl":151.15, "TT":568.86, "EE":215.80, "TE":340.59, "TTTEEE":1123.73}
+lnLs = {"TThighl":151.15, "TT":573.66, "EE":215.64, "TE":340.56, "TTTEEE":1128.19}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -154,11 +154,11 @@ class SPTLikeTest(unittest.TestCase):
 ##         for mode, lnL in lnLs.items():
 ##             _spt = getattr(hillik_spt, mode)(dict(packages_path=packages_path))
 
-##             camb_cosmo.update({"lmax": _spt.BoltzmannLmax, "lens_potential_accuracy": 1})
+##             camb_cosmo.update({"lmax": _spt.lmax, "lens_potential_accuracy": 1})
 ##             pars = camb.set_params(**camb_cosmo)
 ##             results = camb.get_results(pars)
 ##             powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-##             cl_boltz = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
+##             cl_boltz = {k: powers["total"][:, v] for k, v in {"TT": 0, "EE": 1, "TE": 3}.items()}
             
 ##             loglike = _spt.loglike(cl_boltz, **fg_params[mode],**calib_params[mode])
 ##             self.assertAlmostEqual(-loglike, lnL, 2)

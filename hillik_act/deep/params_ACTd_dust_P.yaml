@@ -2,7 +2,7 @@
     prior:
       min: 0.
       max: 10.0
-    ref: 2.9
+    ref: 0.1
     proposal: 1.4
     latex: A^{ACTd}_\mathrm{dust}(98P)
 
@@ -10,6 +10,6 @@
     prior:
       min: 0.
       max: 10.
-    ref: 1.0
+    ref: 0.2
     proposal: 0.9
     latex: A^{ACTd}_\mathrm{dust}(150P)
