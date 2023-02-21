@@ -197,7 +197,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         # Compute chi2
         chi2 = res @ invCd
 
-        return chi2 / 2.0, detcov / 2.0
+        return chi2, detcov
 
     def loglike(self, dl_boltz, **params):
         """
@@ -264,16 +264,16 @@ class SPTHiellLikelihood(InstallableLikelihood):
         # Add FTS prior
         # Prior is 0.3 GHz for 1 sigma around 0.
         if self.applyFTSprior:
-            FTSLnLike = 0.5 * (FTSfactor / 0.3) ** 2
+            FTSLnLike = (FTSfactor / 0.3) ** 2
             SPTHiEllLnLike += FTSLnLike
 
 #        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
-        self.log.debug(f"Calibration chisq = {2 * CalibLnLike}")
+        self.log.debug(f"Calibration chisq = {CalibLnLike}")
 #        self.log.debug(f"lnLcov term = {detcov}")
-        self.log.debug(f"chisq for cov only: {2 * LnL} / {len(self.delta_cl)}")
+        self.log.debug(f"chisq for cov only: {LnL} / {len(self.delta_cl)}")
         self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
-        return -SPTHiEllLnLike
+        return -0.5 * SPTHiEllLnLike
 
     def get_requirements(self):
         requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
@@ -283,6 +283,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
+    def dof(self):
+        indices = []
+        for i in range(self.nband):
+            indices += list(np.arange(self.offsets[i]+self.bin0,self.offsets[i]+self.nbins[i]))
+        return len(indices)
 
     def reduction_matrix(self):
         X = np.zeros( (sum(self.nbins), 15) )
