@@ -211,7 +211,7 @@ class SPT3GPrototype(InstallableLikelihood):
         self.beam_cov = self.beam_cov[np.ix_(cov_indices, cov_indices)]
 
         # Ensure covariance is positive definite
-        self.bp_cov_posdef = self.bp_cov
+        self._bp_cov_posdef = self.bp_cov
 
         # Calibration Covariance
         # The order of the cal covariance is T90, T150, T220, E90, E150, E220
@@ -317,7 +317,7 @@ class SPT3GPrototype(InstallableLikelihood):
 
         # Add the beam coariance to the band power covariance
         self.log.debug("Add beam cov")
-        cov_for_logl = self.bp_cov_posdef + self.beam_cov * np.outer(dbs, dbs)
+        cov_for_logl = self._bp_cov_posdef + self.beam_cov * np.outer(dbs, dbs)
         
         # Final crop to ignore select band powers
         # MT: not implemented
@@ -342,6 +342,9 @@ class SPT3GPrototype(InstallableLikelihood):
             {"TT": Cls.get("tt"), "TE": Cls.get("te"), "EE": Cls.get("ee")}, **data_params
         )
 
+    def dof( self):
+        return len(self._bp_cov_posdef)
+    
     def _gaussian_loglike(self, dlcov, res, cholesky=True):
         """
         Returns -Log Likelihood for Gaussian: (d^T Cov^{-1} d + log|Cov|)

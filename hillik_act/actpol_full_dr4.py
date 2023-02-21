@@ -310,6 +310,9 @@ class ACTPolLikelihood(InstallableLikelihood):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
+    def dof( self):
+        return sum(np.diag(self.fisher>1e-9))
+        
     def reduction_matrix( self, mode='tt'):
         if mode == 'tt':
             nbin,nspec = self.nbintt, self.nspectt
