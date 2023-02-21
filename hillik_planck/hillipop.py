@@ -28,6 +28,48 @@ fg_list = {
 
 
 
+class Bins(object):
+    """
+    """
+    def __init__( self, nl, delta):
+        self.dl = delta
+        self.nl = nl
+        self.nb = nl // delta
+
+    def bins(self):
+        return (self.lmins,self.lmaxs)
+    
+    def _bin_operators(self,cov=False):
+        p = np.zeros((self.nb, self.nl))
+        q = np.zeros((self.nl, self.nb))
+        
+        for b in range(self.nb):
+            p[b, b*self.dl:(b+1)*self.dl] = 1 / self.dl
+            if cov:
+                q[b*self.dl:(b+1)*self.dl, b] = 1# / self.dl
+            else:
+                q[b*self.dl:(b+1)*self.dl, b] = 1
+        
+        return p, q
+    
+    def bin_spectra(self, spectra):
+        """
+        Average spectra in bins specified by lmin, lmax and delta_ell,
+        weighted by `l(l+1)/2pi`.
+        Return Cb
+        """
+        spectra = np.asarray(spectra)
+        maxl = min([spectra.shape[-1],self.nl])
+        
+        _p, _q = self._bin_operators()
+        return np.dot(spectra[..., :maxl], _p.T[:maxl+1,...])
+
+    def bin_inv_covariance(self, clcov):
+        p, q = self._bin_operators(cov=True)
+        return q.T @ clcov @ q
+#        return np.matmul(p, np.matmul(clcov, q))
+
+
 # ------------------------------------------------------------------------------------------------
 # Likelihood
 # ------------------------------------------------------------------------------------------------
@@ -43,6 +85,7 @@ class _HillipopLikelihood(InstallableLikelihood):
     xspectra_basename: Optional[str]
     covariance_matrix_file: Optional[str]
     foregrounds: Optional[list]
+    deltal: Optional[int] = 0.
 
     def initialize(self):
         # Set path to data
@@ -87,8 +130,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Multipole ranges
         filename = os.path.join(self.data_folder, self.multipoles_range_file)
         self._lmins, self._lmaxs = self._set_multipole_ranges(filename)
+        self.lmin = np.min([min(l) for l in self._lmins])
         self.lmax = np.max([max(l) for l in self._lmaxs])
-
+        
         # Data
         basename = os.path.join(self.data_folder, self.xspectra_basename)
         self._dldata = self._read_dl_xspectra(basename, field=1)
@@ -97,7 +141,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         dlsig = self._read_dl_xspectra(basename, field=2)
         dlsig[dlsig == 0] = np.inf
         self._dlweight = 1.0 / dlsig ** 2
-
+        
         # Inverted Covariance matrix
         filename = os.path.join(self.data_folder, self.covariance_matrix_file)
         # Sanity check
@@ -109,7 +153,12 @@ class _HillipopLikelihood(InstallableLikelihood):
                 self.covariance_matrix_file,
             )
         self._invkll = self._read_invcovmatrix(filename)
-
+        self._invkll = self._invkll.astype('float32')   #speed-up X@C@X
+        if self.deltal != 0:
+            self.log.info("Bin matrix (deltal={}) !".format(self.deltal))
+            self.binning = Bins( len(self._invkll), self.deltal)
+            self._invkll = self.binning.bin_inv_covariance( self._invkll)
+        
         # Foregrounds
         self.fgs = []  # list of foregrounds per mode [TT,EE,TE,ET]
         # Init foregrounds TT
@@ -129,19 +178,19 @@ class _HillipopLikelihood(InstallableLikelihood):
                     kwargs["filenames"] = (filename_tsz,filename_cib)
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs.append(fgsTT)
-
+        
         # Init foregrounds EE
         fgsEE = []
         if self._is_mode["EE"]:
             for name in self.foregrounds["EE"].keys():
                 if name not in fg_list.keys():
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-
+                
                 self.log.debug("Adding '{}' foreground for EE".format(name))
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="EE", auto=False, survey=self.survey)
                 fgsEE.append(fg_list[name](**kwargs))
         self.fgs.append(fgsEE)
-
+        
         # Init foregrounds TE
         fgsTE = []
         fgsET = []
@@ -156,7 +205,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 fgsET.append(fg_list[name](mode="ET", **kwargs))
         self.fgs.append(fgsTE)
         self.fgs.append(fgsET)
-
+        
         self.log.info("Initialized!")
 
     def _xspec2xfreq(self):
@@ -164,7 +213,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         for f1 in range(self._nfreq):
             for f2 in range(f1, self._nfreq):
                 list_fqs.append((f1, f2))
-
+        
         freqs = list(np.unique(self.frequencies))
         spec2freq = []
         for m1 in range(self._nmap):
@@ -172,7 +221,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 f1 = freqs.index(self.frequencies[m1])
                 f2 = freqs.index(self.frequencies[m2])
                 spec2freq.append(list_fqs.index((f1, f2)))
-
+        
         return spec2freq
 
     def _set_multipole_ranges(self, filename):
@@ -380,14 +429,21 @@ class _HillipopLikelihood(InstallableLikelihood):
                 Wl = Wl + WlET
             # select multipole range
             Xl += self._select_spectra(Rl / Wl, mode=2)
-        
-        self.delta_cl = np.asarray(Xl)
+
+        if self.deltal != 0:
+            self.delta_cl = self.binning.bin_spectra(np.asarray(Xl)).astype('float32')
+        else:
+            self.delta_cl = np.asarray(Xl).astype('float32')
+
 #        chi2 = self.delta_cl @ self._invkll @ self.delta_cl
-        chi2 = self.delta_cl.dot( self._invkll.dot(self.delta_cl))
+        chi2 = self._invkll.dot(self.delta_cl).dot(self.delta_cl)
 
         self.log.debug("chi2/ndof = {}/{}".format(chi2, len(self.delta_cl)))
         return chi2
 
+    def dof( self):
+        return len( self._invkll)
+        
     def reduction_matrix(self, mode=0):
         X = np.zeros( (len(self.delta_cl),self.lmax+1) )
         x0 = 0
