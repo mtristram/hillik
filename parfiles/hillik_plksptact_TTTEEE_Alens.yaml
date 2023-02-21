@@ -78,9 +78,12 @@ params:
 
   sigma8:
 
+prior:
+  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
+
 theory:
   camb:
-    stop_at_error: True
+    stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
 

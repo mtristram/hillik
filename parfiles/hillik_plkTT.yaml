@@ -1,4 +1,4 @@
-debug: False
+debug: false
 
 likelihood:
   planck_2018_lowl.TT: null
@@ -18,8 +18,8 @@ params:
     prior:
       min: 2.6
       max: 3.5
-    proposal: 0.0036
     ref: 3.045
+    proposal: 0.0036
     drop: True
     latex: \log(10^{10} A_\mathrm{s})
   As:
@@ -61,10 +61,11 @@ params:
 
 prior:
   reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.007)'
+  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
 
 theory:
   camb:
-    stop_at_error: True
+    stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
 

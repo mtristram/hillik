@@ -1,15 +1,11 @@
 debug: false
 
 likelihood:
-  hillik_spt.TTTEEE:
-    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
-    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-  hillik_spt.TThighl: null
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
 
 params:
-  cal_SPT3G: 1.00
-#  cal_SPT: 1.00
-
   # Cosmo
   cosmomc_theta:
     prior:
@@ -63,19 +59,15 @@ params:
 
   sigma8:
 
-prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
 
 theory:
   camb:
-    stop_at_error: False
+    stop_at_error: True
     extra_args:
       lens_potential_accuracy: 1
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_sptTTTEEE.covmat
 
 output: chains/mcmc
 

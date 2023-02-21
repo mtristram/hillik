@@ -4,6 +4,19 @@ likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: null
+  hillik_spt.TTTEEE:
+    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
+  hillik_spt.TThighl: null
+  hillik_act.wide.TTTEEE:
+    bminTT: 33
+    bminTE: 23
+    bminEE: 13
+  hillik_act.deep.TTTEEE:
+    bminTT: 33
+    bminTE: 23
+    bminEE: 13
+
 
 params:
   # Cosmo
@@ -59,20 +72,14 @@ params:
 
   sigma8:
 
-
-prior:
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
-
-
 theory:
   camb:
-    stop_at_error: True
+    stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plkTTTEEE.covmat
 
 output: chains/mcmc
 

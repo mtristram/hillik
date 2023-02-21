@@ -1,8 +1,9 @@
 debug: false
 
 likelihood:
-  hillik_act.wide.TTTEEE: null
-  hillik_act.deep.TTTEEE: null
+  hillik_act.wide.TE:
+    bminTE: 23
+  hillik_act.deep.TE: null
 
 
 params:
@@ -56,6 +57,7 @@ params:
     proposal: 0.007
     latex: \tau_\mathrm{reio}
 
+
   #derived
   H0:
 
@@ -63,8 +65,6 @@ params:
 
 prior:
   reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
-
 
 theory:
   camb:
@@ -74,7 +74,6 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_actTTTEEE.covmat
 
 output: chains/mcmc
 

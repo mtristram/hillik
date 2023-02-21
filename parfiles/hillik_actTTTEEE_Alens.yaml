@@ -1,14 +1,12 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
   hillik_act.wide.TTTEEE: null
   hillik_act.deep.TTTEEE: null
 
 
 params:
-#  cal_ACT: 1.018
+  cal_ACT: 1.0
 
   # Cosmo
   cosmomc_theta:
@@ -70,15 +68,19 @@ params:
 
   sigma8:
 
+prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
+  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
 
 theory:
   camb:
-    stop_at_error: True
+    stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
 
 sampler:
   mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_actTTTEEE.covmat
 
 output: chains/mcmc
 

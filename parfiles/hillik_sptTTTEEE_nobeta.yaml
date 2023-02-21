@@ -7,15 +7,15 @@ likelihood:
   hillik_spt.TThighl: null
 
 params:
-  cal_SPT3G: 1.00
 #  cal_SPT: 1.00
+  cal_SPT3G: 1.00
 
   # Cosmo
   cosmomc_theta:
     prior:
       min: 0.0103
       max: 0.0105
-    ref: 0.0104
+    ref: 0.0104025
     proposal: 1.5e-6
     latex: \theta_\mathrm{MC}
   logA:
@@ -23,7 +23,7 @@ params:
       min: 2.6
       max: 3.5
     proposal: 0.0036
-    ref: 3.044
+    ref: 3.037
     drop: True
     latex: \log(10^{10} A_\mathrm{s})
   As:
@@ -33,21 +33,21 @@ params:
     prior:
       min: 0.9
       max: 1.1
-    ref: 0.9649
+    ref: 0.97
     proposal: 0.0033
     latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
-    ref: 0.02237
+    ref: 0.02224
     proposal: 6.5e-5
     latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
-    ref: 0.1200
+    ref: 0.1166
     proposal: 0.0011
     latex: \Omega_\mathrm{c}h^2
   tau:
@@ -65,7 +65,6 @@ params:
 
 prior:
   reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
 
 theory:
   camb:
