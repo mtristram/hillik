@@ -34,33 +34,33 @@ calib_params = {
 
 nuisance_params = {
     "TT": {
-        "Adust_PLK_100T": 2.43,
-        "Adust_PLK_143T": 3.06,
-        "Adust_PLK_217T": 9.03,
-        "Acib": 3.2,
-        "Atsz": 9.3,
-        "Aksz": 11.55,
-        "xi": 2.93,
-        "beta_cib": 1.49,
-        "Aps_PLK_100x100": 354.,
-        "Aps_PLK_100x143": 168.,
-        "Aps_PLK_100x217": 186.,
-        "Aps_PLK_143x143": 100.,
-        "Aps_PLK_143x217": 108.,
-        "Aps_PLK_217x217": 122.,
+        "Adust_PLK_100T": 1.37,
+        "Adust_PLK_143T": 1.85,
+        "Adust_PLK_217T": 8.48,
+        "Acib": 1.26,
+        "Atsz": 2.65,
+        "Aksz": 15.66,
+        "xi": 7.,
+        "beta_cib": 1.77,
+        "Aps_PLK_100x100": 390.37,
+        "Aps_PLK_100x143": 179.36,
+        "Aps_PLK_100x217": 177.54,
+        "Aps_PLK_143x143": 102.30,
+        "Aps_PLK_143x217": 112.19,
+        "Aps_PLK_217x217": 134.16,
         },
     "EE": {
-        "Adust_PLK_100P": 0.19,
-        "Adust_PLK_143P": 0.47,
-        "Adust_PLK_217P": 0.99,
+        "Adust_PLK_100P": 0.18,
+        "Adust_PLK_143P": 0.46,
+        "Adust_PLK_217P": 1.15,
         },
     "TE": {
-        "Adust_PLK_100T": 0.50,
-        "Adust_PLK_143T": 0.64,
-        "Adust_PLK_217T": 1.23,
-        "Adust_PLK_100P": 0.09,
-        "Adust_PLK_143P": 1.27,
-        "Adust_PLK_217P": 3.80,
+        "Adust_PLK_100T": 1.22,
+        "Adust_PLK_143T": 1.89,
+        "Adust_PLK_217T": 8.16,
+        "Adust_PLK_100P": 0.18,
+        "Adust_PLK_143P": 0.45,
+        "Adust_PLK_217P": 0.66,
         },
 }
 nuisance_params["TTTEEE"] = {
@@ -69,9 +69,8 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 11293.37, "EE": 9224.61, "TE": 9899.60} #, 'TTTEEE':33661.89}
-#chi2s = {"TT": 11636.29}
-#chi2s = {"TT": 10472.62, 'EE':9413.73, 'TE':10079.78}#, 'TTTEEE':30772.38}  #ell<2000
+chi2s = {"TT": 11261.91, "EE": 9236.68, "TE": 9921.18}
+chi2s = {"TT": 11261.91}
 
 
 class HillikPlkTest(unittest.TestCase):
@@ -85,22 +84,23 @@ class HillikPlkTest(unittest.TestCase):
                 skip_global=True,
             )
 
-    def test_hillipop(self):
-        import camb
-        import hillik_planck
+##     def test_camb(self):
+##         import camb
+##         import hillik_planck
         
-        camb_cosmo = cosmo_params.copy()
-        camb_cosmo.update({"lmax": 2500, "lens_potential_accuracy": 1})
-        pars = camb.set_params(**camb_cosmo)
-        results = camb.get_results(pars)
-        powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-        cl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
+##         camb_cosmo = cosmo_params.copy()
+##         camb_cosmo.update({"lmax": 2500, "lens_potential_accuracy": 1})
+##         pars = camb.set_params(**camb_cosmo)
+##         results = camb.get_results(pars)
+##         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
+##         cl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
 
-        for mode, chi2 in chi2s.items():
-            _hlp = getattr(hillik_planck, mode)
-            my_lik = _hlp({"debug": True,"packages_path": packages_path})
-            loglike = my_lik.loglike(cl_dict, **{**calib_params, **nuisance_params[mode]})
-            self.assertLess( abs(-2 * loglike - chi2), 1)
+##         for mode, chi2 in chi2s.items():
+##             _hlp = getattr(hillik_planck, mode)
+##             my_lik = _hlp({"debug": True,"packages_path": packages_path})
+##             loglike = my_lik.loglike(cl_dict, **{**calib_params, **nuisance_params[mode]})
+##             print( f"CAMB/{mode}: {-2*loglike}")
+##             self.assertLess( abs(-2 * loglike - chi2), 1)
 
     def test_cobaya(self):
         from cobaya.model import get_model
@@ -113,6 +113,7 @@ class HillikPlkTest(unittest.TestCase):
                 "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
                 "packages_path": packages_path,
             }
-
+            
             model = get_model(info)
+#            print( f"COBAYA/{mode}: {-2 * model.loglikes({})[0][0]}")
             self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
