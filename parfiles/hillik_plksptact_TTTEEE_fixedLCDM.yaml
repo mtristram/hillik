@@ -10,8 +10,9 @@ likelihood:
   hillik_spt.TThighl: null
   hillik_act.wide.TTTEEE:
     bminTT: 33
-  hillik_act.deep.TTTEEE:
-    bminTT: 33
+    bminTE: 23
+    bminEE: 13
+  hillik_act.deep.TTTEEE: null
 
 
 params:
@@ -31,6 +32,9 @@ params:
 
   sigma8:
 
+prior:
+  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
+
 theory:
   camb:
     stop_at_error: False
@@ -39,6 +43,7 @@ theory:
 
 sampler:
   mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plksptact_TTTEEE.covmat
 
 output: chains/mcmc
 

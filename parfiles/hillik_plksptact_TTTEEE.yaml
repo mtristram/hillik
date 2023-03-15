@@ -12,10 +12,7 @@ likelihood:
     bminTT: 33
     bminTE: 23
     bminEE: 13
-  hillik_act.deep.TTTEEE:
-    bminTT: 33
-    bminTE: 23
-    bminEE: 13
+  hillik_act.deep.TTTEEE: null
 
 params:
   # Cosmo
