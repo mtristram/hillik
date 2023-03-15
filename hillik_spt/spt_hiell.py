@@ -199,13 +199,12 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
         return chi2, detcov
 
-    def loglike(self, dl_boltz, **params):
+    def compute_chi2(self, dl_boltz, **params):
         """
         dl_cmb: Dl TT
         """
         Cal = params[f"cal_{self.survey}"]
         CalFactors = [params[f"cal_{self.survey}_{nu}"] for nu in self.frequencies]
-        FTSfactor = params["FTS_calibration_error"]
 
         dl_cmb = np.zeros( self.lmax+1)
         dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
@@ -249,7 +248,17 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
         # compute LogLike
         LnL, detcov = self._gaussian_loglike(cov_w_beam, self.delta_cl)
-        SPTHiEllLnLike = LnL + detcov
+
+        self.log.debug(f"chisq for cov only: {LnL} / {len(self.delta_cl)}")
+        return LnL, detcov
+
+
+    def loglike(self, dl_boltz, **params):
+        CalFactors = [params[f"cal_{self.survey}_{nu}"] for nu in self.frequencies]
+        FTSfactor = params["FTS_calibration_error"]
+
+        chi2, detcov = self.compute_chi2( dl_boltz, **params)
+        SPTHiEllLnLike = chi2 + detcov
 
         # Add FG priors
 #        if self.callFGprior:
@@ -270,7 +279,6 @@ class SPTHiellLikelihood(InstallableLikelihood):
 #        self.log.debug(f"SPTHiEllLnLike lnlike = {SPTHiEllLnLike} (with priors)")
         self.log.debug(f"Calibration chisq = {CalibLnLike}")
 #        self.log.debug(f"lnLcov term = {detcov}")
-        self.log.debug(f"chisq for cov only: {LnL} / {len(self.delta_cl)}")
         self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
         return -0.5 * SPTHiEllLnLike
