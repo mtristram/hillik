@@ -80,13 +80,6 @@ nuisance_params = {
     }
 
 
-#chi2s = {"wide.TT": 60.75,"deep.TT": 48.058}   #ell>2000
-#chi2s = {
-#    "wide.TT":  60.75, "deep.TT": 48.058,
-#    "wide.EE": 177.98, "deep.EE": 126.33,
-#    "wide.TE": 126.34, "deep.TE": 111.82,
-#    "wide.TTTEEE": 364.04, "deep.TTTEEE": 293.56
-#    }
 chi2s = {
     "wide.TT": 147.58, "deep.TT": 146.27,
     "wide.EE": 229.25, "deep.EE": 157.26,
@@ -102,11 +95,10 @@ class ACTLikeTest(unittest.TestCase):
         for mode in chi2s.keys():
             install({"likelihood": {f"hillik_act.{mode}": None}}, path=packages_path)
 
-    def test_act(self):
+    def test_camb(self):
         import camb
         import hillik_act.wide, hillik_act.deep
         
-        #camb
         camb_cosmo = cosmo_params.copy()
         camb_cosmo.update({"lmax": 6000, "lens_potential_accuracy": 1})
         pars = camb.set_params(**camb_cosmo)
@@ -118,6 +110,7 @@ class ACTLikeTest(unittest.TestCase):
             if "wide" in mode: _act = getattr(hillik_act.wide, mode.split('.')[1])({"packages_path": packages_path})
             if "deep" in mode: _act = getattr(hillik_act.deep, mode.split('.')[1])({"packages_path": packages_path})
             loglike = _act.loglike(dl_dict, **{**calib_params,**nuisance_params[mode]})
+#            print( f"CAMB/{mode}: {-2*loglike}")
             self.assertAlmostEqual(-2 * loglike, chi2, 1)
 
     def test_cobaya(self):
@@ -126,16 +119,14 @@ class ACTLikeTest(unittest.TestCase):
         riri = {}
         for mode, chi2 in chi2s.items():
             info = {
-                "debug": True,
+                "debug": False,
                 "likelihood": {f"hillik_act.{mode}": None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
                 "params": {**cosmo_params,**nuisance_params[mode],**calib_params},
                 "packages_path": packages_path,
             }
-
             model = get_model(info)
-#            riri[mode] = -2 * model.loglikes({})[0][0])
-#        print(riri)
+#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
             self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
 
 
