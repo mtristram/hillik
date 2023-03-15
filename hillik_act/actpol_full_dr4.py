@@ -211,7 +211,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         return dl/cl2dl
 
 
-    def loglike(self, dl_cmb, **params):
+    def compute_chi2(self, dl_cmb, **params):
         """
         dl_cmb: Dl TT
         """
@@ -296,11 +296,11 @@ class ACTPolLikelihood(InstallableLikelihood):
         self.delta_cl = (self.b_dat - X_model)[self._bstart:self._bend]
 
         #chi2
-        dlnlike = self.delta_cl @ self.fisher @ self.delta_cl
+        lnlike = self.delta_cl @ self.fisher @ self.delta_cl
 
-        self.log.debug(f"chisq = {dlnlike} / {sum(np.diag(self.fisher>1e-9))}")
+        self.log.debug(f"chisq = {lnlike} / {sum(np.diag(self.fisher>1e-9))}")
 
-        return -0.5*dlnlike
+        return lnlike
 
     def get_requirements(self):
         requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","ee"]})
@@ -309,6 +309,9 @@ class ACTPolLikelihood(InstallableLikelihood):
     def logp(self, **params_values):
         dl = self.theory.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
+
+    def loglike(self, dl_cmb, **params):
+        return -0.5*self.compute_chi2( dl_cmb, **params)
 
     def dof( self):
         return sum(np.diag(self.fisher>1e-9))
