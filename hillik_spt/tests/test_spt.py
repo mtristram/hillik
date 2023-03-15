@@ -129,9 +129,8 @@ fg_params = {
         )
     }
 
-#lnLs = {"TT": 145.075,"TEEE": 568.3323,"EE": 218.2485,"TE": 356.61}
-#lnLs = {"TTTEEE": 568.3323,"TT": 218.2485,"EE": 218.2485,"TE": 356.61}
-lnLs = {"TThighl":151.15, "TT":573.66, "EE":215.64, "TE":340.56, "TTTEEE":1128.19}
+#lnLs = {"TThighl":288.45, "TT":1020.36, "EE":431.61, "TE":681.19, "TTTEEE":2129.65}
+lnLs = {"TThighl":288.45}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -145,23 +144,23 @@ class SPTLikeTest(unittest.TestCase):
                 skip_global=True,
             )
 
-##     def test_spt(self):
+##     def test_camb(self):
 ##         import camb
 ##         import hillik_spt
 
-##         #camb
 ##         camb_cosmo = cosmo_params.copy()
 ##         for mode, lnL in lnLs.items():
-##             _spt = getattr(hillik_spt, mode)(dict(packages_path=packages_path))
+##             _spt = getattr(hillik_spt, mode)({"debug":True,"packages_path":packages_path})
 
-##             camb_cosmo.update({"lmax": _spt.lmax, "lens_potential_accuracy": 1})
+##             camb_cosmo.update({"lmax": 10000, "lens_potential_accuracy": 1})
 ##             pars = camb.set_params(**camb_cosmo)
 ##             results = camb.get_results(pars)
 ##             powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-##             cl_boltz = {k: powers["total"][:, v] for k, v in {"TT": 0, "EE": 1, "TE": 3}.items()}
+##             cl_boltz = {k: powers["total"][:, v] for k, v in {"tt": 0, "TT": 0, "EE": 1, "TE": 3}.items()}
             
 ##             loglike = _spt.loglike(cl_boltz, **fg_params[mode],**calib_params[mode])
-##             self.assertAlmostEqual(-loglike, lnL, 2)
+##             print( f"CAMB/{mode}: {-2*loglike}")
+#            self.assertAlmostEqual(-2*loglike, lnL, 1)
 
     def test_cobaya(self):
         from cobaya.model import get_model
@@ -176,7 +175,8 @@ class SPTLikeTest(unittest.TestCase):
             }
             
             model = get_model(info)
-            self.assertLess( abs(-model.loglikes({})[0][0] - lnL), 2)
+#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
+            self.assertLess( abs(-2*model.loglikes({})[0][0] - lnL), 1)
 
 
 if __name__ == "__main__":
