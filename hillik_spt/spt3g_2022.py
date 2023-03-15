@@ -265,7 +265,8 @@ class SPT3GPrototype(InstallableLikelihood):
         # State requisites to the theory code
         return {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
 
-    def loglike(self, dl_cmb, **params):
+
+    def compute_chi2(self, dl_cmb, **params):
 
         ells = np.arange(self.lmin, self.lmax+1)
 
@@ -326,12 +327,18 @@ class SPT3GPrototype(InstallableLikelihood):
         self.log.debug("Compute chi2")
         chi2, slogdet = self._gaussian_loglike(cov_for_logl, delta_data_model, cholesky=True)
 
+        self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
+        return chi2, slogdet
+
+    def loglike(self, dl_cmb, **params):
+
+        chi2, slogdet = self.compute_chi2( dl_cmb, **params)
+
         # Apply calibration prior
         self.log.debug("Apply calibration prior")
         delta_cal = np.array([params.get(p) - 1.0 for p in self.calib_params])
         cal_prior = delta_cal @ self.inv_calib_cov @ delta_cal
 
-        self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
         self.log.debug(f"SPT3G detcov = {slogdet:.14f}")
         self.log.debug(f"SPT3G cal. prior = {cal_prior:.14f}")
         return -0.5 * (chi2 + slogdet + cal_prior)
