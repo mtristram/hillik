@@ -7,40 +7,56 @@ likelihood:
     foregrounds:
       TT:
         galactic_dust: null
-        ksz: dl_ksz_bat.dat
-        cib: cib_extra.dat
-        szxcib: sz_x_cib_template.dat
-        poisson: null
         tsz: dl_tsz_MDRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: cib_extra.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
   hillik_spt.TTTEEE:
     spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
     spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
     foregrounds:
       TT:
         galactic_dust: null
-        ksz: dl_ksz_bat.dat
-        cib: cib_extra.dat
-        szxcib: sz_x_cib_template.dat
-        poisson: null
         tsz: dl_tsz_MDRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: cib_extra.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
   hillik_spt.TThighl:
     foregrounds:
       TT:
         galactic_dust: null
-        ksz: dl_ksz_bat.dat
-        cib: cib_extra.dat
-        szxcib: sz_x_cib_template.dat
-        poisson: null
         tsz: dl_tsz_MDRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: cib_extra.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
   hillik_act.wide.TTTEEE: 
     foregrounds:
       TT:
         galactic_dust: null
-        ksz: dl_ksz_bat.dat
-        cib: cib_extra.dat
-        szxcib: sz_x_cib_template.dat
-        poisson: null
         tsz: dl_tsz_MDRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: cib_extra.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
     bminTT: 33
     bminTE: 23
     bminEE: 13
@@ -48,11 +64,15 @@ likelihood:
     foregrounds:
       TT:
         galactic_dust: null
-        ksz: dl_ksz_bat.dat
-        cib: cib_extra.dat
-        szxcib: sz_x_cib_template.dat
-        poisson: null
         tsz: dl_tsz_MDRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: cib_extra.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
 
 
 params:
