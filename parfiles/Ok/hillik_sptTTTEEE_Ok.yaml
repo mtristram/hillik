@@ -1,20 +1,15 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE: null
   hillik_spt.TTTEEE:
     spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
     spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
   hillik_spt.TThighl: null
-  hillik_act.wide.TTTEEE:
-    bminTT: 33
-    bminTE: 23
-    bminEE: 13
-  hillik_act.deep.TTTEEE: null
 
 params:
+  cal_SPT3G: 1.00
+#  cal_SPT: 1.00
+
   # Cosmo
   cosmomc_theta:
     prior:
@@ -22,6 +17,7 @@ params:
       max: 0.0105
     ref: 0.0104
     proposal: 1.5e-6
+    latex: \theta_\mathrm{MC}
   logA:
     prior:
       min: 2.6
@@ -29,6 +25,7 @@ params:
     proposal: 0.0036
     ref: 3.044
     drop: True
+    latex: \log(10^{10} A_\mathrm{s})
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
     latex: A_\mathrm{s}
@@ -38,24 +35,34 @@ params:
       max: 1.1
     ref: 0.9649
     proposal: 0.0033
+    latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
     ref: 0.02237
     proposal: 6.5e-5
+    latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
     ref: 0.1200
     proposal: 0.0011
+    latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
       min: 0.01
       max: 0.15
     ref: 0.055
     proposal: 0.007
+    latex: \tau_\mathrm{reio}
+  omegak:
+    prior:
+      min: -0.1
+      max: 0.1
+    ref: 0.0
+    proposal: 0.01
 
   #derived
   H0:
@@ -63,6 +70,7 @@ params:
   sigma8:
 
 prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
   cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
 
 theory:
@@ -73,7 +81,7 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plksptact_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_sptTTTEEE.covmat
 
 output: chains/mcmc
 

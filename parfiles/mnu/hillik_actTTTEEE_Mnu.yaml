@@ -1,20 +1,13 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE: null
-  hillik_spt.TTTEEE:
-    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
-    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-  hillik_spt.TThighl: null
-  hillik_act.wide.TTTEEE:
-    bminTT: 33
-    bminTE: 23
-    bminEE: 13
+  hillik_act.wide.TTTEEE: null
   hillik_act.deep.TTTEEE: null
 
+
 params:
+  cal_ACT: 1.0
+
   # Cosmo
   cosmomc_theta:
     prior:
@@ -56,6 +49,11 @@ params:
       max: 0.15
     ref: 0.055
     proposal: 0.007
+  mnu:
+    prior:
+      min: 0.
+      max: 2.
+    proposal: 0.03
 
   #derived
   H0:
@@ -63,17 +61,21 @@ params:
   sigma8:
 
 prior:
+  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
   cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
+
 
 theory:
   camb:
     stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
+      neutrino_hierarchy: degenerate
+      num_massive_neutrinos: 3
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plksptact_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_actTTTEEE.covmat
 
 output: chains/mcmc
 

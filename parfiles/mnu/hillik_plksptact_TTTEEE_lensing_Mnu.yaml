@@ -13,6 +13,7 @@ likelihood:
     bminTE: 23
     bminEE: 13
   hillik_act.deep.TTTEEE: null
+  planck_2018_lensing.native: null
 
 params:
   # Cosmo
@@ -22,6 +23,7 @@ params:
       max: 0.0105
     ref: 0.0104
     proposal: 1.5e-6
+    latex: \theta_\mathrm{MC}
   logA:
     prior:
       min: 2.6
@@ -29,6 +31,7 @@ params:
     proposal: 0.0036
     ref: 3.044
     drop: True
+    latex: \log(10^{10} A_\mathrm{s})
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
     latex: A_\mathrm{s}
@@ -38,29 +41,39 @@ params:
       max: 1.1
     ref: 0.9649
     proposal: 0.0033
+    latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
     ref: 0.02237
     proposal: 6.5e-5
+    latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
     ref: 0.1200
     proposal: 0.0011
+    latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
       min: 0.01
       max: 0.15
     ref: 0.055
     proposal: 0.007
+    latex: \tau_\mathrm{reio}
+  mnu:
+    prior:
+      min: 0.
+      max: 2.
+    proposal: 0.03
 
   #derived
   H0:
 
   sigma8:
+
 
 prior:
   cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
@@ -70,6 +83,8 @@ theory:
     stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
+      neutrino_hierarchy: degenerate
+      num_massive_neutrinos: 3
 
 sampler:
   mcmc:

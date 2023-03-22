@@ -8,9 +8,9 @@ likelihood:
       TT:
         galactic_dust: null
         tsz: dl_tsz_planck_13500.dat
-        ksz: dl_ksz_AGRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
         cib: cib_extra.dat
-        szxcib: sz_x_cib_template_13500.dat
+        szxcib: dl_szcib_shang.dat
         poisson: null
       EE:
         galactic_dust: null
@@ -23,9 +23,9 @@ likelihood:
       TT:
         galactic_dust: null
         tsz: dl_tsz_planck_13500.dat
-        ksz: dl_ksz_AGRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
         cib: cib_extra.dat
-        szxcib: sz_x_cib_template_13500.dat
+        szxcib: dl_szcib_shang.dat
         poisson: null
       EE:
         galactic_dust: null
@@ -36,9 +36,9 @@ likelihood:
       TT:
         galactic_dust: null
         tsz: dl_tsz_planck_13500.dat
-        ksz: dl_ksz_AGRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
         cib: cib_extra.dat
-        szxcib: sz_x_cib_template_13500.dat
+        szxcib: dl_szcib_shang.dat
         poisson: null
       EE:
         galactic_dust: null
@@ -49,9 +49,9 @@ likelihood:
       TT:
         galactic_dust: null
         tsz: dl_tsz_planck_13500.dat
-        ksz: dl_ksz_AGRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
         cib: cib_extra.dat
-        szxcib: sz_x_cib_template_13500.dat
+        szxcib: dl_szcib_shang.dat
         poisson: null
       EE:
         galactic_dust: null
@@ -65,9 +65,9 @@ likelihood:
       TT:
         galactic_dust: null
         tsz: dl_tsz_planck_13500.dat
-        ksz: dl_ksz_AGRF.dat
+        ksz: dl_ksz_planck_2_13500.dat
         cib: cib_extra.dat
-        szxcib: sz_x_cib_template_13500.dat
+        szxcib: dl_szcib_shang.dat
         poisson: null
       EE:
         galactic_dust: null
