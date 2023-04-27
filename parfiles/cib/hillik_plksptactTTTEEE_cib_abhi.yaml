@@ -1,0 +1,141 @@
+debug: false
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: 
+    foregrounds:
+      TT:
+        galactic_dust: null
+        tsz: dl_tsz_planck_13500.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: dl_CIB_1h_2h_Abi_545_13500.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
+  hillik_spt.TTTEEE:
+    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
+    foregrounds:
+      TT:
+        galactic_dust: null
+        tsz: dl_tsz_planck_13500.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: dl_CIB_1h_2h_Abi_545_13500.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
+  hillik_spt.TThighl:
+    foregrounds:
+      TT:
+        galactic_dust: null
+        tsz: dl_tsz_planck_13500.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: dl_CIB_1h_2h_Abi_545_13500.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
+  hillik_act.wide.TTTEEE: 
+    foregrounds:
+      TT:
+        galactic_dust: null
+        tsz: dl_tsz_planck_13500.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: dl_CIB_1h_2h_Abi_545_13500.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
+    bminTT: 33
+    bminTE: 23
+    bminEE: 13
+  hillik_act.deep.TTTEEE:
+    foregrounds:
+      TT:
+        galactic_dust: null
+        tsz: dl_tsz_planck_13500.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: dl_CIB_1h_2h_Abi_545_13500.dat
+        szxcib: sz_x_cib_template_13500.dat
+        poisson: null
+      EE:
+        galactic_dust: null
+      TE:
+        galactic_dust: null
+
+
+params:
+  # Cosmo
+  cosmomc_theta:
+    prior:
+      min: 0.0103
+      max: 0.0105
+    ref: 0.0104
+    proposal: 1.5e-6
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    proposal: 0.0036
+    ref: 3.044
+    drop: True
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_\mathrm{s}
+  ns:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 0.9649
+    proposal: 0.0033
+  ombh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    ref: 0.02237
+    proposal: 6.5e-5
+  omch2:
+    prior:
+      min: 0.09
+      max: 0.15
+    ref: 0.1200
+    proposal: 0.0011
+  tau:
+    prior:
+      min: 0.01
+      max: 0.15
+    ref: 0.055
+    proposal: 0.007
+
+  #derived
+  H0:
+
+  sigma8:
+
+prior:
+  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
+
+theory:
+  camb:
+    stop_at_error: False
+    extra_args:
+      lens_potential_accuracy: 1
+
+sampler:
+  mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plksptact_TTTEEE.covmat
+
+output: chains/mcmc
+
+force: true
