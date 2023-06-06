@@ -1,0 +1,36 @@
+  #Halo Model
+  logMmax:
+    prior:
+      min: 12.
+      max: 14.
+    ref: 12.7
+    proposal: 1
+    latex: logM_mathrm{max}
+  etamax:
+    prior:
+      min: 0.2
+      max: 0.8
+    ref: 0.5
+    proposal: 0.1
+    latex: \eta_\mathrm{max}
+  sigmaMh:
+    prior:
+      min: 1.
+      max: 3.
+    ref: 1.25
+    proposal: 0.2
+    latex: \sigma_{Mh}
+  tauMh:
+    prior:
+      min: 0.0
+      max: 2.0
+    ref: 0.8
+    proposal: 0.2
+    latex: \tau_{Mh}
+  B:
+    prior:
+      min: 1
+      max: 3
+    ref: 2.2
+    proposal: 0.1
+    latex: B_\mathrm{SZ}
