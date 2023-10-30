@@ -159,11 +159,11 @@ class Tinker08:
         c_0 = self.c_0(dhalo)
 
         A_exp = -0.14
-        a_exp = 0.06
+        a_exp = -0.06
         A = A_0 * (1 + z) ** A_exp
         a = a_0 * (1 + z) ** a_exp
         alpha = 10 ** (-((0.75 / np.log10(dhalo / 75.0)) ** 1.2))
-        b = b_0 * (1 + z) ** alpha
+        b = b_0 * (1 + z) ** (-alpha)
         return A * ((sigma / b) ** -a + 1) * np.exp(-c_0 / sigma ** 2)
 
 
