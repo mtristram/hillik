@@ -460,7 +460,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         return dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
 
     def logp(self, **params_values):
-        dl = self.theory.get_Cl(ell_factor=True)
+        dl = self.provider.get_Cl(ell_factor=True)
         return self.loglike(dl, **params_values)
 
     def loglike(self, dl, **params_values):
