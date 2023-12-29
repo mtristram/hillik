@@ -11,70 +11,65 @@
     latex: y_\mathrm{cal}
     renames: calPlanck
 
-  cal_PLK:
+  PLK_cal:
     value: "lambda A_planck: A_planck"
     latex: c^{PLK}
 
-  cal_PLK_100A:
+  PLK_cal_100A:
     prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
+      min: 0.9
+      max: 1.1
+    ref: 1.
     proposal: 0.001
     latex: cal_\mathrm{100A}
-  cal_PLK_100B:
+  PLK_cal_100B:
     prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
+      min: 0.9
+      max: 1.1
+    ref: 1.
     proposal: 0.001
     latex: cal_\mathrm{100B}
-  cal_PLK_143A:
-    value: 0.0
+  PLK_cal_143A:
+    value: 1.0
     latex: cal_\mathrm{143A}
-  cal_PLK_143B:
+  PLK_cal_143B:
     prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
+      min: 0.9
+      max: 1.1
+    ref: 1.
     proposal: 0.001
     latex: cal_\mathrm{143B}
-  cal_PLK_217A:
+  PLK_cal_217A:
     prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
+      min: 0.9
+      max: 1.1
+    ref: 1.
     proposal: 0.001
     latex: cal_\mathrm{217A}
-  cal_PLK_217B:
+  PLK_cal_217B:
     prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
+      min: 0.9
+      max: 1.1
+    ref: 1.
     proposal: 0.001
     latex: cal_\mathrm{217B}
 
-  calE_PLK_100A:
-    value: "lambda cal_PLK_100A: cal_PLK_100A"
+  PLK_pe_100A:
+    value: 1.0
     latex: calP_\mathrm{100A}
-  calE_PLK_100B:
-    value: "lambda cal_PLK_100B: cal_PLK_100B"
+  PLK_pe_100B:
+    value: 1.0
     latex: calP_\mathrm{100B}
-  calE_PLK_143A:
-    value: "lambda cal_PLK_143A: cal_PLK_143A"
+  PLK_pe_143A:
+    value: 1.0
     latex: calP_\mathrm{143A}
-  calE_PLK_143B:
-    value: "lambda cal_PLK_143B: cal_PLK_143B"
+  PLK_pe_143B:
+    value: 1.0
     latex: calP_\mathrm{143B}
-  calE_PLK_217A:
-    value: "lambda cal_PLK_217A: cal_PLK_217A"
+  PLK_pe_217A:
+    value: 0.975
     latex: calP_\mathrm{217A}
-  calE_PLK_217B:
-    value: "lambda cal_PLK_217B: cal_PLK_217B"
+  PLK_pe_217B:
+    value: 0.975
     latex: calP_\mathrm{217B}
 

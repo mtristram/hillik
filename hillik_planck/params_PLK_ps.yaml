@@ -1,43 +1,21 @@
   #Poisson Noise
-  Aps_PLK_100x100:
+  PLK_radio_ps:
     prior:
-      min: 300
-      max: 600
-    ref: 428.
-    proposal: 23.
-    latex: A^\mathrm{PS}(100x100)
-  Aps_PLK_100x143:
+      min: 0.
+      max: 150.
+    ref: 60.
+    proposal: 1.
+    latex: A_\mathrm{radio}^\mathrm{PS}
+  beta_radio:
+    value: -0.8
+    latex: \beta_\mathrm{radio}^\mathrm{PS}
+  PLK_cib_ps:
     prior:
-      min: 0
-      max: 500
-    ref: 211.
-    proposal: 16.
-    latex: A^\mathrm{PS}(100x143)
-  Aps_PLK_100x217:
-    prior:
-      min: 0
-      max: 500
-    ref: 200.
-    proposal: 28.
-    latex: A^\mathrm{PS}(100x217)
-  Aps_PLK_143x143:
-    prior:
-      min: 0
-      max: 500
-    ref: 130.
-    proposal: 14.
-    latex: A^\mathrm{PS}(143x143)
-  Aps_PLK_143x217:
-    prior:
-      min: 0
-      max: 500
-    ref: 128.
-    proposal: 19.
-    latex: A^\mathrm{PS}(143x217)
-  Aps_PLK_217x217:
-    prior:
-      min: 0
-      max: 500
-    ref: 151.
-    proposal: 11.
-    latex: A^\mathrm{PS}(217x217)
+      min: 0.
+      max: 100.
+    ref: 6.
+    proposal: 1.
+    latex: A_\mathrm{IR}^\mathrm{PS}
+  beta_dusty:
+    value: "lambda beta_cib: beta_cib"
+    latex: \beta_\mathrm{IR}^\mathrm{PS}

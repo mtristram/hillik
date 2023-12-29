@@ -21,8 +21,10 @@ from cobaya.log import LoggedError
 import hillik_foregrounds as fg
 fg_list = {
     "cib": fg.cib,
+    "radio_poisson": fg.ps_radio,
+    "cib_poisson": fg.ps_dusty,
     "poisson": fg.ps,
-    "galactic_dust": fg.dust,
+    "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
@@ -225,7 +227,7 @@ class SPT3GPrototype(InstallableLikelihood):
         calib_cov = calib_cov[np.ix_(cal_indices, cal_indices)]
         self.inv_calib_cov = np.linalg.inv(calib_cov)
         self.calib_params = np.array(
-            ["cal_SPT3G_{}{}".format(*p) for p in itertools.product(["T", "E"], [90, 150, 220])]
+            ["SPT3G_cal_{}{}".format(*p) for p in itertools.product(["T", "E"], [90, 150, 220])]
         )[cal_indices]
         self.log.debug(f"Calibration parameters: {self.calib_params}")
 
@@ -293,11 +295,11 @@ class SPT3GPrototype(InstallableLikelihood):
             dl_model += dlfg[cross_spectrum][fg._cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
             
             # Apply calibration
-            cal = params.get("cal_SPT3G") * self.ApplyCalibration(
-                params.get(f"cal_SPT3G_{cross_spectrum[0]}{cross_frequency[0]}"),
-                params.get(f"cal_SPT3G_{cross_spectrum[1]}{cross_frequency[1]}"),
-                params.get(f"cal_SPT3G_{cross_spectrum[0]}{cross_frequency[1]}"),
-                params.get(f"cal_SPT3G_{cross_spectrum[1]}{cross_frequency[0]}")
+            cal = params.get("SPT3G_cal") * self.ApplyCalibration(
+                params.get(f"SPT3G_cal_{cross_spectrum[0]}{cross_frequency[0]}"),
+                params.get(f"SPT3G_cal_{cross_spectrum[1]}{cross_frequency[1]}"),
+                params.get(f"SPT3G_cal_{cross_spectrum[0]}{cross_frequency[1]}"),
+                params.get(f"SPT3G_cal_{cross_spectrum[1]}{cross_frequency[0]}")
             )
             dl_model = dl_model / cal
             

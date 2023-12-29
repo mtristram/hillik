@@ -1,21 +1,41 @@
-  Aps_ACTd_98x98:
+#  ACTd_ps_98x98:
+#    prior:
+#      min: 0
+#      max: 50
+#    ref: 20.25
+#    proposal: 1.5
+#    latex: A^{ACTd}_\mathrm{PS}(98x98)
+#  ACTd_ps_98x150:
+#    prior:
+#      min: 0
+#      max: 20
+#    ref: 11.15
+#    proposal: 0.8
+#    latex: A^{ACTd}_\mathrm{PS}(98x150)
+#  ACTd_ps_150x150:
+#    prior:
+#      min: 0
+#      max: 20
+#    ref: 11.78
+#    proposal: 0.6
+#    latex: A^{ACTd}_\mathrm{PS}(150x150)
+  ACTd_radio_ps:
     prior:
-      min: 0
-      max: 50
-    ref: 20.25
-    proposal: 1.5
-    latex: A^{ACTd}_\mathrm{PS}(98x98)
-  Aps_ACTd_98x150:
+      min: 0.
+      max: 150.
+    ref: 60.
+    proposal: 1.
+    latex: A_\mathrm{radio}^\mathrm{ACTd}
+  beta_radio:
+    value: -0.8
+    latex: \beta_\mathrm{radio}^\mathrm{PS}
+  ACTd_cib_ps:
     prior:
-      min: 0
-      max: 20
-    ref: 11.15
-    proposal: 0.8
-    latex: A^{ACTd}_\mathrm{PS}(98x150)
-  Aps_ACTd_150x150:
-    prior:
-      min: 0
-      max: 20
-    ref: 11.78
-    proposal: 0.6
-    latex: A^{ACTd}_\mathrm{PS}(150x150)
+      min: 0.
+      max: 100.
+    ref: 6.
+    proposal: 1.
+    latex: A_\mathrm{IR}^\mathrm{ACTd}
+  beta_dusty:
+    value: "lambda beta_cib: beta_cib"
+    latex: \beta_\mathrm{IR}^\mathrm{PS}

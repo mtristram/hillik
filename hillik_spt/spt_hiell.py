@@ -9,8 +9,10 @@ import hillik_foregrounds as fg
 
 fg_list = {
     "cib": fg.cib,
+    "radio_poisson": fg.ps_radio,
+    "cib_poisson": fg.ps_dusty,
     "poisson": fg.ps,
-    "galactic_dust": fg.dust,
+    "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
@@ -203,8 +205,8 @@ class SPTHiellLikelihood(InstallableLikelihood):
         """
         dl_cmb: Dl TT
         """
-        Cal = params[f"cal_{self.survey}"]
-        CalFactors = [params[f"cal_{self.survey}_{nu}"] for nu in self.frequencies]
+        Cal = params[f"{self.survey}_cal"]
+        CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
 
         dl_cmb = np.zeros( self.lmax+1)
         dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
@@ -254,7 +256,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
 
     def loglike(self, dl_boltz, **params):
-        CalFactors = [params[f"cal_{self.survey}_{nu}"] for nu in self.frequencies]
+        CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
         chi2, detcov = self.compute_chi2( dl_boltz, **params)

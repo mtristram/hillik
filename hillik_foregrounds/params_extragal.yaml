@@ -1,15 +1,16 @@
   beta_cib:
     prior:
-      min: 0.5
-      max: 3.5
-    ref: 2.20
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
     proposal: 0.05
     latex: \beta_\mathrm{CIB}
 
   xi:
     prior:
-      min: -5.
-      max: 10.
+      min: -1.
+      max: 1.
     ref: 0.1
     proposal: 0.1
     latex: \xi_\mathrm{SZxCIB}
@@ -17,7 +18,7 @@
   Atsz:
     prior:
       min: 0.
-      max: 20.
+      max: 50.
     ref: 3.0
     proposal: 1
     latex: A_\mathrm{tSZ}
@@ -31,10 +32,7 @@
   Aksz:
     prior:
       min: 0
-      max: 20
+      max: 50
     ref: 1.
     proposal: 1
     latex: A_\mathrm{kSZ}
-  T_cib:
-    value: 25
-    latex: T^{CIB}

@@ -18,8 +18,10 @@ from cobaya.log import LoggedError
 
 fg_list = {
     "cib": fg.cib,
+    "radio_poisson": fg.ps_radio,
+    "cib_poisson": fg.ps_dusty,
     "poisson": fg.ps,
-    "galactic_dust": fg.dust,
+    "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
@@ -216,13 +218,13 @@ class ACTPolLikelihood(InstallableLikelihood):
         dl_cmb: Dl TT
         """
         surv = self.survey[:-1]
-        cal = params[f'cal_{surv}']
-        ct1 = params[f'cal_{surv}_98']  #Cal and leakage errors included in covmat and so fixed to 1
-        ct2 = params[f'cal_{surv}_150'] #Cal and leakage errors included in covmat and so fixed to 1
-        yp1 = params[f'poleff_{surv}_98']
-        yp2 = params[f'poleff_{surv}_150']
-        a1  = params[f'leak_{surv}_98']
-        a2  = params[f'leak_{surv}_150']
+        cal = params[f'{surv}_cal']
+        ct1 = params[f'{surv}_cal_98']  #Cal and leakage errors included in covmat and so fixed to 1
+        ct2 = params[f'{surv}_cal_150'] #Cal and leakage errors included in covmat and so fixed to 1
+        yp1 = params[f'{surv}_pe_98']
+        yp2 = params[f'{surv}_pe_150']
+        a1  = params[f'{surv}_leak_98']
+        a2  = params[f'{surv}_leak_150']
 
         #Calculate CMB+fg
         dlth = { 'tt':np.zeros( (self.nspectt,self.lmax_win+1) ),

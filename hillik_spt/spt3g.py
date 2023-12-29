@@ -35,7 +35,7 @@ default_spectra_list = [
 import hillik_foregrounds as fg
 fg_list = {
 #    "poisson": fg.ps,   #Dutcher21 did include poisson but not sensitive
-    "galactic_dust": fg.dust,
+    "dust": fg.dust,
     }
 
 class SPT3GPrototype(InstallableLikelihood):

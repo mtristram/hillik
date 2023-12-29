@@ -1,22 +1,12 @@
   #Dust
-  Adust_PLK_100P:
+  PLK_AdustP:
     prior:
-      min: 0.0
-      max: 20.0
-    ref: 0.19
-    proposal: 0.01
-    latex: A_\mathrm{dust}^{Planck}(100P)
-  Adust_PLK_143P:
-    prior:
-      min: 0.0
-      max: 20.0
-    ref: 0.47
-    proposal: 0.01
-    latex: A_\mathrm{dust}^{Planck}(143P)
-  Adust_PLK_217P:
-    prior:
-      min: 0.0
-      max: 20.0
-    ref: 0.99
-    proposal: 0.04
-    latex: A_\mathrm{dust}^{Planck}(217P)
+      dist: norm
+      loc: 1.0
+      scale: 0.1
+    ref: 1.0
+    proposal: 0.02
+    latex: A_\mathrm{dustP}^{Planck}
+  PLK_beta_dustP:
+    value: 1.59
+    latex: \beta_\mathrm{dustP}^{Planck}

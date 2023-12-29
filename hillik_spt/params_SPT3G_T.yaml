@@ -1,5 +1,5 @@
   #Calib
-  cal_SPT3G_T90:
+  SPT3G_cal_T90:
     prior:
       min: 0.85
       max: 1.15
@@ -7,7 +7,7 @@
     proposal: 0.01
     latex: T_{\rm{cal}^{90}}
 
-  cal_SPT3G_T150:
+  SPT3G_cal_T150:
     prior:
       min: 0.85
       max: 1.15
@@ -15,7 +15,7 @@
     proposal: 0.01
     latex: T_{\rm{cal}^{150}}
 
-  cal_SPT3G_T220:
+  SPT3G_cal_T220:
     prior:
       min: 0.85
       max: 1.15
@@ -25,75 +25,106 @@
 
 
   #Dust
-  Adust_SPT3G_90T:
+#  SPT3G_Adust_90T:
+#    prior:
+#      min: 0.
+#      max: 10.
+#    ref: 0.44399
+#    proposal: 0.4
+#    latex: A_\mathrm{dust}^{SPT3G}(90T)
+#  SPT3G_Adust_150T:
+#    prior:
+#      min: 0.
+#      max: 10.
+#    ref: 1.0875
+#    proposal: 0.8
+#    latex: A_\mathrm{dust}^{SPT3G}(150T)
+#  SPT3G_Adust_220T:
+#    prior:
+#      min: 0.
+#      max: 30.
+#    ref: 3.1932
+#    proposal: 2.5
+#    latex: A_\mathrm{dust}^{SPT3G}(220T)
+  SPT3G_AdustT:
     prior:
-      min: 0.
-      max: 10.
-    ref: 0.44399
-    proposal: 0.4
-    latex: A_\mathrm{dust}^{SPT3G}(90T)
-  Adust_SPT3G_150T:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 1.0875
-    proposal: 0.8
-    latex: A_\mathrm{dust}^{SPT3G}(150T)
-  Adust_SPT3G_220T:
-    prior:
-      min: 0.
-      max: 30.
-    ref: 3.1932
-    proposal: 2.5
-    latex: A_\mathrm{dust}^{SPT3G}(220T)
+      dist: norm
+      loc: 1.0
+      scale: 0.1
+    ref: 1.0
+    proposal: 0.02
+    latex: A_\mathrm{dustT}^{Planck}
+  SPT3G_beta_dustT:
+    value: 1.51
+    latex: \beta_\mathrm{dustT}^{Planck}
 
 
   #Poisson
-  Aps_SPT3G_90x90:
+#  SPT3G_ps_90x90:
+#    prior:
+#      dist: norm
+#      loc: 51.3
+#      scale: 9.4
+#    ref: 62.61
+#    proposal: 5.
+#    latex: A_\mathrm{ps}^{SPT3G}(90x90)
+#  SPT3G_ps_90x150:
+#    prior:
+#      dist: norm
+#      loc: 22.4
+#      scale: 7.1
+#    ref: 27.9
+#    proposal: 5.
+#    latex: A_\mathrm{ps}^{SPT3G}(90x150)
+#  SPT3G_ps_90x220:
+#    prior:
+#      dist: norm
+#      loc: 20.7
+#      scale: 5.9
+#    ref: 24.3
+#    proposal: 5.
+#    latex: A_\mathrm{ps}^{SPT3G}(90x220)
+#  SPT3G_ps_150x150:
+#    prior:
+#      dist: norm
+#      loc: 15.3
+#      scale: 4.1
+#    ref: 16.7
+#    proposal: 4.
+#    latex: A_\mathrm{ps}^{SPT3G}(150x150)
+#  SPT3G_ps_150x220:
+#    prior:
+#      dist: norm
+#      loc: 28.4
+#      scale: 4.2
+#    ref: 28.6
+#    proposal: 4.
+#    latex: A_\mathrm{ps}^{SPT3G}(150x220)
+#  SPT3G_ps_220x220:
+#    prior:
+#      dist: norm
+#      loc: 76.0
+#      scale: 14.9
+#    ref: 78.5
+#    proposal: 10.
+#    latex: A_\mathrm{ps}^{SPT3G}(220x220)
+  SPT3G_radio_ps:
     prior:
-      dist: norm
-      loc: 51.3
-      scale: 9.4
-    ref: 62.61
-    proposal: 5.
-    latex: A_\mathrm{ps}^{SPT3G}(90x90)
-  Aps_SPT3G_90x150:
+      min: 0.
+      max: 150.
+    ref: 60.
+    proposal: 1.
+    latex: A_\mathrm{radio}^\mathrm{PS}
+  beta_radio:
+    value: -0.8
+    latex: \beta_\mathrm{radio}^\mathrm{PS}
+  SPT3G_cib_ps:
     prior:
-      dist: norm
-      loc: 22.4
-      scale: 7.1
-    ref: 27.9
-    proposal: 5.
-    latex: A_\mathrm{ps}^{SPT3G}(90x150)
-  Aps_SPT3G_90x220:
-    prior:
-      dist: norm
-      loc: 20.7
-      scale: 5.9
-    ref: 24.3
-    proposal: 5.
-    latex: A_\mathrm{ps}^{SPT3G}(90x220)
-  Aps_SPT3G_150x150:
-    prior:
-      dist: norm
-      loc: 15.3
-      scale: 4.1
-    ref: 16.7
-    proposal: 4.
-    latex: A_\mathrm{ps}^{SPT3G}(150x150)
-  Aps_SPT3G_150x220:
-    prior:
-      dist: norm
-      loc: 28.4
-      scale: 4.2
-    ref: 28.6
-    proposal: 4.
-    latex: A_\mathrm{ps}^{SPT3G}(150x220)
-  Aps_SPT3G_220x220:
-    prior:
-      dist: norm
-      loc: 76.0
-      scale: 14.9
-    ref: 78.5
-    proposal: 10.
-    latex: A_\mathrm{ps}^{SPT3G}(220x220)
+      min: 0.
+      max: 100.
+    ref: 6.
+    proposal: 1.
+    latex: A_\mathrm{IR}^\mathrm{PS}
+  beta_dusty:
+    value: "lambda beta_cib: beta_cib"
+    latex: \beta_\mathrm{IR}^\mathrm{PS}

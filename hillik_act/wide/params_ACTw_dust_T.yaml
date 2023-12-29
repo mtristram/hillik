@@ -1,15 +1,25 @@
-  Adust_ACTw_98T:
+#  ACTw_Adust_98T:
+#    prior:
+#      min: 0.
+#      max: 10.0
+#    ref: 1.24
+#    proposal: 1.1
+#    latex: A^{ACTw}_\mathrm{dust}(98T)
+#  ACTw_Adust_150T:
+#    prior:
+#      min: 0.
+#      max: 10.0
+#    ref: 1.95
+#    proposal: 1.2
+#    latex: A^{ACTw}_\mathrm{dust}(150T)
+  ACTw_AdustT:
     prior:
-      min: 0.
-      max: 10.0
-    ref: 1.24
-    proposal: 1.1
-    latex: A^{ACTw}_\mathrm{dust}(98T)
-
-  Adust_ACTw_150T:
-    prior:
-      min: 0.
-      max: 10.0
-    ref: 1.95
-    proposal: 1.2
-    latex: A^{ACTw}_\mathrm{dust}(150T)
+      dist: norm
+      loc: 1.0
+      scale: 0.1
+    ref: 1.0
+    proposal: 0.02
+    latex: A_\mathrm{dustT}^{ACTw}
+  ACTw_beta_dustT:
+    value: 1.51
+    latex: \beta_\mathrm{dustT}^{ACTw}

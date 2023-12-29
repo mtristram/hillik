@@ -1,4 +1,4 @@
-  cal_SPT3G:
+  SPT3G_cal:
     prior:
       min: 0.7
       max: 1.3
