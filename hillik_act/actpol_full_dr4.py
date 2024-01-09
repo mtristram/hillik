@@ -44,11 +44,6 @@ class ACTPolLikelihood(InstallableLikelihood):
     bbl_filename: Optional[str]
     leakd_filename: Optional[str]
 
-    #--------------------------------------------------------------
-    #Settings (should not be altered)
-    #--------------------------------------------------------------
-    # general settings
-    #--------------------------------------------------------------
     BoltzmannLmax = 6000
 
     #----------------------------------------------------------------
@@ -179,7 +174,9 @@ class ACTPolLikelihood(InstallableLikelihood):
         covmat = covmat[self._bstart:self._bend,self._bstart:self._bend]
         self.fisher = np.linalg.inv( covmat)
 
+        #-----------------------------------------------
         # Init foreground model
+        #-----------------------------------------------
         self.fgs = {'tt':[],'te':[],'ee':[]}
         for tag,is_used in self._is_mode.items():
             if is_used:
