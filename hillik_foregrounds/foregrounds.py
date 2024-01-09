@@ -13,33 +13,33 @@ h_pl = 6.626068e-34
 #equivalent frequencies (experiment dependant)
 fsz = {
     "PLK": {100:100.2, 143: 143, 217: 222},
-    "SPT": {95:96.55, 150:152.26, 220:220.1},
-    "SPT3G": {90:95.481, 150:148.949, 220:219.578},
-    "ACTw": {98: 98.4, 150: 150.1},
+    "SPT": {95:96.55, 150:152.26, 220:220.1}, #col5 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "SPT3G": {90:96.481, 150:148.949, 220:219.578}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "ACTw": {98: 98.4, 150: 149.9},
     "ACTd": {98: 98.4, 150: 150.1},
     }
 
 fdust = {
     "PLK": {100:105.2, 143:148.5, 217:228.1, 353:370.5}, #alpha=4 from [Planck 2013 IX]
-    "SPT": {95:96.89, 150:153.37, 220:221.6, 353:353},
-    "SPT3G": {90:96.745, 150:150.103, 220:222.214, 353:353},
-    "ACTw": {98: 98.8, 150: 151.2, 353:353},
-    "ACTd": {98: 98.8, 150: 151.2, 353:353},
+    "SPT": {95:96.89, 150:153.37, 220:221.6, 353:353}, #col1 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "SPT3G": {90:96.67, 150:149.9, 220:222.0, 353:353}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "ACTw": {98: 98.6, 150: 150.8, 353:353},
+    "ACTd": {98: 98.6, 150: 151.1, 353:353},
     }
 
 fradio = {
     "PLK": {100:100.4,143:140.5,217:218.6},
-    "SPT": {95:95, 150:150, 220:220}, #??
-    "SPT3G": {90:90, 150:150, 220:220}, #??
-    "ACTw": {98: 98, 150: 150},
-    "ACTd": {98: 98, 150: 150},
+    "SPT": {95:93.5, 150:149.46, 220:215.8}, #col3 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "SPT3G": {90:94.4, 150:146.0, 220:212.7}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "ACTw": {98: 95.8, 150: 147.2},
+    "ACTd": {98: 95.8, 150: 147.1},
     }
 
 fcib = fdust
 fsync = fradio
 
 #Parameter names
-#A{fg}_{survey}_{freq(xfreq)}
+#{survey}_A{fg}_{freq(xfreq)}
 
 # ------------------------------------------------------------------------------------------------
 # Foreground class
