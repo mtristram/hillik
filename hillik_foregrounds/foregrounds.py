@@ -253,17 +253,17 @@ class ps_dusty(fgmodel):
 
 
 #Galactic Dust model
-#ACT: -0.6 for TT, -0.4 for TE, -0.4 for EE
-#SPT: -1.2 for TT (cirrus but very low amplitude) ?!?
-#SPT3G: -0.53 for TT, -0.42 for TE, -0.42 for EE (fit with strong prior)
-#Planck: -0.63 for TT, -0.4 for TE
+#Dl ACT: -0.6 for TT, -0.4 for TE, -0.4 for EE
+#Dl SPT: -1.2 for TT (cirrus but very low amplitude) ?!?
+#Dl SPT3G: -0.53 for TT, -0.42 for TE, -0.42 for EE (fit with strong prior)
+#Dl Planck: -0.63 for TT, -0.4 for TE
 class dust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=80):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "Dust"
 
         if filename is None:
-            alpha_dust = -2.5 if mode == "TT" else -2.4
+            alpha_dust = -2.4 if mode == "TT" else -2.5
             self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
         else:
             self.dlg = self._read_dl_template( filename)
