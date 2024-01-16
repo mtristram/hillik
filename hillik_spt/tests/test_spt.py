@@ -20,124 +20,97 @@ cosmo_params = {
 
 calib_params = {
     "TThighl": {
-        "cal_SPT": 1.0,
-        "cal_SPT_95": 1.0,
-        "cal_SPT_150": 1.0,
-        "cal_SPT_220": 1.0,
+        "SPT_cal": 1.0,
+        "SPT_cal_95": 1.0,
+        "SPT_cal_150": 1.0,
+        "SPT_cal_220": 1.0,
         "FTS_calibration_error": 1.0,
         },
     "TT": {
-        "cal_SPT3G": 1.0,
-        "cal_SPT3G_T90": 1.0,
-        "cal_SPT3G_T150": 1.0,
-        "cal_SPT3G_T220": 1.0,        
+        "SPT3G_cal": 1.0,
+        "SPT3G_cal_T90": 1.0,
+        "SPT3G_cal_T150": 1.0,
+        "SPT3G_cal_T220": 1.0,
         "kappa": 0.0
         },
     "EE": {
-        "cal_SPT3G": 1.0,
-        "cal_SPT3G_E90": 1.0,
-        "cal_SPT3G_E150": 1.0,
-        "cal_SPT3G_E220": 1.0,        
+        "SPT3G_cal": 1.0,
+        "SPT3G_cal_E90": 1.0,
+        "SPT3G_cal_E150": 1.0,
+        "SPT3G_cal_E220": 1.0,
         "kappa": 0.0
         },
     "TE": {
-        "cal_SPT3G": 1.0,
-        "cal_SPT3G_T90": 1.0,
-        "cal_SPT3G_T150": 1.0,
-        "cal_SPT3G_T220": 1.0,        
-        "cal_SPT3G_E90": 1.0,
-        "cal_SPT3G_E150": 1.0,
-        "cal_SPT3G_E220": 1.0,        
+        "SPT3G_cal": 1.0,
+        "SPT3G_cal_T90": 1.0,
+        "SPT3G_cal_T150": 1.0,
+        "SPT3G_cal_T220": 1.0,
+        "SPT3G_cal_E90": 1.0,
+        "SPT3G_cal_E150": 1.0,
+        "SPT3G_cal_E220": 1.0,
         "kappa": 0.0
         },
     "TTTEEE": {
-        "cal_SPT3G": 1.0,
-        "cal_SPT3G_T90": 1.0,
-        "cal_SPT3G_T150": 1.0,
-        "cal_SPT3G_T220": 1.0,        
-        "cal_SPT3G_E90": 1.0,
-        "cal_SPT3G_E150": 1.0,
-        "cal_SPT3G_E220": 1.0,        
+        "SPT3G_cal": 1.0,
+        "SPT3G_cal_T90": 1.0,
+        "SPT3G_cal_T150": 1.0,
+        "SPT3G_cal_T220": 1.0,
+        "SPT3G_cal_E90": 1.0,
+        "SPT3G_cal_E150": 1.0,
+        "SPT3G_cal_E220": 1.0,
         "kappa": 0.0
         },
 }
 
 fg_params = {
     "TThighl": dict(
-        Acib=4.0,
-        Atsz=3.0,
-        Aksz=1.,
+        Acib=3.2,
+        Atsz=3.4,
+        Aksz=3.,
         xi=0.12,
         beta_cib=1.5,
-        Aps_SPT_95x95=8.36,
-        Aps_SPT_95x150=5.94,
-        Aps_SPT_95x220=10.55,
-        Aps_SPT_150x150=9.83,
-        Aps_SPT_150x220=27.4,
-        Aps_SPT_220x220=83.2,
-        Adust_SPT_95T=0.4,
-        Adust_SPT_150T=1.17,
-        Adust_SPT_220T=8.0,
+        SPT_radio_ps=1.,
+        SPT_cib_ps=8.6,
+        SPT_AdustT=5.,
         ),
     "TT": dict(
-        Adust_SPT3G_90T=0.44,
-        Adust_SPT3G_150T=1.08,
-        Adust_SPT3G_220T=3.19,
-        Acib=4.0,
-        Atsz=3.0,
-        Aksz=1.,
+        Acib=3.2,
+        Atsz=3.4,
+        Aksz=3.,
         xi=0.12,
         beta_cib=1.5,
-        Aps_SPT3G_90x90=62.61,
-        Aps_SPT3G_90x150=27.9,
-        Aps_SPT3G_90x220=24.3,
-        Aps_SPT3G_150x150=16.7,
-        Aps_SPT3G_150x220=28.6,
-        Aps_SPT3G_220x220=78.5,
+        SPT3G_radio_ps=11.,
+        SPT3G_cib_ps=5.,
+        SPT3G_AdustT=25.,
         ),
     "TE": dict(
-        Adust_SPT3G_90T=0.44,
-        Adust_SPT3G_150T=1.08,
-        Adust_SPT3G_220T=3.19,
-        Adust_SPT3G_90P=0.064,
-        Adust_SPT3G_150P=0.16,
-        Adust_SPT3G_220P=0.47,
+        SPT3G_AdustT=25.,
+        SPT3G_AdustP=1.,
         ),
     "EE": dict(
-        Adust_SPT3G_90P=0.064,
-        Adust_SPT3G_150P=0.16,
-        Adust_SPT3G_220P=0.47,
+        SPT3G_AdustP=1.,
         ),
     "TTTEEE": dict(
-        Adust_SPT3G_90T=0.44,
-        Adust_SPT3G_150T=1.08,
-        Adust_SPT3G_220T=3.19,
-        Adust_SPT3G_90P=0.064,
-        Adust_SPT3G_150P=0.16,
-        Adust_SPT3G_220P=0.47,
-        Acib=4.0,
-        Atsz=3.0,
-        Aksz=1.,
+        SPT3G_AdustT=25.,
+        SPT3G_AdustP=1.,
+        Acib=3.2,
+        Atsz=3.4,
+        Aksz=3.,
         xi=0.12,
         beta_cib=1.5,
-        Aps_SPT3G_90x90=62.61,
-        Aps_SPT3G_90x150=27.9,
-        Aps_SPT3G_90x220=24.3,
-        Aps_SPT3G_150x150=16.7,
-        Aps_SPT3G_150x220=28.6,
-        Aps_SPT3G_220x220=78.5,
+        SPT3G_radio_ps=11.,
+        SPT3G_cib_ps=5.,
         )
     }
 
-#lnLs = {"TThighl":288.45, "TT":1020.36, "EE":431.61, "TE":681.19, "TTTEEE":2129.65}
-lnLs = {"TThighl":288.45}
+chi2s = {"TThighl":1017.63, "TT":1166.66, "EE":431.15, "TE":684.33, "TTTEEE":2278.93}
 
 
 class SPTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
-        for mode in lnLs.keys():
+        for mode in chi2s.keys():
             install(
                 {"likelihood": {"hillik_spt.{}".format(mode): None}},
                 path=packages_path,
@@ -149,7 +122,7 @@ class SPTLikeTest(unittest.TestCase):
 ##         import hillik_spt
 
 ##         camb_cosmo = cosmo_params.copy()
-##         for mode, lnL in lnLs.items():
+##         for mode, chi2 in chi2s.items():
 ##             _spt = getattr(hillik_spt, mode)({"debug":True,"packages_path":packages_path})
 
 ##             camb_cosmo.update({"lmax": 10000, "lens_potential_accuracy": 1})
@@ -160,12 +133,12 @@ class SPTLikeTest(unittest.TestCase):
             
 ##             loglike = _spt.loglike(cl_boltz, **fg_params[mode],**calib_params[mode])
 ##             print( f"CAMB/{mode}: {-2*loglike}")
-#            self.assertAlmostEqual(-2*loglike, lnL, 1)
+#            self.assertAlmostEqual(-2*loglike, chi2, 1)
 
     def test_cobaya(self):
         from cobaya.model import get_model
 
-        for mode, lnL in lnLs.items():
+        for mode, chi2 in chi2s.items():
             info = {
                 "debug": True,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
@@ -175,8 +148,8 @@ class SPTLikeTest(unittest.TestCase):
             }
             
             model = get_model(info)
-#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
-            self.assertLess( abs(-2*model.loglikes({})[0][0] - lnL), 1)
+            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
+            self.assertLess( abs(-2*model.loglikes({})[0][0] - chi2), 1)
 
 
 if __name__ == "__main__":

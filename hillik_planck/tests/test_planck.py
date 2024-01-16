@@ -17,50 +17,37 @@ cosmo_params = {
 
 calib_params = {
     "A_planck": 1.0,
-    "cal_PLK": 1.0,
-    "cal_PLK_100A": 0.0,
-    "cal_PLK_100B": 0.0,
-    "cal_PLK_143A": 0.0,
-    "cal_PLK_143B": 0.0,
-    "cal_PLK_217A": 0.0,
-    "cal_PLK_217B": 0.0,
-    "calE_PLK_100A": 0.0,
-    "calE_PLK_100B": 0.0,
-    "calE_PLK_143A": 0.0,
-    "calE_PLK_143B": 0.0,
-    "calE_PLK_217A": 0.0,
-    "calE_PLK_217B": 0.0,
+    "PLK_cal_100A": 1.0,
+    "PLK_cal_100B": 1.0,
+    "PLK_cal_143A": 1.0,
+    "PLK_cal_143B": 1.0,
+    "PLK_cal_217A": 1.0,
+    "PLK_cal_217B": 1.0,
+    "PLK_pe_100A": 1.0,
+    "PLK_pe_100B": 1.0,
+    "PLK_pe_143A": 1.0,
+    "PLK_pe_143B": 1.0,
+    "PLK_pe_217A": 1.0,
+    "PLK_pe_217B": 1.0,
     }
 
 nuisance_params = {
     "TT": {
-        "Adust_PLK_100T": 1.37,
-        "Adust_PLK_143T": 1.85,
-        "Adust_PLK_217T": 8.48,
-        "Acib": 1.26,
-        "Atsz": 2.65,
-        "Aksz": 15.66,
-        "xi": 7.,
-        "beta_cib": 1.77,
-        "Aps_PLK_100x100": 390.37,
-        "Aps_PLK_100x143": 179.36,
-        "Aps_PLK_100x217": 177.54,
-        "Aps_PLK_143x143": 102.30,
-        "Aps_PLK_143x217": 112.19,
-        "Aps_PLK_217x217": 134.16,
+        "PLK_AdustT": 1.1,
+        "Acib": 1.03,
+        "Atsz": 6.,
+        "Aksz": 1.,
+        "xi": 0.1,
+        "beta_cib": 1.75,
+        "PLK_radio_ps": 60.,
+        "PLK_cib_ps": 6.,
         },
     "EE": {
-        "Adust_PLK_100P": 0.18,
-        "Adust_PLK_143P": 0.46,
-        "Adust_PLK_217P": 1.15,
+        "PLK_AdustP": 1.,
         },
     "TE": {
-        "Adust_PLK_100T": 1.22,
-        "Adust_PLK_143T": 1.89,
-        "Adust_PLK_217T": 8.16,
-        "Adust_PLK_100P": 0.18,
-        "Adust_PLK_143P": 0.45,
-        "Adust_PLK_217P": 0.66,
+        "PLK_AdustT": 1.,
+        "PLK_AdustP": 1.,
         },
 }
 nuisance_params["TTTEEE"] = {
@@ -69,8 +56,7 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 11261.91, "EE": 9236.68, "TE": 9921.18}
-chi2s = {"TT": 11261.91}
+chi2s = {"TT": 2780.76, "EE": 9474.02, "TE": 10110.59}
 
 
 class HillikPlkTest(unittest.TestCase):
