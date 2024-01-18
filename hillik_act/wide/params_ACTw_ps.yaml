@@ -23,7 +23,7 @@
     prior:
       min: 0.
       max: 150.
-    ref: 60.
+    ref: 22.5
     proposal: 1.
     latex: A_\mathrm{radio}^\mathrm{ACTw}
   beta_radio:
@@ -33,7 +33,7 @@
     prior:
       min: 0.
       max: 100.
-    ref: 6.
+    ref: 6.8
     proposal: 1.
     latex: A_\mathrm{IR}^\mathrm{ACTw}
   beta_dusty:

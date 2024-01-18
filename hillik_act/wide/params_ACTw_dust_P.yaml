@@ -14,10 +14,9 @@
 #    latex: A^{ACTw}_\mathrm{dust}(150P)
   ACTw_AdustP:
     prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.1
-    ref: 1.0
+      min: 0.
+      max: 100.
+    ref: 10.0
     proposal: 0.02
     latex: A_\mathrm{dustT}^{ACTw}
   ACTw_beta_dustP:

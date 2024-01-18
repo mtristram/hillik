@@ -11,12 +11,14 @@
     prior:
       min: 0.9
       max: 1.1
+    ref: 1.0
     proposal: 0.01
     latex: y_\mathrm{98}^{ACT}
   ACT_pe_150:
     prior:
       min: 0.9
       max: 1.1
+    ref: 1.0
     proposal: 0.01
     latex: y_\mathrm{150}^{ACT}
 

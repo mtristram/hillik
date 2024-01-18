@@ -96,25 +96,23 @@
 
   SPT3G_AdustT:
     prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.1
-    ref: 1.0
+      min: 0.0
+      max: 100.0
+    ref: 25.0
     proposal: 0.02
-    latex: A_\mathrm{dustT}^{Planck}
+    latex: A_\mathrm{dustT}^{SPT3G}
   SPT3G_beta_dustT:
     value: 1.51
-    latex: \beta_\mathrm{dustT}^{Planck}
+    latex: \beta_\mathrm{dustT}^{SPT3G}
 
   SPT3G_AdustP:
     prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.1
+      min: 0.0
+      max: 10.0
     ref: 1.0
     proposal: 0.02
-    latex: A_\mathrm{dustT}^{Planck}
+    latex: A_\mathrm{dustP}^{SPT3G}
   SPT3G_beta_dustP:
     value: 1.53
-    latex: \beta_\mathrm{dustT}^{Planck}
+    latex: \beta_\mathrm{dustP}^{SPT3G}
 

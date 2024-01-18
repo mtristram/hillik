@@ -48,15 +48,14 @@
 #    latex: A_\mathrm{dust}^{SPT3G}(220T)
   SPT3G_AdustT:
     prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.1
-    ref: 1.0
+      min: 0.0
+      max: 100.0
+    ref: 25.0
     proposal: 0.02
-    latex: A_\mathrm{dustT}^{Planck}
+    latex: A_\mathrm{dustT}^{SPT3G}
   SPT3G_beta_dustT:
     value: 1.51
-    latex: \beta_\mathrm{dustT}^{Planck}
+    latex: \beta_\mathrm{dustT}^{SPT3G}
 
 
   #Poisson
@@ -112,9 +111,9 @@
     prior:
       min: 0.
       max: 150.
-    ref: 60.
+    ref: 11.
     proposal: 1.
-    latex: A_\mathrm{radio}^\mathrm{PS}
+    latex: A_\mathrm{radio}^\mathrm{SPT3G}
   beta_radio:
     value: -0.8
     latex: \beta_\mathrm{radio}^\mathrm{PS}
@@ -122,9 +121,9 @@
     prior:
       min: 0.
       max: 100.
-    ref: 6.
+    ref: 5.
     proposal: 1.
-    latex: A_\mathrm{IR}^\mathrm{PS}
+    latex: A_\mathrm{IR}^\mathrm{SPT3G}
   beta_dusty:
     value: "lambda beta_cib: beta_cib"
     latex: \beta_\mathrm{IR}^\mathrm{PS}
