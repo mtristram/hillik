@@ -96,10 +96,10 @@
 
   SPT3G_AdustT:
     prior:
-      min: 0.0
+      min: 20.0
       max: 100.0
-    ref: 25.0
-    proposal: 0.02
+    ref: 60.0
+    proposal: 7.
     latex: A_\mathrm{dustT}^{SPT3G}
   SPT3G_beta_dustT:
     value: 1.51
@@ -108,9 +108,9 @@
   SPT3G_AdustP:
     prior:
       min: 0.0
-      max: 10.0
-    ref: 1.0
-    proposal: 0.02
+      max: 20.0
+    ref: 6.0
+    proposal: 2.
     latex: A_\mathrm{dustP}^{SPT3G}
   SPT3G_beta_dustP:
     value: 1.53
