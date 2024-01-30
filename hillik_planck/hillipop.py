@@ -323,7 +323,7 @@ class _HillipopLikelihood(InstallableLikelihood):
             elif mode == 'ET':
                 cal1 = pars[f"{self.survey}_cal_{self._mapnames[m1]}"]*pars[f"{self.survey}_pe_{self._mapnames[m1]}"]
                 cal2 = pars[f"{self.survey}_cal_{self._mapnames[m2]}"]
-            cal.append(cal1 * cal2 / pars[f"{self.survey}_cal"] ** 2)
+            cal.append(cal1 * cal2 / pars[f"A_planck"] ** 2)
 
         # Data
         dldata = self._dldata[mode]
