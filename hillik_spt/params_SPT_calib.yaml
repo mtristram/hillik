@@ -7,13 +7,13 @@
     latex: c^{SPT}
   SPT_cal_95:
     value: 1.0
-    latex: cal^\mathrm{95}
+    latex: cal^{SPT}_\mathrm{95}
   SPT_cal_150:
     value: 1.0
-    latex: cal^\mathrm{150}
+    latex: cal^{SPT}_\mathrm{150}
   SPT_cal_220:
     value: 1.0
-    latex: cal^\mathrm{220}
+    latex: cal^{SPT}_\mathrm{220}
 
   FTS_calibration_error:
     value: 0.0
