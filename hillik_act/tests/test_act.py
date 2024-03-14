@@ -29,36 +29,36 @@ calib_params = {
 }
 
 extgal_params = {
-    "Acib": 3.6,
-    "Atsz": 5.8,
-    "Aksz": 0.01,
-    "xi": 0.2,
+    "Acib": 1.1,
+    "Atsz": 5.5,
+    "Aksz": 3.,
+    "xi": 0.4,
     "beta_cib": 1.5,
 }
 
 fg_ps_params = {
     "wide.TT": dict(
-        ACTw_radio_ps=22.5,
-        ACTw_cib_ps=6.8,
+        ACTw_radio_ps=21.5,
+        ACTw_cib_ps=8.4,
         ),
     "deep.TT": dict(
-        ACTd_radio_ps=3.7,
-        ACTd_cib_ps=5.8,
+        ACTd_radio_ps=3.2,
+        ACTd_cib_ps=6.6,
         ),
 }
 
 fg_dust_params = {
     "wide.TT": dict(
-        ACTw_AdustT = 120.,
+        ACTw_AdustT = 45.,
         ),
     "wide.EE": dict(
-        ACTw_AdustP = 10.,
+        ACTw_AdustP = 7.5,
         ),
     "deep.TT": dict(
-        ACTd_AdustT = 60.,
+        ACTd_AdustT = 31.,
         ),
     "deep.EE": dict(
-        ACTd_AdustP = 5.,
+        ACTd_AdustP = 8.,
         ),
 }
 
@@ -75,10 +75,10 @@ nuisance_params = {
 
 
 chi2s = {
-    "wide.TT": 177.8, "deep.TT": 154.12,
-    "wide.EE": 232.3, "deep.EE": 158.06,
-    "wide.TE": 226.4, "deep.TE": 205.38,
-    "wide.TTTEEE": 617.9, "deep.TTTEEE": 549.34
+    "wide.TT": 150.3, "deep.TT": 164.5,
+    "wide.EE": 231.4, "deep.EE": 160.33,
+    "wide.TE": 222.7, "deep.TE": 205.5,
+    "wide.TTTEEE": 599.4, "deep.TTTEEE": 573.12
     }
 
 class ACTLikeTest(unittest.TestCase):

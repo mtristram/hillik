@@ -64,46 +64,46 @@ calib_params = {
 
 fg_params = {
     "TThighl": dict(
-        Acib=3.2,
-        Atsz=3.4,
-        Aksz=3.,
-        xi=0.12,
+        Acib=1.5,
+        Atsz=4.5,
+        Aksz=1.5,
+        xi=0.1,
         beta_cib=1.5,
         SPT_radio_ps=1.,
-        SPT_cib_ps=8.6,
-        SPT_AdustT=5.,
+        SPT_cib_ps=6.,
+        SPT_AdustT=60.,
         ),
     "TT": dict(
-        Acib=3.2,
-        Atsz=3.4,
-        Aksz=3.,
-        xi=0.12,
+        Acib=1.5,
+        Atsz=4.5,
+        Aksz=1.5,
+        xi=0.1,
         beta_cib=1.5,
-        SPT3G_radio_ps=11.,
-        SPT3G_cib_ps=5.,
-        SPT3G_AdustT=25.,
+        SPT3G_radio_ps=10.,
+        SPT3G_cib_ps=7.,
+        SPT3G_AdustT=60.,
         ),
     "TE": dict(
-        SPT3G_AdustT=25.,
-        SPT3G_AdustP=1.,
+        SPT3G_AdustT=60.,
+        SPT3G_AdustP=6.,
         ),
     "EE": dict(
-        SPT3G_AdustP=1.,
+        SPT3G_AdustP=6.,
         ),
     "TTTEEE": dict(
-        SPT3G_AdustT=25.,
-        SPT3G_AdustP=1.,
-        Acib=3.2,
-        Atsz=3.4,
-        Aksz=3.,
-        xi=0.12,
+        SPT3G_AdustT=60.,
+        SPT3G_AdustP=6.,
+        Acib=1.5,
+        Atsz=4.5,
+        Aksz=1.5,
+        xi=0.1,
         beta_cib=1.5,
-        SPT3G_radio_ps=11.,
-        SPT3G_cib_ps=5.,
+        SPT3G_radio_ps=10.,
+        SPT3G_cib_ps=7.,
         )
     }
 
-chi2s = {"TThighl":1017.63, "TT":1166.66, "EE":431.15, "TE":684.33, "TTTEEE":2278.93}
+chi2s = {"TThighl":601.03, "TT":1017.05, "EE":432.58, "TE":677.91, "TTTEEE":2124.51}
 
 
 class SPTLikeTest(unittest.TestCase):
