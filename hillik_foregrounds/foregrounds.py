@@ -100,6 +100,7 @@ class fgmodel(HasLogger):
         self.lmax = lmax
         self.name = None
         self.survey = survey
+        self.lnorm = lnorm
 
         #effecftive frequencies
         if self.survey not in fdust.keys():
@@ -263,7 +264,7 @@ class dust(fgmodel):
         self.name = "Dust"
 
         if filename is None:
-            alpha_dust = -2.4 if mode == "TT" else -2.5
+            alpha_dust = -2.5 if mode == "TT" else -2.4
             self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
         else:
             self.dlg = self._read_dl_template( filename)
@@ -279,34 +280,58 @@ class dust(fgmodel):
         elif self.mode == "ET": ad1,ad2 = pars[f'{self.survey}_AdustP'],pars[f'{self.survey}_AdustT']
         elif self.mode == "EE": ad1,ad2 = pars[f'{self.survey}_AdustP'],pars[f'{self.survey}_AdustP']
 
-        #PLK amplitude of Cl(l=10) at 353GHz
-        d353 = {'TT':[111651.7708, 23976.610017, 23976.610017, 13825.23899,
-                    13825.23899, 23976.610017, 23976.610017, 13825.23899,
-                    13825.23899, 32627.441451, 14590.079958, 14590.07996,
-                    14590.07995, 14590.079958, 16730.966876],
-                'EE':[1350.353149, 587.784085, 587.784085, 304.9489  , 304.9489  ,
-                       587.784085, 587.784085, 304.9489  , 304.9489  , 745.97103 ,
-                       300.239924, 300.239924, 300.239924, 300.239924, 394.719181],
-                'TE':[3488.882718, 1307.452465, 1307.452465,  941.55564 ,  941.55564 ,
-                      1307.452465, 1307.452465,  941.55564 ,  941.55564 , 2305.865117,
-                       920.922969,  920.922969,  920.922969,  920.922969, 1191.231852],
-                'ET':[3488.882718, 1307.452465, 1307.452465,  941.55564 ,  941.55564 ,
-                      1307.452465, 1307.452465,  941.55564 ,  941.55564 , 2305.865117,
-                       920.922969,  920.922969,  920.922969,  920.922969, 1191.231852]}
+        #PLK amplitude of Dl(l=10) at 353GHz
+        PLK_dl353 = {'TT':{100:108125,143:31700,217:14700},
+                     'EE':{100:995,143:610,217:380},
+                     'TE':{100:2400,143:1540,217:1000},
+                     'ET':{100:2400,143:1540,217:1000}}
+        PLK_alpha = {'TT':{100:-2.6,143:-2.4,217:-2.3},
+                     'EE':{f:-2.4 for f in [100,143,217]},
+                     'TE':{f:-2.4 for f in [100,143,217]},
+                     'ET':{f:-2.4 for f in [100,143,217]}}
 
         dl = []
         for xf, (f1, f2) in enumerate(self._cross_frequencies):
             #rescale PLK for each combination of mask
-            ad = d353[self.mode][xf]/self.dlg[10] if self.survey == "PLK" else 1
+            if self.survey == "PLK":
+                dlg = self._gen_dl_powerlaw( PLK_alpha[self.mode][max(f1,f2)],lnorm=self.lnorm)
+                ad = PLK_dl353[self.mode][max(f1,f2)]/dlg[10]
+            else:
+                ad = 1.
+                dlg = self.dlg
 
-            dl.append( ad * ad1 * ad2 * self.dlg
+            dl.append( ad * ad1 * ad2 * dlg
                        * self._dustRatio( self.fdust[f1], self.fdust[353], beta=beta1)
                        * self._dustRatio( self.fdust[f2], self.fdust[353], beta=beta2)
                        )
         return np.array(dl)
 
 
-# Syncrothron model
+#Dust amplitudes
+class dust_amplitude(fgmodel):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+        self.name = "Dust Amplitudes"        
+        self.dlg = np.zeros( lmax+1)
+
+        ell = np.arange( 2, lmax+1)
+        alpha_dust = -2.5 if mode == "TT" else -2.4
+        self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
+    
+    def compute_dl(self, pars):
+        if   self.mode == "TT": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustT'
+        elif self.mode == "TE": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustP'
+        elif self.mode == "ET": ad1,ad2 = f'{self.survey}_dustP',f'{self.survey}_dustT'
+        elif self.mode == "EE": ad1,ad2 = f'{self.survey}_dustP',f'{self.survey}_dustP'
+
+        dl = []
+        for f1, f2 in self._cross_frequencies:
+            dl.append( pars[ad1+f"_{f1}"] * pars[ad2+f"_{f2}"] * self.dlg)
+
+        return np.array(dl)
+
+
+# Synchrotron model
 class sync(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
