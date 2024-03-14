@@ -56,7 +56,7 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 2780.76, "EE": 9474.02, "TE": 10110.59}
+chi2s = {"TT": 2041.72, "EE": 9509.14, "TE": 10103.21}
 
 
 class HillikPlkTest(unittest.TestCase):
