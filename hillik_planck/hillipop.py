@@ -26,6 +26,7 @@ fg_list = {
     "radio_poisson": fg.ps_radio,
     "cib_poisson": fg.ps_dusty,
     "dust": fg.dust,
+    "dust_amplitude": fg.dust_amplitude,
     "synchroton": fg.sync,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
@@ -323,7 +324,7 @@ class _HillipopLikelihood(InstallableLikelihood):
             elif mode == 'ET':
                 cal1 = pars[f"{self.survey}_cal_{self._mapnames[m1]}"]*pars[f"{self.survey}_pe_{self._mapnames[m1]}"]
                 cal2 = pars[f"{self.survey}_cal_{self._mapnames[m2]}"]
-            cal.append(cal1 * cal2 / pars[f"A_planck"] ** 2)
+            cal.append(cal1 * cal2 / pars["A_planck"] ** 2)
 
         # Data
         dldata = self._dldata[mode]

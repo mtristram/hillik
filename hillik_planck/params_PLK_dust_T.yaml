@@ -10,3 +10,11 @@
   PLK_beta_dustT:
     value: 1.51
     latex: \beta_\mathrm{dustT}^{Planck}
+
+  #Dust amp
+  PLK_dustT_100:
+    value: 0.
+  PLK_dustT_143:
+    value: 0.
+  PLK_dustT_217:
+    value: 0.
