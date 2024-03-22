@@ -24,7 +24,7 @@
   SPT_AdustT:
     prior:
       min: 0.0
-      max: 100.0
+      max: 150.0
     ref: 70.0
     proposal: 10.
     latex: A_\mathrm{dustT}^{SPT}

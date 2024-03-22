@@ -1,9 +1,10 @@
-debug: true
+debug: false
 
 likelihood:
   planck_2018_lowl.TT: null
-  hillik_planck.TT: null
-
+  planck_2020_lollipop.lowlE: null
+  spt_hiell_2020.TT: null
+  spt3g_2022.TTTEEE: null
 
 params:
   # Cosmo
@@ -43,17 +44,18 @@ params:
     latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
-      min: 0.01
-      max: 0.15
-    proposal: 0.007
+      dist: norm
+      loc: 0.055
+      scale: 0.015
+    proposal: 0.0073
     latex: \tau_\mathrm{reio}
 
-prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.015)'
 
 theory:
-  pico:
-    picofile: /sps/planck/camel/pico4_tailmonty_v35_py3.dat
+  camb:
+    stop_at_error: False
+    extra_args:
+      lens_potential_accuracy: 1
 
 sampler:
   mcmc:

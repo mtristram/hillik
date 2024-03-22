@@ -1,7 +1,9 @@
-debug: False
+debug: false
 
 likelihood:
-  spt_hiell_2020.TT: null
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
 
 params:
   # Cosmo
@@ -16,8 +18,8 @@ params:
     prior:
       min: 2.6
       max: 3.5
+    ref: 3.044
     proposal: 0.0036
-    ref: 3.1
     drop: True
     latex: \log(10^{10} A_\mathrm{s})
   As:
@@ -27,58 +29,34 @@ params:
     prior:
       min: 0.9
       max: 1.0
-    ref: 0.96
+    ref: 0.9649
     proposal: 0.0033
     latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
-    ref: 0.022
+    ref: 0.02237
     proposal: 6.5e-5
     latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
-    ref: 0.12
+    ref: 0.1200
     proposal: 0.0011
     latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
-      dist: norm
-      loc: 0.055
-      scale: 0.015
-    ref: 0.055
+      min: 0.01
+      max: 0.12
+    ref: 0.058
     proposal: 0.0073
     latex: \tau_\mathrm{reio}
 
-  #Foregrounds
-  czero_tsz: 3.5
-  czero_ksz: 3.9
-
-  #DSFG Poisson
-  czero_dg_po: 8.6
-  beta_dg_po: 1.5
-
-  #DSFG Clustered 1halo
-  czero_dg_cl: 3.4
-  beta_dg_cl: 1.6
-  T_dg_cl: 9.7
-
-  #DSFG Clustered 2halo
-  czero_dg_cl2: 2.0
-  beta_dg_cl2: 1.6
-
-  #Radio Galaxies
-  czero_rg_po: 1.0
-
-  #tSZxCIB
-  tsz_dg_cor: 0.1
-
-  #Cirrus
-  czero_cirrus: 2.19
-
+  #derived
+  H0:
+  sigma8:
 
 theory:
   camb:
@@ -87,7 +65,8 @@ theory:
       lens_potential_accuracy: 1
 
 sampler:
-  evaluate:
+  mcmc:
+    covmat: /gpfs/users/tristramm/batman/tristram/software/hillik/example/hillik_plk_TTTEEE.covmat
 
 output: chains/mcmc
 

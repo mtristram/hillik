@@ -1,6 +1,8 @@
 debug: false
 
 likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
   actpol_full_dr4.deep: null
   actpol_full_dr4.wide: null
 
@@ -25,7 +27,7 @@ params:
   ns:
     prior:
       min: 0.9
-      max: 1.1
+      max: 1.0
     proposal: 0.0033
     latex: n_\mathrm{s}
   ombh2:
@@ -42,17 +44,11 @@ params:
     latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
-      min: 0.01
-      max: 0.15
-    proposal: 0.007
+      dist: norm
+      loc: 0.055
+      scale: 0.015
+    proposal: 0.0073
     latex: \tau_\mathrm{reio}
-
-  #derived
-  H0:
-  sigma8:
-
-prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
 
 
 theory:
@@ -65,4 +61,5 @@ sampler:
   mcmc:
 
 output: chains/mcmc
+
 force: true

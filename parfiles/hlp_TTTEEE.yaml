@@ -1,12 +1,10 @@
-debug: False
+debug: false
 
 likelihood:
-  actpol_full_dr4.deep:
-    use_te: False
-    use_ee: False
-  actpol_full_dr4.wide:
-    use_te: False
-    use_ee: False
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  planck_2020_hillipop.TTTEEE_lite: null
+
 
 params:
   # Cosmo
@@ -21,8 +19,8 @@ params:
     prior:
       min: 2.6
       max: 3.5
+    ref: 3.044
     proposal: 0.0036
-    ref: 3.1
     drop: True
     latex: \log(10^{10} A_\mathrm{s})
   As:
@@ -32,57 +30,45 @@ params:
     prior:
       min: 0.9
       max: 1.0
-    ref: 0.96
+    ref: 0.9649
     proposal: 0.0033
     latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
-    ref: 0.022
+    ref: 0.02237
     proposal: 6.5e-5
     latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
-    ref: 0.12
+    ref: 0.1200
     proposal: 0.0011
     latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
-      dist: norm
-      loc: 0.055
-      scale: 0.015
-    ref: 0.055
+      min: 0.01
+      max: 0.12
+    ref: 0.058
     proposal: 0.0073
     latex: \tau_\mathrm{reio}
 
-#CIB
-a_c: 3.64
-beta_c: 2.44
-
-#PS DG
-a_d: 6.87
-#PS RG
-a_s: 3.68
-a_sw: 22.5
-
-#Dust
-a_gd: 2.81
-a_gw: 8.71
-
-a_tsz: 5.80
-a_ksz: 1e-4
-xi: 0.2
-
+  #derived
+  H0:
+  sigma8:
 
 theory:
   camb:
     stop_at_error: False
+    extra_args:
+      lens_potential_accuracy: 1
 
 sampler:
-  evaluate:
+  mcmc:
+    covmat: /gpfs/workdir/shared/batman/tristram/software/hillipop/examples/LCDM_hlpTTTEEE_camb.cov
 
 output: chains/mcmc
-force: True
+
+force: true
