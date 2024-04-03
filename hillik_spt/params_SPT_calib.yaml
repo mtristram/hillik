@@ -6,15 +6,27 @@
     proposal: 0.01
     latex: c^{SPT}
   SPT_cal_95:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 2.0
+    ref: 1.0
+    proposal: 0.00333244
     latex: cal^{SPT}_\mathrm{95}
   SPT_cal_150:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 2.0
+    ref: 1.0
+    proposal: 0.00184807
     latex: cal^{SPT}_\mathrm{150}
   SPT_cal_220:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 2.0
+    ref: 1.0
+    proposal: 0.0041876
     latex: cal^{SPT}_\mathrm{220}
 
   FTS_calibration_error:
     value: 0.0
-    latex: \sigma(FTS)
+    latex: \sigma(FTS)^{SPT}
