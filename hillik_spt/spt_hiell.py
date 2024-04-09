@@ -80,9 +80,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
             self.log.debug("Adding '{}' foreground".format(name))
-            kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
+            kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey, emulator=False)
             if isinstance(self.foregrounds["TT"][name], str):
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+                if not os.path.exists(kwargs["filename"]):
+                    kwargs["emulator"] = True
             elif name == "szxcib":
                 filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                 filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])

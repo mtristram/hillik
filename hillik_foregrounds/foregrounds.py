@@ -1,7 +1,9 @@
 # FOREGROUNDS CMB LIK
 import astropy.io.fits as fits
+import os
 import numpy as np
 import itertools
+import emul_sz
 from cobaya.log import HasLogger, LoggedError
 
 
@@ -92,7 +94,7 @@ class fgmodel(HasLogger):
     def _syncRatio( self, f, f0, beta=-0.7):
         return (f/f0)**beta / ( self._dBdT(f)/self._dBdT(f0) )
 
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, **kwargs):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False, **kwargs):
         """
         Create model for foreground
         """
@@ -101,6 +103,7 @@ class fgmodel(HasLogger):
         self.name = None
         self.survey = survey
         self.lnorm = lnorm
+        self.emulator = bool(emulator)
 
         #effecftive frequencies
         if self.survey not in fdust.keys():
@@ -193,10 +196,12 @@ class fgmodel(HasLogger):
 
 # Point Sources (for TT)
 class ps(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "PS"
         self.dltemp = self._gen_dl_powerlaw(0.,lnorm=lnorm)
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
     def compute_dl(self, pars):
         if self.mode == "TT":
@@ -210,10 +215,12 @@ class ps(fgmodel):
 
 # Radio Point Sources (v**alpha)
 class ps_radio(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "PS radio"
         self.ll2pi = self._gen_dl_powerlaw(0.,lnorm=lnorm)
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
     def compute_dl(self, pars):
         dl = []
@@ -232,10 +239,12 @@ class ps_radio(fgmodel):
 
 # Infrared Point Sources
 class ps_dusty(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "PS dusty"
         self.ll2pi = self._gen_dl_powerlaw(0.,lnorm=lnorm)
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
     def compute_dl(self, pars):
         dl = []
@@ -259,9 +268,11 @@ class ps_dusty(fgmodel):
 #Dl SPT3G: -0.53 for TT, -0.42 for TE, -0.42 for EE (fit with strong prior)
 #Dl Planck: -0.63 for TT, -0.4 for TE
 class dust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=80):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=80, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "Dust"
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
         if filename is None:
             alpha_dust = -2.5 if mode == "TT" else -2.4
@@ -309,10 +320,12 @@ class dust(fgmodel):
 
 #Dust amplitudes
 class dust_amplitude(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "Dust Amplitudes"        
         self.dlg = np.zeros( lmax+1)
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
         ell = np.arange( 2, lmax+1)
         alpha_dust = -2.5 if mode == "TT" else -2.4
@@ -333,9 +346,11 @@ class dust_amplitude(fgmodel):
 
 # Synchrotron model
 class sync(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "Synchrotron"
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
         #check effective freqs
         for f in freqs:
@@ -363,9 +378,11 @@ class sync(fgmodel):
 
 # CIB clustered (one spectrum for all freqs)
 class cib(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "clustered CIB"
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
         #check effective freqs
         for f in freqs:
@@ -393,8 +410,8 @@ class cib(fgmodel):
 
 #thermal SZ (one spectrum for all freqs)
 class tsz(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "tSZ"
 
         #check effective freqs
@@ -422,19 +439,36 @@ class tsz(fgmodel):
 
 #kinetic SZ (one spectrum for all freqs)
 class ksz(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "kSZ"
 
         self.dl_ksz = []
-        ksz_tmpl = self._read_dl_template( filename, lnorm=lnorm)
-        for f1, f2 in self._cross_frequencies:
-            self.dl_ksz.append(ksz_tmpl)
-        self.dl_ksz = np.array(self.dl_ksz)
+        if emulator:
+            self.ksz_emulator = emul_sz.emulator(
+                seed=os.path.basename(filename),
+                folder=os.path.dirname(filename),
+                verbose=bool(self.log.level),
+            )
+        else:
+            ksz_tmpl = self._read_dl_template( filename, lnorm=lnorm)
+            for f1, f2 in self._cross_frequencies:
+                self.dl_ksz.append(ksz_tmpl)
+            self.dl_ksz = np.array(self.dl_ksz)
 
     def compute_dl(self, pars):
         if self.mode == "TT":
-            return pars["Aksz"] * self.dl_ksz
+            if self.emulator:
+                self.dl_ksz = np.array([self.ksz_emulator.get_cls(
+                    cosmo_dict=pars,
+                    ells=np.arange(0, self.lmax+1),
+                    with_unit=False,
+                    T_cmb=2.7255,
+                ) for f1, f2 in self._cross_frequencies])
+                prefactor = 1.
+            else:
+                prefactor = pars["Aksz"]
+            return prefactor * self.dl_ksz
         else:
             return 0.
 
@@ -442,9 +476,11 @@ class ksz(fgmodel):
 
 # SZxCIB model (one spectrum for all freqs)
 class szxcib(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, **kwargs):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False, **kwargs):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
         self.name = "SZxCIB"
+        if emulator:
+            raise NotImplementedError(f'No emulator implemented for {self.name} PS.')
 
         #check effective freqs for SZ
         for f in freqs:
