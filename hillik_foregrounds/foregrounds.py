@@ -461,11 +461,13 @@ class ksz(fgmodel):
             if self.emulator:
                 self.dl_ksz = np.array([self.ksz_emulator.get_cls(
                     cosmo_dict=pars,
-                    ells=np.arange(0, self.lmax+1),
-                    with_unit=False,
+                    ells=np.arange(self.lmax+1),
+                    with_unit=True,
                     T_cmb=2.7255,
                 ) for f1, f2 in self._cross_frequencies])
                 prefactor = 1.
+                if self.lnorm is None: self.lnorm = 3000
+                pars["Aksz"] = self.dl_ksz[0][int(self.lnorm)]
             else:
                 prefactor = pars["Aksz"]
             return prefactor * self.dl_ksz
