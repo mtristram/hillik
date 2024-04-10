@@ -72,6 +72,7 @@ theory:
 
 sampler:
   mcmc:
+    covmat: /gpfs/users/tristramm/batman/tristram/covmat/hillik_plksptact_TTTEEE.covmat
 
 output: chains/mcmc
 

@@ -1,13 +1,11 @@
 debug: false
 
 likelihood:
-  hillik_act.wide.TTTEEE: null
-  hillik_act.deep.TTTEEE: null
-
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
 
 params:
-  cal_ACT: 1.0
-
   # Cosmo
   cosmomc_theta:
     prior:
@@ -20,8 +18,8 @@ params:
     prior:
       min: 2.6
       max: 3.5
-    proposal: 0.0036
     ref: 3.044
+    proposal: 0.0036
     drop: True
     latex: \log(10^{10} A_\mathrm{s})
   As:
@@ -52,7 +50,7 @@ params:
     prior:
       min: 0.01
       max: 0.15
-    ref: 0.055
+    ref: 0.058
     proposal: 0.007
     latex: \tau_\mathrm{reio}
   Alens:
@@ -62,15 +60,11 @@ params:
     proposal: 0.022
     latex: A_\mathrm{L}
 
-
   #derived
   H0:
 
   sigma8:
 
-prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
 
 theory:
   camb:
@@ -80,7 +74,7 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_actTTTEEE.covmat
+    covmat: /gpfs/users/tristramm/batman/tristram/covmat/hillik_plk_TTTEEE.covmat
 
 output: chains/mcmc
 
