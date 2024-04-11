@@ -17,7 +17,8 @@ fg_list = {
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
     }
-
+emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zre', 'dz', 'alpha0', 'kappa']
+emulator_keys_tsz = ['logAs',  'omch2',  'ns', 'ombh2', '100theta', 'bias_SZ', 'alpha_SZ']
 
 class SPTHiellLikelihood(InstallableLikelihood):
     install_options = {
@@ -73,6 +74,9 @@ class SPTHiellLikelihood(InstallableLikelihood):
         #define the survey
         self.survey = "SPT"
 
+        #emulator of the sz signals
+        self.sz_emulator = False
+
         # Init foreground model
         self.fgs = []
         for name in self.foregrounds["TT"].keys():
@@ -81,14 +85,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
             self.log.debug("Adding '{}' foreground".format(name))
             kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey, emulator=False)
-            print('test 2', os.path.exists(kwargs["filename"]))
             if isinstance(self.foregrounds["TT"][name], str):
-                print('test 1')
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
                 if not os.path.exists(kwargs["filename"]):
-                    print('test 3')
                     kwargs["emulator"] = True
-                    print(kwargs)
+                    self.sz_emulator = True
             elif name == "szxcib":
                 filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                 filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
@@ -293,6 +294,10 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
     def get_requirements(self):
         requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
+        # requirements['H0'] = None
+        if self.sz_emulator:
+            for key in emulator_keys_ksz:
+                requirements[key] = None
         return requirements
 
     def logp(self, **params_values):
