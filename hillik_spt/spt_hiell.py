@@ -294,7 +294,6 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
     def get_requirements(self):
         requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
-        # requirements['H0'] = None
         if self.sz_emulator:
             for key in emulator_keys_ksz:
                 requirements[key] = None
