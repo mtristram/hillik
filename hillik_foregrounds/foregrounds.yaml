@@ -2,6 +2,7 @@
     dust: null
     tsz: dl_tsz_planck_13500.dat
     ksz: dl_ksz_planck_2_13500.dat
+    pksz: null
     cib: cib_extra.dat
     szxcib: sz_x_cib_template_13500.dat
     radio_poisson: null

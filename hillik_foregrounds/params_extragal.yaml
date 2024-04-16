@@ -30,9 +30,7 @@
     proposal: 1
     latex: A_\mathrm{CIB}
   Aksz:
-    prior:
-      min: 0
-      max: 50
-    ref: 1.
-    proposal: 1
-    latex: A_\mathrm{kSZ}
+    derived: True
+  Apksz:
+    derived: True
+    

@@ -15,6 +15,7 @@ fg_list = {
     "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
+    "pksz": fg.pksz,
     "szxcib": fg.szxcib,
     }
 emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zre', 'dz', 'alpha0', 'kappa']
@@ -219,9 +220,15 @@ class SPTHiellLikelihood(InstallableLikelihood):
         dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
 
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
+        derived_params = {}
 #        dlfg = []
         for fg in self.fgs:
-            dl_fg += fg.compute_dl( params)
+            if fg.name in ['pkSZ', 'kSZ']:
+                chi2, derived = fg.compute_dl( params)
+                dl_fg += chi2
+                derived_params.update(derived)
+            else:
+                dl_fg += fg.compute_dl( params)
 #            dlfg.append( fg.compute_dl(params))
 #        print( "write fgs templates")
 #        np.save( "hillik_spt_fgs", np.array(dlfg))
@@ -259,14 +266,14 @@ class SPTHiellLikelihood(InstallableLikelihood):
         LnL, detcov = self._gaussian_loglike(cov_w_beam, self.delta_cl)
 
         self.log.debug(f"chisq for cov only: {LnL} / {len(self.delta_cl)}")
-        return LnL, detcov
+        return LnL, detcov, derived_params
 
 
     def loglike(self, dl_boltz, **params):
         CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
-        chi2, detcov = self.compute_chi2( dl_boltz, **params)
+        chi2, detcov, derived_params = self.compute_chi2( dl_boltz, **params)
         SPTHiEllLnLike = chi2 + detcov
 
         # Add FG priors
@@ -290,7 +297,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 #        self.log.debug(f"lnLcov term = {detcov}")
         self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
-        return -0.5 * SPTHiEllLnLike
+        return -0.5 * SPTHiEllLnLike, derived_params
 
     def get_requirements(self):
         requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
@@ -299,9 +306,12 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 requirements[key] = None
         return requirements
 
-    def logp(self, **params_values):
+    def logp(self, _derived, **params_values):
         dl = self.provider.get_Cl(units="muK2", ell_factor=True)
-        return self.loglike(dl, **params_values)
+        logp, derived_params = self.loglike(dl, **params_values)
+        if _derived is not None:
+            _derived.update(derived_params)
+        return logp
 
     def dof(self):
         indices = []

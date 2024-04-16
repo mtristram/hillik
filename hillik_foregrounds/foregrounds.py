@@ -437,7 +437,7 @@ class tsz(fgmodel):
             return 0.
 
 
-#kinetic SZ (one spectrum for all freqs)
+#(homogeneous) kinetic SZ (one spectrum for all freqs)
 class ksz(fgmodel):
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
@@ -467,12 +467,51 @@ class ksz(fgmodel):
                 ) for f1, f2 in self._cross_frequencies])
                 prefactor = 1.
                 if self.lnorm is None: self.lnorm = 3000
-                pars["Aksz"] = self.dl_ksz[0][int(self.lnorm)]
+                derived = {"Aksz":self.dl_ksz[0][int(self.lnorm)]}
             else:
                 prefactor = pars["Aksz"]
-            return prefactor * self.dl_ksz
+                derived = {}
+            return prefactor * self.dl_ksz, derived
         else:
-            return 0.
+            return 0., {}
+
+
+#patchy kinetic SZ (one spectrum for all freqs)
+class pksz(fgmodel):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, emulator=False):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm, emulator=emulator)
+        self.name = "pkSZ"
+
+        self.dl_ksz = []
+        if emulator:
+            self.ksz_emulator = emul_sz.emulator(
+                seed=os.path.basename(filename),
+                folder=os.path.dirname(filename),
+                verbose=bool(self.log.level),
+            )
+        else:
+            ksz_tmpl = self._read_dl_template( filename, lnorm=lnorm)
+            for f1, f2 in self._cross_frequencies:
+                self.dl_ksz.append(ksz_tmpl)
+            self.dl_ksz = np.array(self.dl_ksz)
+
+    def compute_dl(self, pars):
+        if self.mode == "TT":
+            if self.emulator:
+                self.dl_ksz = np.array([self.ksz_emulator.get_cls(
+                    cosmo_dict=pars,
+                    ells=np.arange(self.lmax+1),
+                    with_unit=True,
+                    T_cmb=2.7255,
+                ) for f1, f2 in self._cross_frequencies])
+                prefactor = 1.
+                if self.lnorm is None: self.lnorm = 3000
+                derived = {"Apksz": self.dl_ksz[0][int(self.lnorm)]}
+                return self.dl_ksz, derived
+            else:
+                return pars["Apksz"] * self.dl_ksz, {}
+        else:
+            return 0., {}
 
 
 
