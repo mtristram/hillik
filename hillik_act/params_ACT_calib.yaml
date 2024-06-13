@@ -1,4 +1,4 @@
-  cal_ACT:
+  ACT_cal:
     prior:
       min: 0.7
       max: 1.3
@@ -7,28 +7,30 @@
     latex: c^{ACT}
     renames: calACTpol
 
-  poleff_ACT_98:
+  ACT_pe_98:
     prior:
       min: 0.9
       max: 1.1
+    ref: 1.0
     proposal: 0.01
     latex: y_\mathrm{98}^{ACT}
-  poleff_ACT_150:
+  ACT_pe_150:
     prior:
       min: 0.9
       max: 1.1
+    ref: 1.0
     proposal: 0.01
     latex: y_\mathrm{150}^{ACT}
 
-  cal_ACT_98:
+  ACT_cal_98:
     value: 1.0
     latex: cal_\mathrm{98}^{ACT}
-  cal_ACT_150:
+  ACT_cal_150:
     value: 1.0
     latex: cal_\mathrm{150}^{ACT}
-  leak_ACT_98:
+  ACT_leak_98:
     value: 1.0
     latex: leak_\mathrm{98}^{ACT}
-  leak_ACT_150:
+  ACT_leak_150:
     value: 1.0
     latex: leak_\mathrm{150}^{ACT}

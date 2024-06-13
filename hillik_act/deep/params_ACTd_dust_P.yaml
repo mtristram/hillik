@@ -1,15 +1,24 @@
-  Adust_ACTd_98P:
+#  ACTd_Adust_98P:
+#    prior:
+#      min: 0.
+#      max: 10.0
+#    ref: 0.1
+#    proposal: 1.4
+#    latex: A^{ACTd}_\mathrm{dust}(98P)
+#  ACTd_Adust_150P:
+#    prior:
+#      min: 0.
+#      max: 10.
+#    ref: 0.2
+#    proposal: 0.9
+#    latex: A^{ACTd}_\mathrm{dust}(150P)
+  ACTd_AdustP:
     prior:
       min: 0.
-      max: 10.0
-    ref: 0.1
-    proposal: 1.4
-    latex: A^{ACTd}_\mathrm{dust}(98P)
-
-  Adust_ACTd_150P:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 0.2
-    proposal: 0.9
-    latex: A^{ACTd}_\mathrm{dust}(150P)
+      max: 100.
+    ref: 5.0
+    proposal: 0.02
+    latex: A_\mathrm{dustT}^{ACTd}
+  ACTd_beta_dustP:
+    value: 1.51
+    latex: \beta_\mathrm{dustT}^{ACTd}

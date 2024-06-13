@@ -1,43 +1,64 @@
   #Poisson Noise
-  Aps_SPT_95x95:
+#  SPT_ps_95x95:
+#    prior:
+#      min: 0
+#      max: 20
+#    ref: 8.36
+#    proposal: 0.2
+#    latex: A^\mathrm{PS}(95x95)
+#  SPT_ps_95x150:
+#    prior:
+#      min: 0
+#      max: 20
+#    ref: 5.94
+#    proposal: 0.2
+#    latex: A^\mathrm{PS}(95x150)
+#  SPT_ps_95x220:
+#    prior:
+#      min: 0
+#      max: 20
+#    ref: 10.55
+#    proposal: 0.7
+#    latex: A^\mathrm{PS}(95x220)
+#  SPT_ps_150x150:
+#    prior:
+#      min: 0
+#      max: 20
+#    ref: 9.83
+#    proposal: 0.25
+#    latex: A^\mathrm{PS}(150x150)
+#  SPT_ps_150x220:
+#    prior:
+#      min: 0
+#      max: 50
+#    ref: 27.4
+#    proposal: 1.
+#    latex: A^\mathrm{PS}(150x220)
+#  SPT_ps_220x220:
+#    prior:
+#      min: 0
+#      max: 150
+#    ref: 83.2
+#    proposal: 6
+#    latex: A^\mathrm{PS}(220x220)
+
+  SPT_radio_ps:
     prior:
-      min: 0
-      max: 20
-    ref: 8.36
-    proposal: 0.2
-    latex: A^\mathrm{PS}(95x95)
-  Aps_SPT_95x150:
-    prior:
-      min: 0
-      max: 20
-    ref: 5.94
-    proposal: 0.2
-    latex: A^\mathrm{PS}(95x150)
-  Aps_SPT_95x220:
-    prior:
-      min: 0
-      max: 20
-    ref: 10.55
-    proposal: 0.7
-    latex: A^\mathrm{PS}(95x220)
-  Aps_SPT_150x150:
-    prior:
-      min: 0
-      max: 20
-    ref: 9.83
-    proposal: 0.25
-    latex: A^\mathrm{PS}(150x150)
-  Aps_SPT_150x220:
-    prior:
-      min: 0
-      max: 50
-    ref: 27.4
+      min: 0.
+      max: 150.
+    ref: 1.
     proposal: 1.
-    latex: A^\mathrm{PS}(150x220)
-  Aps_SPT_220x220:
+    latex: A_\mathrm{radio}^\mathrm{SPT}
+  beta_radio:
+    value: -0.8
+    latex: \beta_\mathrm{radio}^\mathrm{PS}
+  SPT_cib_ps:
     prior:
-      min: 0
-      max: 150
-    ref: 83.2
-    proposal: 6
-    latex: A^\mathrm{PS}(220x220)
+      min: 0.
+      max: 100.
+    ref: 8.6
+    proposal: 1.
+    latex: A_\mathrm{IR}^\mathrm{SPT}
+  beta_dusty:
+    value: "lambda beta_cib: beta_cib"
+    latex: \beta_\mathrm{IR}^\mathrm{PS}

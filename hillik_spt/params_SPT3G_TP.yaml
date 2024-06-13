@@ -1,95 +1,74 @@
 
   #Calib
-  cal_SPT3G_T90:
+  SPT3G_cal_T90:
     prior:
       min: 0.85
       max: 1.15
     ref: 1.0
     proposal: 0.01
-    latex: T_{\rm{cal}^{90}}
+    latex: c^\mathrm{SPT3G}_{T90}
 
-  cal_SPT3G_T150:
+  SPT3G_cal_T150:
     prior:
       min: 0.85
       max: 1.15
     ref: 0.9975
     proposal: 0.01
-    latex: T_{\rm{cal}^{150}}
+    latex: c^\mathrm{SPT3G}_{T150}
 
-  cal_SPT3G_T220:
+  SPT3G_cal_T220:
     prior:
       min: 0.85
       max: 1.15
     ref: 0.9930
     proposal: 0.01
-    latex: T_{\rm{cal}^{220}}
+    latex: c^\mathrm{SPT3G}_{T220}
 
-  cal_SPT3G_E90:
+  SPT3G_cal_E90:
     prior:
       min: 0.85
       max: 1.15
     ref: 1.0009
     proposal: 0.01
-    latex: P_{\rm{cal}^{90}}
+    latex: c^\mathrm{SPT3G}_{E90}
 
-  cal_SPT3G_E150:
+  SPT3G_cal_E150:
     prior:
       min: 0.85
       max: 1.15
     ref: 1.0020
     proposal: 0.01
-    latex: P_{\rm{cal}^{150}}
+    latex: c^\mathrm{SPT3G}_{E150}
 
-  cal_SPT3G_E220:
+  SPT3G_cal_E220:
     prior:
       min: 0.85
       max: 1.15
     ref: 1.019
     proposal: 0.01
-    latex: P_{\rm{cal}^{220}}
+    latex: c^\mathrm{SPT3G}_{E220}
 
 
   #Dust
-  Adust_SPT3G_90T:
+  SPT3G_AdustT:
     prior:
-      min: 0.
-      max: 10.
-    ref: 0.44399
-    proposal: 0.4
-    latex: A_\mathrm{dust}^{SPT3G}(90T)
-  Adust_SPT3G_150T:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 1.0875
-    proposal: 0.8
-    latex: A_\mathrm{dust}^{SPT3G}(150T)
-  Adust_SPT3G_220T:
-    prior:
-      min: 0.
-      max: 30.
-    ref: 3.1932
-    proposal: 2.5
-    latex: A_\mathrm{dust}^{SPT3G}(220T)
+      min: 20.0
+      max: 100.0
+    ref: 60.0
+    proposal: 7.
+    latex: A_\mathrm{dustT}^{SPT3G}
+  SPT3G_beta_dustT:
+    value: 1.51
+    latex: \beta_\mathrm{dustT}^{SPT3G}
 
-  Adust_SPT3G_90P:
+  SPT3G_AdustP:
     prior:
-      min: 0.
-      max: 10.
-    ref: 0.0637
-    proposal: 0.4
-    latex: A_\mathrm{dust}^{SPT3G}(90P)
-  Adust_SPT3G_150P:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 0.158
-    proposal: 0.8
-    latex: A_\mathrm{dust}^{SPT3G}(150P)
-  Adust_SPT3G_220P:
-    prior:
-      min: 0.
-      max: 30.
-    ref: 0.471
-    proposal: 2.5
-    latex: A_\mathrm{dust}^{SPT3G}(220P)
+      min: 0.0
+      max: 20.0
+    ref: 6.0
+    proposal: 2.
+    latex: A_\mathrm{dustP}^{SPT3G}
+  SPT3G_beta_dustP:
+    value: 1.53
+    latex: \beta_\mathrm{dustP}^{SPT3G}
+

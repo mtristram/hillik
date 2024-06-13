@@ -10,71 +10,62 @@
     proposal: 0.0005
     latex: y_\mathrm{cal}
     renames: calPlanck
+  PLK_cal_100A:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 1.0
+    proposal: 0.007
+    latex: c^{PLK}_\mathrm{100A}
+  PLK_cal_100B:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 1.0
+    proposal: 0.007
+    latex: c^{PLK}_\mathrm{100B}
+  PLK_cal_143A:
+    value: 1.0
+    latex: c^{PLK}_\mathrm{143A}
+  PLK_cal_143B:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 1.0
+    proposal: 0.007
+    latex: c^{PLK}_\mathrm{143B}
+  PLK_cal_217A:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 1.0
+    proposal: 0.007
+    latex: c^{PLK}_\mathrm{217A}
+  PLK_cal_217B:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 1.0
+    proposal: 0.007
+    latex: c^{PLK}_\mathrm{217B}
 
-  cal_PLK:
-    value: "lambda A_planck: A_planck"
-    latex: c^{PLK}
-
-  cal_PLK_100A:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
-    proposal: 0.001
-    latex: cal_\mathrm{100A}
-  cal_PLK_100B:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
-    proposal: 0.001
-    latex: cal_\mathrm{100B}
-  cal_PLK_143A:
-    value: 0.0
-    latex: cal_\mathrm{143A}
-  cal_PLK_143B:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
-    proposal: 0.001
-    latex: cal_\mathrm{143B}
-  cal_PLK_217A:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
-    proposal: 0.001
-    latex: cal_\mathrm{217A}
-  cal_PLK_217B:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.002
-    ref: 0.
-    proposal: 0.001
-    latex: cal_\mathrm{217B}
-
-  calE_PLK_100A:
-    value: "lambda cal_PLK_100A: cal_PLK_100A"
-    latex: calP_\mathrm{100A}
-  calE_PLK_100B:
-    value: "lambda cal_PLK_100B: cal_PLK_100B"
-    latex: calP_\mathrm{100B}
-  calE_PLK_143A:
-    value: "lambda cal_PLK_143A: cal_PLK_143A"
-    latex: calP_\mathrm{143A}
-  calE_PLK_143B:
-    value: "lambda cal_PLK_143B: cal_PLK_143B"
-    latex: calP_\mathrm{143B}
-  calE_PLK_217A:
-    value: "lambda cal_PLK_217A: cal_PLK_217A"
-    latex: calP_\mathrm{217A}
-  calE_PLK_217B:
-    value: "lambda cal_PLK_217B: cal_PLK_217B"
-    latex: calP_\mathrm{217B}
+  #Polar efficiency
+  PLK_pe_100A:
+    value: 1.0
+    latex: \eta^{PLK}_\mathrm{100A}
+  PLK_pe_100B:
+    value: 1.0
+    latex: \eta^{PLK}_\mathrm{100B}
+  PLK_pe_143A:
+    value: 1.0
+    latex: \eta^{PLK}_\mathrm{143A}
+  PLK_pe_143B:
+    value: 1.0
+    latex: \eta^{PLK}_\mathrm{143B}
+  PLK_pe_217A:
+    value: 0.975
+    latex: \eta^{PLK}_\mathrm{217A}
+  PLK_pe_217B:
+    value: 0.975
+    latex: \eta^{PLK}_\mathrm{217B}
 

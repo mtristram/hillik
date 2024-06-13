@@ -21,8 +21,10 @@ from cobaya.log import LoggedError
 import hillik_foregrounds as fg
 fg_list = {
     "cib": fg.cib,
+    "radio_poisson": fg.ps_radio,
+    "cib_poisson": fg.ps_dusty,
     "poisson": fg.ps,
-    "galactic_dust": fg.dust,
+    "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
@@ -79,7 +81,6 @@ class SPT3GPrototype(InstallableLikelihood):
     beam_covariance_filename: Optional[str]
     cal_covariance_filename: Optional[str]
     window_folder: Optional[str]
-    nu_eff_filename: Optional[str]
 
     cov_eval_cut_threshold: Optional[float] = 0.2
     cov_eval_large_number_replacement: Optional[float] = 1e3
@@ -147,16 +148,22 @@ class SPT3GPrototype(InstallableLikelihood):
         )
         self.bandpowers = self.bandpowers.reshape(-1, self.bin_max)
 
+        #-----------------------------------------------
         # Covariance Matrix
+        #-----------------------------------------------
         bp_cov = np.loadtxt(os.path.join(self.data_folder, self.covariance_filename))
         fid_cov = np.loadtxt(os.path.join(self.data_folder, self.covariance_filename))
         #        fid_cov = np.loadtxt(os.path.join(self.data_folder, self.fiducial_covariance_filename))
 
+        #-----------------------------------------------
         # Beam Covariance Matrix
+        #-----------------------------------------------
         self.beam_cov = np.loadtxt(os.path.join(self.data_folder, self.beam_covariance_filename))
         self.beam_cov = self.beam_cov * self.beam_cov_scale
 
+        #-----------------------------------------------
         # Windows Functions
+        #-----------------------------------------------
         # These are a bit trickier to handle due to the independent cuts possible for TT/TE/EE
         # The windows for low ell TT spectra exist in the files so that we can read these in in a nice array
         # Re-order/crop later when the binning is performed
@@ -170,7 +177,9 @@ class SPT3GPrototype(InstallableLikelihood):
             ]
         )
 
+        #-----------------------------------------------
         # Compute spectra/cov indices given spectra to fit
+        #-----------------------------------------------
         vec_indices = np.array([default_spectra_list.index(spec) for spec in self.spectra_to_fit])
         cov_indices = np.concatenate(
             [
@@ -203,17 +212,21 @@ class SPT3GPrototype(InstallableLikelihood):
                 )
             )
 
+        #-----------------------------------------------
         # Select spectra/cov elements given indices
+        #-----------------------------------------------
         self.log.debug(f"Selected bp ({self.N_s}): {vec_indices}")
 #        self.log.debug(f"Selected cov indices ({self.N_b_total}): {cov_indices}")
-        self.bp_cov = bp_cov[np.ix_(cov_indices, cov_indices)]
-        self.fid_cov = fid_cov[np.ix_(cov_indices, cov_indices)]
+        self.bp_cov   = bp_cov[np.ix_(cov_indices, cov_indices)]
+        self.fid_cov  = fid_cov[np.ix_(cov_indices, cov_indices)]
         self.beam_cov = self.beam_cov[np.ix_(cov_indices, cov_indices)]
 
         # Ensure covariance is positive definite
         self._bp_cov_posdef = self.bp_cov
 
+        #-----------------------------------------------
         # Calibration Covariance
+        #-----------------------------------------------
         # The order of the cal covariance is T90, T150, T220, E90, E150, E220
         calib_cov = np.loadtxt(os.path.join(self.data_folder, self.cal_covariance_filename))
         cal_indices = np.array([[90.0, 150.0, 220.0].index(freq) for freq in self.frequencies])
@@ -225,22 +238,16 @@ class SPT3GPrototype(InstallableLikelihood):
         calib_cov = calib_cov[np.ix_(cal_indices, cal_indices)]
         self.inv_calib_cov = np.linalg.inv(calib_cov)
         self.calib_params = np.array(
-            ["cal_SPT3G_{}{}".format(*p) for p in itertools.product(["T", "E"], [90, 150, 220])]
+            ["SPT3G_cal_{}{}".format(*p) for p in itertools.product(["T", "E"], [90, 150, 220])]
         )[cal_indices]
         self.log.debug(f"Calibration parameters: {self.calib_params}")
-
-        # Effective band centres
-        nu_eff = np.loadtxt(os.path.join(self.data_folder, self.nu_eff_filename))
-        self.nu_eff_gal_cirrus   = dict(zip(["90", "150", "220"], nu_eff[0]))
-        self.nu_eff_pol_gal_dust = dict(zip(["90", "150", "220"], nu_eff[1]))
-        self.nu_eff_DSFG         = dict(zip(["90", "150", "220"], nu_eff[2]))
-        self.nu_eff_radio        = dict(zip(["90", "150", "220"], nu_eff[3]))
-        self.nu_eff_tSZ          = dict(zip(["90", "150", "220"], nu_eff[4]))
 
         self.lmin = self.windows_lmin
         self.lmax = self.windows_lmax
 
+        #-----------------------------------------------
         # Initialise foreground model
+        #-----------------------------------------------
         self.fgs = {"TT":[],"TE":[],"EE":[]}
         for tag in self.fgs.keys():
             if tag in self.cross_spectra:
@@ -293,11 +300,11 @@ class SPT3GPrototype(InstallableLikelihood):
             dl_model += dlfg[cross_spectrum][fg._cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
             
             # Apply calibration
-            cal = params.get("cal_SPT3G") * self.ApplyCalibration(
-                params.get(f"cal_SPT3G_{cross_spectrum[0]}{cross_frequency[0]}"),
-                params.get(f"cal_SPT3G_{cross_spectrum[1]}{cross_frequency[1]}"),
-                params.get(f"cal_SPT3G_{cross_spectrum[0]}{cross_frequency[1]}"),
-                params.get(f"cal_SPT3G_{cross_spectrum[1]}{cross_frequency[0]}")
+            cal = params.get("SPT3G_cal") * self.ApplyCalibration(
+                params.get(f"SPT3G_cal_{cross_spectrum[0]}{cross_frequency[0]}"),
+                params.get(f"SPT3G_cal_{cross_spectrum[1]}{cross_frequency[1]}"),
+                params.get(f"SPT3G_cal_{cross_spectrum[0]}{cross_frequency[1]}"),
+                params.get(f"SPT3G_cal_{cross_spectrum[1]}{cross_frequency[0]}")
             )
             dl_model = dl_model / cal
             

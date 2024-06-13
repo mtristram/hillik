@@ -18,8 +18,10 @@ from cobaya.log import LoggedError
 
 fg_list = {
     "cib": fg.cib,
+    "radio_poisson": fg.ps_radio,
+    "cib_poisson": fg.ps_dusty,
     "poisson": fg.ps,
-    "galactic_dust": fg.dust,
+    "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
@@ -42,11 +44,6 @@ class ACTPolLikelihood(InstallableLikelihood):
     bbl_filename: Optional[str]
     leakd_filename: Optional[str]
 
-    #--------------------------------------------------------------
-    #Settings (should not be altered)
-    #--------------------------------------------------------------
-    # general settings
-    #--------------------------------------------------------------
     BoltzmannLmax = 6000
 
     #----------------------------------------------------------------
@@ -177,7 +174,9 @@ class ACTPolLikelihood(InstallableLikelihood):
         covmat = covmat[self._bstart:self._bend,self._bstart:self._bend]
         self.fisher = np.linalg.inv( covmat)
 
+        #-----------------------------------------------
         # Init foreground model
+        #-----------------------------------------------
         self.fgs = {'tt':[],'te':[],'ee':[]}
         for tag,is_used in self._is_mode.items():
             if is_used:
@@ -216,13 +215,13 @@ class ACTPolLikelihood(InstallableLikelihood):
         dl_cmb: Dl TT
         """
         surv = self.survey[:-1]
-        cal = params[f'cal_{surv}']
-        ct1 = params[f'cal_{surv}_98']  #Cal and leakage errors included in covmat and so fixed to 1
-        ct2 = params[f'cal_{surv}_150'] #Cal and leakage errors included in covmat and so fixed to 1
-        yp1 = params[f'poleff_{surv}_98']
-        yp2 = params[f'poleff_{surv}_150']
-        a1  = params[f'leak_{surv}_98']
-        a2  = params[f'leak_{surv}_150']
+        cal = params[f'{surv}_cal']
+        ct1 = params[f'{surv}_cal_98']  #Cal and leakage errors included in covmat and so fixed to 1
+        ct2 = params[f'{surv}_cal_150'] #Cal and leakage errors included in covmat and so fixed to 1
+        yp1 = params[f'{surv}_pe_98']
+        yp2 = params[f'{surv}_pe_150']
+        a1  = params[f'{surv}_leak_98']
+        a2  = params[f'{surv}_leak_150']
 
         #Calculate CMB+fg
         dlth = { 'tt':np.zeros( (self.nspectt,self.lmax_win+1) ),
@@ -307,7 +306,7 @@ class ACTPolLikelihood(InstallableLikelihood):
         return requirements
 
     def logp(self, **params_values):
-        dl = self.theory.get_Cl(units="muK2", ell_factor=True)
+        dl = self.provider.get_Cl(units="muK2", ell_factor=True)
         return self.loglike(dl, **params_values)
 
     def loglike(self, dl_cmb, **params):
