@@ -18,8 +18,8 @@ fg_list = {
     "pksz": fg.pksz,
     "szxcib": fg.szxcib,
     }
-emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zre', 'dz', 'alpha0', 'kappa']
-emulator_keys_tsz = ['logAs',  'omch2',  'ns', 'ombh2', '100theta', 'bias_SZ', 'alpha_SZ']
+emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zrei', 'dz', 'alpha0', 'kappa']
+emulator_keys_tsz = ['logA',  'omch2',  'ns', 'ombh2', 'cosmomc_theta', 'bias_SZ', 'alpha_SZ']
 
 class SPTHiellLikelihood(InstallableLikelihood):
     install_options = {
@@ -224,8 +224,8 @@ class SPTHiellLikelihood(InstallableLikelihood):
 #        dlfg = []
         for fg in self.fgs:
             if fg.name in ['pkSZ', 'kSZ']:
-                chi2, derived = fg.compute_dl( params)
-                dl_fg += chi2
+                szsp, derived = fg.compute_dl( params)
+                dl_fg += szsp
                 derived_params.update(derived)
             else:
                 dl_fg += fg.compute_dl( params)
