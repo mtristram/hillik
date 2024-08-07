@@ -331,9 +331,16 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         # Model
         dlmodel = [dlth[mode]] * self._nxspec
+        derived_params = {}
 #        dlfg = []
+
         for fg in self.fgs[mode]:
-            dlmodel += fg.compute_dl(pars)
+            if fg.name in ['pkSZ', 'kSZ']:
+                szsp, derived = fg.compute_dl(pars)
+                dlmodel += szsp
+                derived_params.update(derived)
+            else:
+                dlmodel += fg.compute_dl(pars)
 #            dlfg.append( fg.compute_dl(pars))
 #        print( "write fgs templates")
 #        np.save( "hillik_plk_fgs", np.array(dlfg))
