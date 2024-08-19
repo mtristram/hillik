@@ -3,7 +3,6 @@ import astropy.io.fits as fits
 import os
 import numpy as np
 import itertools
-import emul_sz
 from cobaya.log import HasLogger, LoggedError
 
 
@@ -104,6 +103,8 @@ class fgmodel(HasLogger):
         self.survey = survey
         self.lnorm = lnorm
         self.emulator = bool(emulator)
+        if self.emulator:
+            import emul_sz
 
         #effecftive frequencies
         if self.survey not in fdust.keys():
