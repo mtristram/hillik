@@ -30,14 +30,19 @@ fg_list = {
     "synchroton": fg.sync,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
+    "pksz": fg.pksz,
     "szxcib": fg.szxcib,
+    "pksz_emulator": fg.pksz_emulator,
+    "hksz_emulator": fg.hksz_emulator,
+    "tsz_emulator": fg.tsz_emulator,
     }
 
 #bintab for Hillipop lite
 lite_lmins = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10))
 lite_lmaxs = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10)+9)
 
-
+emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zrei', 'dz', 'alpha0', 'kappa']
+emulator_keys_tsz = ['logA',  'omch2',  'ns', 'ombh2', 'cosmomc_theta', 'bias_SZ', 'alpha_SZ', 'mnu']
 
 # ------------------------------------------------------------------------------------------------
 # Likelihood
@@ -333,14 +338,13 @@ class _HillipopLikelihood(InstallableLikelihood):
         dlmodel = [dlth[mode]] * self._nxspec
         derived_params = {}
 #        dlfg = []
-
-        for fg in self.fgs[mode]:
-            if fg.name in ['pkSZ', 'kSZ']:
-                szsp, derived = fg.compute_dl(pars)
+        for fgm in self.fgs[mode]:
+            if ('kSZ' in fgm.name) or ('tSZ' in fgm.name):
+                szsp, derived = fgm.compute_dl(pars)
                 dlmodel += szsp
                 derived_params.update(derived)
             else:
-                dlmodel += fg.compute_dl(pars)
+                dlmodel += fgm.compute_dl(pars)
 #            dlfg.append( fg.compute_dl(pars))
 #        print( "write fgs templates")
 #        np.save( "hillik_plk_fgs", np.array(dlfg))
@@ -348,7 +352,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         # Compute Rl = Dl - Dlth
         Rspec = np.array([dldata[xs] - cal[xs] * dlmodel[xs] for xs in range(self._nxspec)])
 
-        return Rspec
+        return Rspec, derived_params
 
     def compute_chi2(self, dlth, **params_values):
         """
@@ -372,7 +376,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         Xl = []
         if self._is_mode["TT"]:
             # compute residuals Rl = Dl - Dlth
-            Rspec = self._compute_residuals(params_values, dlth, 'TT')
+            Rspec, derived_params = self._compute_residuals(params_values, dlth, 'TT')
             # average to cross-spectra
             Rl = self._xspectra_to_xfreq(Rspec, self._dlweight['TT'])
             # select multipole range
@@ -380,7 +384,7 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         if self._is_mode["EE"]:
             # compute residuals Rl = Dl - Dlth
-            Rspec = self._compute_residuals(params_values, dlth, 'EE')
+            Rspec, derived_params = self._compute_residuals(params_values, dlth, 'EE')
             # average to cross-spectra
             Rl = self._xspectra_to_xfreq(Rspec, self._dlweight['EE'])
             # select multipole range
@@ -391,12 +395,12 @@ class _HillipopLikelihood(InstallableLikelihood):
             Wl = 0
             # compute residuals Rl = Dl - Dlth
             if self._is_mode["TE"]:
-                Rspec = self._compute_residuals(params_values, dlth, 'TE')
+                Rspec, derived_params = self._compute_residuals(params_values, dlth, 'TE')
                 RlTE, WlTE = self._xspectra_to_xfreq(Rspec, self._dlweight['TE'], normed=False)
                 Rl = Rl + RlTE
                 Wl = Wl + WlTE
             if self._is_mode["ET"]:
-                Rspec = self._compute_residuals(params_values, dlth, 'ET')
+                Rspec, derived_params = self._compute_residuals(params_values, dlth, 'ET')
                 RlET, WlET = self._xspectra_to_xfreq(Rspec, self._dlweight['ET'], normed=False)
                 Rl = Rl + RlET
                 Wl = Wl + WlET
@@ -412,7 +416,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         chi2 = np.float64(np.round(chi2*10**alpha))*10**(-alpha)
 
         self.log.debug(f"chi2/ndof = {chi2}/{len(self.delta_cl)}")
-        return chi2
+        return chi2, derived_params
 
     def dof( self):
         return len( self._invkll)
@@ -426,15 +430,25 @@ class _HillipopLikelihood(InstallableLikelihood):
             for il,l in enumerate(range(lmin,lmax+1)):
                 X[x0+il,l] = 1
             x0 += (lmax-lmin+1)
-        
+
         return X
 
     def get_requirements(self):
-        return dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
+        requirements = dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
+        if 'ksz_emulator' in ''.join([item for item in self.foregrounds["TT"].keys()]):
+            for key in emulator_keys_ksz:
+                requirements[key] = None
+        if 'tsz_emulator' in self.foregrounds["TT"].keys():
+            for key in emulator_keys_tsz:
+                requirements[key] = None
+        return requirements
 
-    def logp(self, **params_values):
+    def logp(self, _derived, **params_values):
         dl = self.provider.get_Cl(ell_factor=True)
-        return self.loglike(dl, **params_values)
+        logp, derived_params = self.loglike(dl, **params_values)
+        if _derived is not None:
+            _derived.update(derived_params)
+        return logp
 
     def loglike(self, dl, **params_values):
         """
@@ -457,9 +471,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         dlth = {k.upper():dl[k][:self.lmax+1] for k in dl.keys()}
         dlth['ET'] = dlth['TE']
 
-        chi2 = self.compute_chi2(dlth, **params_values)
+        chi2, derived_params = self.compute_chi2(dlth, **params_values)
 
-        return -0.5 * chi2
+        return -0.5 * chi2, derived_params
 
     @classmethod
     def get_path(cls, path):
