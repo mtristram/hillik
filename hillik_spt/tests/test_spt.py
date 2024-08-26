@@ -154,7 +154,7 @@ class SPTLikeTest(unittest.TestCase):
             info = {
                 "debug": False,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
-                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}, "stop_at_error": True}},
                 "params": {**cosmo_params, **calib_params[mode], **fg_params[mode]},
                 "packages_path": packages_path,
             }
