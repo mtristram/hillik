@@ -24,9 +24,14 @@ fg_list = {
     "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
+    "pksz": fg.pksz,
     "szxcib": fg.szxcib,
+    "pksz_emulator": fg.pksz_emulator,
+    "hksz_emulator": fg.hksz_emulator,
+    "tsz_emulator": fg.tsz_emulator,
     }
-
+emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zrei', 'dz', 'alpha0', 'kappa']
+emulator_keys_tsz = ['logA',  'omch2',  'ns', 'ombh2', 'cosmomc_theta', 'bias_SZ', 'alpha_SZ', 'mnu']
 
 
 class ACTPolLikelihood(InstallableLikelihood):
@@ -230,10 +235,16 @@ class ACTPolLikelihood(InstallableLikelihood):
         for tag in ['tt','te','ee']:
             dlth[tag][:,:self.BoltzmannLmax+1] = dl_cmb[tag][:self.BoltzmannLmax+1]
 
+        derived_params = {}
         for tag in dlth.keys():
 #            dlfg = []
-            for fg in self.fgs[tag]:
-                dlth[tag] += fg.compute_dl( params) #array( nspecf, lmax_win+1)
+            for fgm in self.fgs[tag]:
+                if ('kSZ' in fgm.name) or ('tSZ' in fgm.name):
+                    szsp, derived = fgm.compute_dl(params)
+                    dlth[tag] += szsp
+                    derived_params.update(derived)
+                else:
+                    dlth[tag] += fgm.compute_dl(params) #array( nspecf, lmax_win+1)
 #                dlfg.append( fg.compute_dl(params))
 #            print( "write fgs templates")
 #            np.save( f"hillik_{self.survey}_fgs_{tag}", np.array(dlfg))
@@ -299,18 +310,28 @@ class ACTPolLikelihood(InstallableLikelihood):
 
         self.log.debug(f"chisq = {lnlike} / {sum(np.diag(self.fisher>1e-9))}")
 
-        return lnlike
+        return lnlike, derived_params
 
     def get_requirements(self):
-        requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","ee"]})
+        requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt", "te", "ee"]})
+        if 'ksz_emulator' in ''.join([item for item in self.foregrounds["TT"].keys()]):
+            for key in emulator_keys_ksz:
+                requirements[key] = None
+        if 'tsz_emulator' in self.foregrounds["TT"].keys():
+            for key in emulator_keys_tsz:
+                requirements[key] = None
         return requirements
 
-    def logp(self, **params_values):
+    def logp(self, _derived, **params_values):
         dl = self.provider.get_Cl(units="muK2", ell_factor=True)
-        return self.loglike(dl, **params_values)
+        logp, derived_params = self.loglike(dl, **params_values)
+        if _derived is not None:
+            _derived.update(derived_params)
+        return logp
 
     def loglike(self, dl_cmb, **params):
-        return -0.5*self.compute_chi2( dl_cmb, **params)
+        chi2, derived_params = self.compute_chi2( dl_cmb, **params)
+        return -0.5*chi2, derived_params
 
     def dof( self):
         return sum(np.diag(self.fisher>1e-9))

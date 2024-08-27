@@ -15,7 +15,9 @@ cosmo_params = {
     "omch2": 0.1188,
     "ns": 0.9686,
     "Alens": 1.0,
-    "tau": 0.060,
+    # "tau": 0.060,
+    "zrei": 8.0,
+    "dz": 1.0,
 }
 
 calib_params = {
@@ -32,6 +34,7 @@ extgal_params = {
     "Acib": 1.1,
     "Atsz": 5.5,
     "Aksz": 3.,
+    "Apksz": 0.,
     "xi": 0.4,
     "beta_cib": 1.5,
 }
@@ -75,10 +78,10 @@ nuisance_params = {
 
 
 chi2s = {
-    "wide.TT": 150.3, "deep.TT": 164.5,
-    "wide.EE": 231.4, "deep.EE": 160.33,
-    "wide.TE": 222.7, "deep.TE": 205.5,
-    "wide.TTTEEE": 599.4, "deep.TTTEEE": 573.12
+    "wide.TT": 154.68, "deep.TT": 165.94,
+    "wide.EE": 236.47, "deep.EE": 165.14,
+    "wide.TE": 223.58, "deep.TE": 205.27,
+    "wide.TTTEEE": 605.49, "deep.TTTEEE": 578.16
     }
 
 class ACTLikeTest(unittest.TestCase):
@@ -111,14 +114,14 @@ class ACTLikeTest(unittest.TestCase):
 
         for mode, chi2 in chi2s.items():
             info = {
-                "debug": True,
+                "debug": False,
                 "likelihood": {f"hillik_act.{mode}": None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
                 "params": {**cosmo_params,**nuisance_params[mode],**calib_params},
                 "packages_path": packages_path,
             }
             model = get_model(info)
-#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
+            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
             self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
 
 
