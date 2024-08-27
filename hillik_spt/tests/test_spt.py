@@ -7,6 +7,9 @@ import numpy as np
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
     tempfile.gettempdir(), "SPT_packages"
 )
+test_path = os.path.join(
+    os.environ.get("GITHUB_WORKSPACE"), "hillik_spt/tests/"
+)
 
 cosmo_params = {
     "cosmomc_theta": 0.01040,
@@ -165,7 +168,7 @@ class SPTLikeTest(unittest.TestCase):
 
             if mode == "TThighl":
                 for chi2, inifile in zip(chi2s_sz, inifiles):
-                    _, sampler = run(yaml_load_file('./'+inifile))
+                    _, sampler = run(yaml_load_file(os.path.join(test_path, inifile)))
                     print(sampler.logposterior.loglike)
                     self.assertLess(abs(-2.*sampler.logposterior.loglike - chi2), 1.)
 
