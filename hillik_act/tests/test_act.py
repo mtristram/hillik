@@ -84,12 +84,17 @@ chi2s = {
     "wide.TTTEEE": 605.49, "deep.TTTEEE": 578.16
     }
 
+
 class ACTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
         for mode in chi2s.keys():
-            install({"likelihood": {f"hillik_act.{mode}": None}}, path=packages_path)
+            install(
+                {"likelihood": {f"hillik_act.{mode}": None}},
+                path=packages_path,
+                no_progress_bars=True,
+            )
 
 #    def test_camb(self):
 #        import camb

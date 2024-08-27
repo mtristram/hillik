@@ -70,6 +70,7 @@ class HillikPlkTest(unittest.TestCase):
                 {"likelihood": {"hillik_planck.{}".format(mode): None}},
                 path=packages_path,
                 skip_global=True,
+                no_progress_bars=True,
             )
 
 ##     def test_camb(self):
