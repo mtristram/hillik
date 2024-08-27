@@ -170,12 +170,12 @@ class SPTLikeTest(unittest.TestCase):
             if mode == "TThighl":
                 try:
                     import emul_sz
+                    for chi2, inifile in zip(chi2s_sz, inifiles):
+                        _, sampler = run(yaml_load_file(os.path.join(test_path, inifile)))
+                        print(sampler.logposterior.loglike)
+                        # self.assertLess(abs(-2.*sampler.logposterior.loglike - chi2), 1.)
                 except ModuleNotFoundError:
-                    pass                    
-                for chi2, inifile in zip(chi2s_sz, inifiles):
-                    _, sampler = run(yaml_load_file(os.path.join(test_path, inifile)))
-                    print(sampler.logposterior.loglike)
-                    # self.assertLess(abs(-2.*sampler.logposterior.loglike - chi2), 1.)
+                    continue
 
 
 if __name__ == "__main__":
