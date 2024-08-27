@@ -11,18 +11,6 @@ likelihood:
         cib: cib_extra.dat
         radio_poisson: null
         cib_poisson: null
-  hillik_spt.TT:
-    foregrounds:
-      TT:
-        dust: null
-        tsz: dl_tsz_150_bat.dat
-        #ksz: null
-        hksz_emulator: NN_KSZ_late
-        pksz: dl_ksz_oz_patchy_nolowell_20110708_norm1_fake25000.txt
-        szxcib: sz_x_cib_template.dat
-        cib: cib_extra.dat
-        radio_poisson: null
-        cib_poisson: null
 
 params:
   cosmomc_theta: 0.01040
