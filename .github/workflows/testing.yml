@@ -50,7 +50,7 @@ jobs:
     - name: Unit tests
       run: |
         pip install git+https://github.com/adeliegorce/CAMB.git
-        pip install git+https://{glpat-ohBFd8gUR5FHcJy6zGqx}@git.ias.u-psud.fr/batman/emul_sz.git
+        # pip install git+https://glpat-ohBFd8gUR5FHcJy6zGqx@git.ias.u-psud.fr/batman/emul_sz.git
         python -m unittest hillik_planck.tests.test_planck
         python -m unittest hillik_spt.tests.test_spt
         python -m unittest hillik_act.tests.test_act

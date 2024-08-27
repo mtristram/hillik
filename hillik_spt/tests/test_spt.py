@@ -168,6 +168,10 @@ class SPTLikeTest(unittest.TestCase):
             self.assertLess(abs(-2*model.loglikes({}, return_derived=False)[0] - chi2), 1)
 
             if mode == "TThighl":
+                try:
+                    import emul_sz
+                except ModuleNotFoundError:
+                    pass                    
                 for chi2, inifile in zip(chi2s_sz, inifiles):
                     _, sampler = run(yaml_load_file(os.path.join(test_path, inifile)))
                     print(sampler.logposterior.loglike)
