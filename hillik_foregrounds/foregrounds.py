@@ -452,7 +452,7 @@ class tsz_emulator(fgmodel):
                     cosmo_dict=pars,
                     ells=np.arange(self.lmax+1),
                     with_unit=True,
-                    T_cmb=2.7255,
+                    T_cmb=t_cmb,
                 )
                 derived = {}
             for f1, f2 in self._cross_frequencies:
@@ -513,7 +513,7 @@ class hksz_emulator(fgmodel):
                     cosmo_dict=pars,
                     ells=np.arange(self.lmax+1),
                     with_unit=True,
-                    T_cmb=2.7255,
+                    T_cmb=t_cmb,
                 ) for f1, f2 in self._cross_frequencies])
                 derived = {"Ahksz_derived": self.dl_ksz[0][int(self.lnorm)]}
             return prefactor * self.dl_ksz, derived
@@ -570,7 +570,7 @@ class pksz_emulator(fgmodel):
                     cosmo_dict=pars,
                     ells=np.arange(self.lmax+1),
                     with_unit=True,
-                    T_cmb=2.7255,
+                    T_cmb=t_cmb,
                 ) for f1, f2 in self._cross_frequencies])
                 derived = {"Apksz_derived": self.dl_ksz[0][int(self.lnorm)]}
             return self.dl_ksz, derived
@@ -615,7 +615,7 @@ class szxcib(fgmodel):
                 cosmo_dict=pars,
                 ells=np.arange(self.lmax+1),
                 with_unit=True,
-                T_cmb=2.7255,
+                T_cmb=t_cmb,
             )
             self.x_tmpl *= np.sqrt(ref_tsz)
         for u, (f1, f2) in enumerate(self._cross_frequencies):
