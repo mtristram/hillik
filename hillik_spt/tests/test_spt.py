@@ -115,7 +115,7 @@ fg_params = {
 chi2s = {"TThighl": 623.51, "TT": 1024.11, "EE": 439.48, "TE": 678.79, "TTTEEE": 2138.48}
 
 inifiles = ['test_sz_3tp.yaml', 'test_pksz_1rf.yaml', 'test_hksz_1rf.yaml', 'test_tsz_1rf.yaml']
-chi2s_sz = [1482.36, 11137.52, 10847.21, 4922.36]
+chi2s_sz = [446.89, 1239.614, 1325.79, 1464.22]
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -172,8 +172,8 @@ class SPTLikeTest(unittest.TestCase):
                     import emul_sz
                     for chi2, inifile in zip(chi2s_sz, inifiles):
                         _, sampler = run(yaml_load_file(os.path.join(test_path, inifile)))
-                        print(sampler.logposterior.loglike)
-                        # self.assertLess(abs(-2.*sampler.logposterior.loglike - chi2), 1.)
+                        # print(inifile, abs(-2.*sampler.logposterior.loglike))
+                        self.assertLess(abs(-2.*sampler.logposterior.loglike - chi2), 1.)
                 except ModuleNotFoundError:
                     continue
 

@@ -1,5 +1,6 @@
 # FOREGROUNDS CMB LIK
 import astropy.io.fits as fits
+from astropy import constants
 import os
 import numpy as np
 import itertools
@@ -7,8 +8,8 @@ from cobaya.log import HasLogger, LoggedError
 
 
 t_cmb = 2.72548
-k_b = 1.3806503e-23
-h_pl = 6.626068e-34
+k_b = constants.k_B.value  # J / K
+h_pl = constants.h.si.value  # J s
 
 
 # equivalent frequencies (experiment dependant)
@@ -445,22 +446,28 @@ class tsz_emulator(fgmodel):
 
         if self.mode == "TT":
             self.dl_tsz = []
+            derived = {}
             if self.tsz_emulator is None:
-                ref_tsz = np.zeros(self.lmax+1)
+                self.dl_tsz = np.array([np.zeros(self.lmax+1) for f1, f2 in self._cross_frequencies])
             else:
                 ref_tsz = self.tsz_emulator.get_cls(
                     cosmo_dict=pars,
                     ells=np.arange(self.lmax+1),
                     with_unit=True,
                     T_cmb=t_cmb,
-                )
-                derived = {}
-            for f1, f2 in self._cross_frequencies:
-                self.dl_tsz.append(ref_tsz
-                    * self._tszRatio(self.fsz[f1], self.feff)
-                    * self._tszRatio(self.fsz[f2], self.feff)
-                )
-                derived = {"Atsz_derived": self.dl_tsz[0][int(self.lnorm)]}
+                )  # to uK2
+                for f1, f2 in self._cross_frequencies:
+                    self.dl_tsz.append(ref_tsz *
+                        self._f_tsz(self.fsz[f1]) * self._f_tsz(self.fsz[f2])
+                    )
+                D3000 = self.tsz_emulator.get_cls(
+                    cosmo_dict=pars,
+                    ells=[self.lnorm],
+                    with_unit=True,
+                    T_cmb=t_cmb,
+                )[0] * self._f_tsz(self.feff)**2  # uK2
+                derived = {"Atsz_derived": D3000}
+                print(self.feff, self._f_tsz(self.feff), D3000)
             return self.dl_tsz, derived
         else:
             return 0., {}
@@ -504,10 +511,9 @@ class hksz_emulator(fgmodel):
     def compute_dl(self, pars):
         if self.mode == "TT":
             self.dl_ksz = []
-            prefactor = 1.
+            derived = {}
             if self.ksz_emulator is None:
                 self.dl_ksz = np.array([np.zeros(self.lmax+1) for f1, f2 in self._cross_frequencies])
-                derived = {}
             else:
                 self.dl_ksz = np.array([self.ksz_emulator.get_cls(
                     cosmo_dict=pars,
@@ -515,8 +521,14 @@ class hksz_emulator(fgmodel):
                     with_unit=True,
                     T_cmb=t_cmb,
                 ) for f1, f2 in self._cross_frequencies])
-                derived = {"Ahksz_derived": self.dl_ksz[0][int(self.lnorm)]}
-            return prefactor * self.dl_ksz, derived
+                D3000 = self.ksz_emulator.get_cls(
+                    cosmo_dict=pars,
+                    ells=[self.lnorm],
+                    with_unit=True,
+                    T_cmb=t_cmb,
+                )[0]  # uK2
+                derived.update({"Ahksz_derived": D3000})
+            return self.dl_ksz, derived
         else:
             return 0., {}
 
@@ -562,9 +574,9 @@ class pksz_emulator(fgmodel):
     def compute_dl(self, pars):
         if self.mode == "TT":
             self.dl_ksz = []
+            derived = {}
             if self.ksz_emulator is None:
                 self.dl_ksz = np.array([np.zeros(self.lmax+1) for f1, f2 in self._cross_frequencies])
-                derived = {}
             else:
                 self.dl_ksz = np.array([self.ksz_emulator.get_cls(
                     cosmo_dict=pars,
@@ -572,7 +584,13 @@ class pksz_emulator(fgmodel):
                     with_unit=True,
                     T_cmb=t_cmb,
                 ) for f1, f2 in self._cross_frequencies])
-                derived = {"Apksz_derived": self.dl_ksz[0][int(self.lnorm)]}
+                D3000 = self.ksz_emulator.get_cls(
+                    cosmo_dict=pars,
+                    ells=[self.lnorm],
+                    with_unit=True,
+                    T_cmb=t_cmb,
+                )[0]  # uK2
+                derived.update({"Apksz_derived": D3000})
             return self.dl_ksz, derived
         else:
             return 0., {}
@@ -600,8 +618,8 @@ class szxcib(fgmodel):
             self.tsz_emulator = None
         elif "filenames" in kwargs:
             if kwargs['emulator']:
-                self.tsz_emulator = init_emulator(kwargs["filenames"][0], verbose=bool(self.log.level))
-                self.x_tmpl = 1.*self._read_dl_template(kwargs["filenames"][1], lnorm=lnorm)
+                self.tsz_emulator = init_emulator(kwargs["filenames"][0], verbose=bool(self.log.level))  # tsz emulator
+                self.x_tmpl = self._read_dl_template(kwargs["filenames"][1], lnorm=lnorm)  # cib only
             else:
                 self.tsz_emulator = None
                 self.x_tmpl = self._read_dl_template(kwargs["filenames"][0], lnorm=lnorm)*self._read_dl_template(kwargs["filenames"][1], lnorm=lnorm)
@@ -614,19 +632,21 @@ class szxcib(fgmodel):
             ref_tsz = tsz_emulator.get_cls(
                 cosmo_dict=pars,
                 ells=np.arange(self.lmax+1),
-                with_unit=True,
-                T_cmb=t_cmb,
-            )
+                with_unit=False,
+            ) * 1e12  # uK2
             self.x_tmpl *= np.sqrt(ref_tsz)
-        for u, (f1, f2) in enumerate(self._cross_frequencies):
-            dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]) * (
-                self._tszRatio(self.fsz[f2],self.feff) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
-                self._tszRatio(self.fsz[f1],self.feff) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
-                )
-            )
-            if self.tsz_emulator is None:
-                dl_szxcib[u] *= np.sqrt(pars["Atsz"])
-
+            for u, (f1, f2) in enumerate(self._cross_frequencies):
+                dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]) * (
+                    self._f_tsz(self.fsz[f2]) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
+                    self._f_tsz(self.fsz[f1]) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
+                    ))
+        else:
+            self.x_tmpl *= np.sqrt(pars['Atsz'])
+            for u, (f1, f2) in enumerate(self._cross_frequencies):
+                dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]) * (
+                    self._tszRatio(self.fsz[f2],self.feff) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
+                    self._tszRatio(self.fsz[f1],self.feff) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
+                    ))
         if self.mode == "TT":
             return -1. * pars["xi"] * np.array(dl_szxcib)
         else:

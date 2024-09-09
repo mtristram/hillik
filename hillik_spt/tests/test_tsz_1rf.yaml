@@ -36,7 +36,7 @@ params:
   Aksz: 3.
   Atsz: 0.
   Apksz: 0.
-  bias_SZ: 0.8
+  bias_SZ: 0.6
   alpha_SZ: 1.78900
 
 theory:
