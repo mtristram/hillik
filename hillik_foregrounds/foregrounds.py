@@ -621,6 +621,7 @@ class szxcib(fgmodel):
             else:
                 self.tsz_emulator = None
                 self.x_tmpl = self._read_dl_template(kwargs["filenames"][0], lnorm=lnorm)*self._read_dl_template(kwargs["filenames"][1], lnorm=lnorm)
+            self.x_tmpl = np.sqrt(self.x_tmpl)
         else:
             raise ValueError(f"Missing template for SZxCIB  for {self.survey}")
             
@@ -634,7 +635,7 @@ class szxcib(fgmodel):
             ) * 1e12  # uK2
             ref_tsz = self.x_tmpl * np.sqrt(ref_tsz)
             for u, (f1, f2) in enumerate(self._cross_frequencies):
-                dl_szxcib.append( ref_tsz * np.sqrt(pars["Acib"]) * (
+                dl_szxcib.append(ref_tsz * np.sqrt(pars["Acib"]) * (
                     self._f_tsz(self.fsz[f2]) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
                     self._f_tsz(self.fsz[f1]) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
                     ))
