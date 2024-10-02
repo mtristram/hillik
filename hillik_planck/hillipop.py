@@ -380,6 +380,7 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         # Create Data Vector
         Xl = []
+        derived_params = {}
         if self._is_mode["TT"]:
             # compute residuals Rl = Dl - Dlth
             Rspec, derived_params = self._compute_residuals(params_values, dlth, 'TT')
