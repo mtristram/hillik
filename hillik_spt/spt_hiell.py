@@ -96,8 +96,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
             elif name == "szxcib":
                 if "tsz_emulator" in self.foregrounds["TT"].keys():
-                    filename_tsz = self.foregrounds["TT"]["tsz_emulator"] and \
-                        os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz_emulator"])
+                    filename_tsz = os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz_emulator"])
                     kwargs["emulator"] = True
                 else:
                     filename_tsz = self.foregrounds["TT"]["tsz"] and \

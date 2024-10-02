@@ -4,6 +4,7 @@ from astropy import constants
 import os
 import numpy as np
 import itertools
+import warnings
 from cobaya.log import HasLogger, LoggedError
 
 
@@ -175,8 +176,6 @@ class fgmodel(HasLogger):
         l, data = np.loadtxt(filename, unpack=True)
         self.log.debug("Template: {}".format(filename))
 
-        if max(l) < self.lmax:
-            self.log.info("WARNING: template {} has lower lmax (filled with 0)".format(filename))
         template = np.zeros(max(self.lmax, int(max(l))) + 1)
         template[np.array(l, int)] = data
 
@@ -467,7 +466,6 @@ class tsz_emulator(fgmodel):
                     T_cmb=t_cmb,
                 )[0] * self._f_tsz(self.feff)**2  # uK2
                 derived = {"Atsz_derived": D3000}
-                print(self.feff, self._f_tsz(self.feff), D3000)
             return self.dl_tsz, derived
         else:
             return 0., {}
@@ -612,7 +610,7 @@ class szxcib(fgmodel):
             if f not in self.fcib.keys():
                 raise ValueError( f"Missing Dust effective frequency for {f}")
 
-        self._is_template = filename
+        self._is_template = bool(filename)
         if self._is_template:
             self.x_tmpl = self._read_dl_template(filename, lnorm=lnorm)
             self.tsz_emulator = None
@@ -629,21 +627,21 @@ class szxcib(fgmodel):
     def compute_dl(self, pars):
         dl_szxcib = []
         if self.tsz_emulator is not None:
-            ref_tsz = tsz_emulator.get_cls(
+            ref_tsz = self.tsz_emulator.get_cls(
                 cosmo_dict=pars,
                 ells=np.arange(self.lmax+1),
                 with_unit=False,
             ) * 1e12  # uK2
-            self.x_tmpl *= np.sqrt(ref_tsz)
+            ref_tsz = self.x_tmpl * np.sqrt(ref_tsz)
             for u, (f1, f2) in enumerate(self._cross_frequencies):
-                dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]) * (
+                dl_szxcib.append( ref_tsz * np.sqrt(pars["Acib"]) * (
                     self._f_tsz(self.fsz[f2]) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
                     self._f_tsz(self.fsz[f1]) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
                     ))
         else:
-            self.x_tmpl *= np.sqrt(pars['Atsz'])
+            ref_tsz = self.x_tmpl * np.sqrt(pars['Atsz'])
             for u, (f1, f2) in enumerate(self._cross_frequencies):
-                dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]) * (
+                dl_szxcib.append(ref_tsz * np.sqrt(pars["Acib"]) * (
                     self._tszRatio(self.fsz[f2],self.feff) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
                     self._tszRatio(self.fsz[f1],self.feff) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
                     ))

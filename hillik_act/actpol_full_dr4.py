@@ -194,9 +194,15 @@ class ACTPolLikelihood(InstallableLikelihood):
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
                     elif name == "szxcib":
-                        filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                        if "tsz_emulator" in self.foregrounds["TT"].keys():
+                            filename_tsz = os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz_emulator"])
+                            kwargs["emulator"] = True
+                        else:
+                            filename_tsz = self.foregrounds["TT"]["tsz"] and \
+                                os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                            kwargs["emulator"] = False
                         filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                        kwargs["filenames"] = (filename_tsz,filename_cib)
+                        kwargs["filenames"] = (filename_tsz, filename_cib)
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
         if self._is_mode['tt']: self.log.debug(f"nbintt: {self.nbintt}")

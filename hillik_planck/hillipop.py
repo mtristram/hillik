@@ -140,9 +140,15 @@ class _HillipopLikelihood(InstallableLikelihood):
                 if isinstance(self.foregrounds["TT"][name], str):
                     kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
                 elif name == "szxcib":
-                    filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                    if "tsz_emulator" in self.foregrounds["TT"].keys():
+                        filename_tsz = os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz_emulator"])
+                        kwargs["emulator"] = True
+                    else:
+                        filename_tsz = self.foregrounds["TT"]["tsz"] and \
+                            os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                        kwargs["emulator"] = False
                     filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                    kwargs["filenames"] = (filename_tsz,filename_cib)
+                    kwargs["filenames"] = (filename_tsz, filename_cib)
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs['TT'] = fgsTT
         
@@ -384,7 +390,7 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         if self._is_mode["EE"]:
             # compute residuals Rl = Dl - Dlth
-            Rspec, derived_params = self._compute_residuals(params_values, dlth, 'EE')
+            Rspec, _ = self._compute_residuals(params_values, dlth, 'EE')
             # average to cross-spectra
             Rl = self._xspectra_to_xfreq(Rspec, self._dlweight['EE'])
             # select multipole range
@@ -395,12 +401,12 @@ class _HillipopLikelihood(InstallableLikelihood):
             Wl = 0
             # compute residuals Rl = Dl - Dlth
             if self._is_mode["TE"]:
-                Rspec, derived_params = self._compute_residuals(params_values, dlth, 'TE')
+                Rspec, _ = self._compute_residuals(params_values, dlth, 'TE')
                 RlTE, WlTE = self._xspectra_to_xfreq(Rspec, self._dlweight['TE'], normed=False)
                 Rl = Rl + RlTE
                 Wl = Wl + WlTE
             if self._is_mode["ET"]:
-                Rspec, derived_params = self._compute_residuals(params_values, dlth, 'ET')
+                Rspec, _ = self._compute_residuals(params_values, dlth, 'ET')
                 RlET, WlET = self._xspectra_to_xfreq(Rspec, self._dlweight['ET'], normed=False)
                 Rl = Rl + RlET
                 Wl = Wl + WlET
