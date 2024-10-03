@@ -452,9 +452,9 @@ class tsz_emulator(fgmodel):
                 ref_tsz = self.tsz_emulator.get_cls(
                     cosmo_dict=pars,
                     ells=np.arange(self.lmax+1),
-                    with_unit=True,
+                    with_unit=False,
                     T_cmb=t_cmb,
-                )  # to uK2
+                ) * 1e12 # to uK2
                 for f1, f2 in self._cross_frequencies:
                     self.dl_tsz.append(ref_tsz *
                         self._f_tsz(self.fsz[f1]) * self._f_tsz(self.fsz[f2])
@@ -462,9 +462,9 @@ class tsz_emulator(fgmodel):
                 D3000 = self.tsz_emulator.get_cls(
                     cosmo_dict=pars,
                     ells=[self.lnorm],
-                    with_unit=True,
+                    with_unit=False,
                     T_cmb=t_cmb,
-                )[0] * self._f_tsz(self.feff)**2  # uK2
+                )[0] * 1e12 * self._f_tsz(self.feff)**2  # uK2
                 derived = {"Atsz_derived": D3000}
             return self.dl_tsz, derived
         else:
@@ -632,20 +632,15 @@ class szxcib(fgmodel):
                 cosmo_dict=pars,
                 ells=np.arange(self.lmax+1),
                 with_unit=False,
-            ) * 1e12  # uK2
-            ref_tsz = self.x_tmpl * np.sqrt(ref_tsz)
-            for u, (f1, f2) in enumerate(self._cross_frequencies):
-                dl_szxcib.append(ref_tsz * np.sqrt(pars["Acib"]) * (
-                    self._f_tsz(self.fsz[f2]) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
-                    self._f_tsz(self.fsz[f1]) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
-                    ))
+            ) * 1e12 * self._f_tsz(self.feff)**2  # uK2
+            ref_cross = self.x_tmpl * np.sqrt(ref_tsz)
         else:
-            ref_tsz = self.x_tmpl * np.sqrt(pars['Atsz'])
-            for u, (f1, f2) in enumerate(self._cross_frequencies):
-                dl_szxcib.append(ref_tsz * np.sqrt(pars["Acib"]) * (
-                    self._tszRatio(self.fsz[f2],self.feff) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
-                    self._tszRatio(self.fsz[f1],self.feff) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
-                    ))
+            ref_cross = self.x_tmpl * np.sqrt(pars['Atsz'])
+        for u, (f1, f2) in enumerate(self._cross_frequencies):
+            dl_szxcib.append(ref_cross * np.sqrt(pars["Acib"]) * (
+                self._tszRatio(self.fsz[f2],self.feff) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
+                self._tszRatio(self.fsz[f1],self.feff) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
+                ))
         if self.mode == "TT":
             return -1. * pars["xi"] * np.array(dl_szxcib)
         else:
