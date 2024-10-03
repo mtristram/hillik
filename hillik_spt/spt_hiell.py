@@ -231,14 +231,14 @@ class SPTHiellLikelihood(InstallableLikelihood):
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
         derived_params = {}
 #        dlfg = []
-        for fg in self.fgs:
-            if ('kSZ' in fg.name) or ('tSZ' in fg.name):
-                szsp, derived = fg.compute_dl(params)
+        for fgm in self.fgs:
+            if ('kSZ' in fgm.name) or ('tSZ' in fgm.name):
+                szsp, derived = fgm.compute_dl(params)
                 dl_fg += szsp
                 derived_params.update(derived)
             else:
-                dl_fg += fg.compute_dl(params)
-#            dlfg.append( fg.compute_dl(params))
+                dl_fg += fgm.compute_dl(params)
+#            dlfg.append( fgm.compute_dl(params))
 #        print( "write fgs templates")
 #        np.save( "hillik_spt_fgs", np.array(dlfg))
 
