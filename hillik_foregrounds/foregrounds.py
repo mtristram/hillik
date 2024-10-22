@@ -259,10 +259,10 @@ class ps_dusty(fgmodel):
 #Dl SPT3G: -0.53 for TT, -0.42 for TE, -0.42 for EE (fit with strong prior)
 #Dl Planck: -0.63 for TT, -0.4 for TE
 class dust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=80):
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "Dust"
-
+        
         if filename is None:
             alpha_dust = -2.5 if mode == "TT" else -2.4
             self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
@@ -294,11 +294,18 @@ class dust(fgmodel):
         for xf, (f1, f2) in enumerate(self._cross_frequencies):
             #rescale PLK for each combination of mask
             if self.survey == "PLK":
-                dlg = self._gen_dl_powerlaw( PLK_alpha[self.mode][max(f1,f2)],lnorm=self.lnorm)
+                if mode == "TT":
+                     ad = pars[f'{self.survey}_amp_dust_{max(f1,f2)}T']
+                     alpha = pars[f'{self.survey}_alpha_dust_{max(f1,f2)}T']
+                else:
+                     ad = pars[f'{self.survey}_amp_dust_{max(f1,f2)}T']
+                     alpha = pars[f'{self.survey}_alpha_dust_{max(f1,f2)}P']
                 ad = PLK_dl353[self.mode][max(f1,f2)]/dlg[10]
             else:
+                alpha = pars[f'{self.survey}_alpha_dustT'] if self.mode == 'TT' else pars[f'{self.survey}_alpha_dustP']
                 ad = 1.
-                dlg = self.dlg
+
+            dlg = self._gen_dl_powerlaw( alpha, lnorm=self.lnorm)
 
             dl.append( ad * ad1 * ad2 * dlg
                        * self._dustRatio( self.fdust[f1], self.fdust[353], beta=beta1)
