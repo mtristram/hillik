@@ -1,0 +1,12 @@
+      TT:
+        dust: null
+        tsz: tsz_143_eps0.50_13500.dat
+        ksz: dl_ksz_planck_2_13500.dat
+        cib: cib_extra.dat
+        szxcib: sz_x_cib_template_13500.dat
+        radio_poisson: null
+        cib_poisson: null
+      EE:
+        dust: null
+      TE:
+        dust: null
