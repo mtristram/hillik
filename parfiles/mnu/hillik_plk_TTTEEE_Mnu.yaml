@@ -1,13 +1,11 @@
 debug: false
 
 likelihood:
-  hillik_act.wide.TTTEEE: null
-  hillik_act.deep.TTTEEE: null
-
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
 
 params:
-  cal_ACT: 1.0
-
   # Cosmo
   cosmomc_theta:
     prior:
@@ -24,7 +22,6 @@ params:
     drop: True
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
-    latex: A_\mathrm{s}
   ns:
     prior:
       min: 0.9
@@ -57,13 +54,7 @@ params:
 
   #derived
   H0:
-
   sigma8:
-
-prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
-
 
 theory:
   camb:
@@ -75,8 +66,4 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_actTTTEEE.covmat
-
-output: chains/mcmc
-
-force: true
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plk_TTTEEE.covmat
