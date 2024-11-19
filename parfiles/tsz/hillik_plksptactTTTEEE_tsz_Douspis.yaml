@@ -4,20 +4,20 @@ likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: 
-    foregrounds: !default [foregrounds_tsz_Douspis]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Douspis]
   hillik_spt.TTTEEE:
     spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
     spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-    foregrounds: !default [foregrounds_tsz_Douspis]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Douspis]
   hillik_spt.TThighl:
-    foregrounds: !default [foregrounds_tsz_Douspis]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Douspis]
   hillik_act.wide.TTTEEE: 
-    foregrounds: !default [foregrounds_tsz_Douspis]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Douspis]
     bminTT: 33
     bminTE: 23
     bminEE: 13
   hillik_act.deep.TTTEEE:
-    foregrounds: !default [foregrounds_tsz_Douspis]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Douspis]
     bminTT: 33
     bminTE: 23
     bminEE: 13
