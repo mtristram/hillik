@@ -181,7 +181,7 @@
         "reference": "https://www.doi.org/10.1088/0004-637X/772/1/77",
         "type": "CIB",
         "typebis": "",
-        "used_in": "SPT3G",
+        "used_in": "SPT",
         "website": null
     },
     "dl_cib_2halo_norm1_25000.txt": {
@@ -195,7 +195,7 @@
         "reference": "https://www.doi.org/10.1088/0004-637X/772/1/77",
         "type": "CIB",
         "typebis": "",
-        "used_in": "SPT3G",
+        "used_in": "SPT",
         "website": null
     },
     "dl_ksz_bat_13500.txt": {
