@@ -171,31 +171,31 @@
         "website": null
     },
     "dl_cib_1halo_norm1_25000.txt": {
-        "authors": null,
+        "authors": "Viero et al. 2013",
         "comments": null,
         "extrapolated": false,
         "filetype": ".txt",
         "freq": null,
         "lmax": 8000,
         "lmin": 2,
-        "reference": null,
+        "reference": "https://www.doi.org/10.1088/0004-637X/772/1/77",
         "type": "CIB",
         "typebis": "",
-        "used_in": null,
+        "used_in": "SPT",
         "website": null
     },
     "dl_cib_2halo_norm1_25000.txt": {
-        "authors": null,
+        "authors": "Viero et al. 2013",
         "comments": null,
         "extrapolated": false,
         "filetype": ".txt",
         "freq": null,
         "lmax": 8000,
         "lmin": 2,
-        "reference": null,
+        "reference": "https://www.doi.org/10.1088/0004-637X/772/1/77",
         "type": "CIB",
         "typebis": "",
-        "used_in": null,
+        "used_in": "SPT",
         "website": null
     },
     "dl_ksz_bat_13500.txt": {
