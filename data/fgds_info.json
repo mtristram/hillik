@@ -114,7 +114,7 @@
     },
     "dl_ksz_tbo.txt": {
         "authors": "Trac, Bode, & Ostriker 2011",
-        "comments": "homoegeneous reionisation at zre = 10",
+        "comments": "homogeneous reionisation at zre = 10",
         "extrapolated": true,
         "filetype": ".txt",
         "freq": null,
@@ -341,7 +341,7 @@
         "normalised": 3000,
         "from": "simulations"
     },
-    "dl_homogeneous_ksz_shaw2012_extrapolated.dat": {
+    "dl_ksz_homogeneous_shaw2012_extrapolated.dat": {
         "authors": "Shaw et al. 2012",
         "comments": "CSF model ie includes cooling and star formation.",
         "extrapolated": true,
@@ -373,9 +373,9 @@
         "website": null,
         "normalised": null
     },
-    "dl_ksz_oz_patchy_nolowell_20110708_norm1_fake25000.txt": {
+    "dl_ksz_patchy_spt.txt": {
         "authors": "Zahn et al 2012",
-        "comments": "Semi-numerical simulations with excursion set, efficiency of ζ = 20, zre=7.5, Delta_z=4, rmax=5Mpc/h (Fig 2 of paper)", 
+        "comments": "Semi-numerical simulations with excursion set, efficiency of ζ = 20, zre=7.5, Delta_z=4, rmax=5Mpc/h (Fig 2 of paper). Old name dl_ksz_oz_patchy_nolowell_20110708_norm1_fake25000.txt", 
         "extrapolated": true,
         "filetype": ".txt",
         "freq": null,
@@ -539,6 +539,22 @@
         "website": "",
         "normalised": 3000,
         "from": "simulations"
+    },
+    "dl_ksz_planck_2_13500.dat": {
+        "authors": "Planck",
+        "comments": "Not sure.",
+        "extrapolated": false,
+        "filetype": ".dat",
+        "freq": null,
+        "lmax": 13500,
+        "lmin": 2,
+        "reference": null,
+        "type": "kSZ",
+        "typebis": "Total kSZ",
+        "used_in": "Planck",
+        "website": "",
+        "normalised": 3000,
+        "from": null        
     },
     "dl_ksz_patchy_mcquinn.txt": {
         "authors": "McQuinn et al. 2005",
