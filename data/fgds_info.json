@@ -1,4 +1,3 @@
-{
     "CLs_CIBCIB_fmccarthy_github_545.npy": {
         "authors": "McCarthy",
         "comments": null,
@@ -41,6 +40,7 @@
         "used_in": null,
         "website": null
     },
+    "ClSZ_poiss_corr_MD2_cppp_bestCl_NILC_extra12_cibps_lmax13500.dat": {
     "ClSZ_poiss_corr_MD2_cppp_bestCl_NILC_extra12_cibps_lmax13500.dat": {
         "authors": "Douspis",
         "comments": null,
@@ -284,14 +284,30 @@
         "filetype": ".dat",
         "freq": null,
         "lmax": 10000,
-        "lmin": 1,
-        "reference": "https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..90G/abstract",
+        "lmin": 2,
+        "reference": "https://ui.adsabs.harvard.edu/abs/2013ApJ...776...83B/abstract",
         "type": "kSZ",
         "typebis": "Total kSZ",
-        "used_in": null,
-        "website": "https://szdb.osups.universite-paris-saclay.fr",
-        "normalised": 3000,
-        "from": "theory"
+        "from": "simulations",
+        "used_in": "SPT",
+        "website": null,
+        "normalised": 3000
+    },
+    "dl_ksz_patchy_bat_z10.dat": {
+        "authors": "Battaglia et al 2013",
+        "comments": "Patchy kSZ for z_mean = 10 and Delta_z = 1.05",
+        "extrapolated": false,
+        "filetype": ".dat",
+        "freq": null,
+        "lmax": 9240,
+        "lmin": 503,
+        "reference": "https://ui.adsabs.harvard.edu/abs/2013ApJ...776...83B/abstract",
+        "type": "kSZ",
+        "typebis": "Patchy kSZ",
+        "from": "simulations",
+        "used_in": "SPT",
+        "website": null,
+        "normalised": 0
     },
     "dl_ksz_total_AG_85patchy.dat": {
         "authors": "Gorce et al. 2020",
@@ -317,13 +333,29 @@
         "freq": null,
         "lmax": 13500,
         "lmin": 0,
-        "reference": "https://ui.adsabs.harvard.edu/abs/2021ApJ...908..199R/abstract",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..90G/abstract",
         "type": "kSZ",
         "typebis": "Total kSZ",
-        "used_in": "SPT",
-        "website": "http://pole.uchicago.edu/public/data/reichardt20/",
+        "used_in": null,
+        "website": "https://szdb.osups.universite-paris-saclay.fr",
         "normalised": 3000,
-        "from": "simulations"
+        "from": "theory"
+    },
+    "dl_ksz_patchy_AG.dat": {
+        "authors": "Gorce et al. 2020",
+        "comments": "Patchy kSZ",
+        "extrapolated": false,
+        "filetype": ".dat",
+        "freq": null,
+        "lmax": 14999,
+        "lmin": 1,
+        "reference": "https://ui.adsabs.harvard.edu/abs/2020A%26A...640A..90G/abstract",
+        "type": "kSZ",
+        "typebis": "Patchy kSZ",
+        "used_in": null,
+        "website": "https://szdb.osups.universite-paris-saclay.fr",
+        "normalised": 3000,
+        "from": "theory"
     },
     "dl_ksz_spt_2021_no_doppler.txt": {
         "authors": "Home-made",
@@ -341,21 +373,21 @@
         "normalised": 3000,
         "from": "simulations"
     },
-    "dl_homogeneous_ksz_shaw2012_extrapolated.dat": {
-        "authors": "Shaw et al. 2012",
-        "comments": "Homogeneous kSZ from Shaw et al. 2012, for CSF model (Fig. 5, in blue) ie includes cooling and star formation. Extrapolated in log to 1<=l<=25000. Used in total template of Reichardt+2021.",
-        "extrapolated": true,
-        "filetype": ".txt",
+    "dl_ksz_bat.dat": {
+        "authors": "Battaglia et al 2013 + Shaw et al. 2012",
+        "comments": "Unidentified, possibly Battaglia et al 2013 + Shaw et al. 2012 but does not really look like it. Identical to dl_ksz_150_bat_norm3000.dat except it is not normalised.",
+        "extrapolated": false,
+        "filetype": ".dat",
         "freq": null,
-        "lmax": 25000,
-        "lmin": 0,
-        "reference": "http://arxiv.org/abs/1109.0553",
+        "lmax": 10000,
+        "lmin": 2,
+        "reference": "https://ui.adsabs.harvard.edu/abs/2013ApJ...776...83B/abstract",
         "type": "kSZ",
-        "typebis": "Homogeneous kSZ",
+        "typebis": "Total kSZ",
+        "from": "simulations",
         "used_in": "SPT",
         "website": null,
-        "normalised": 3000,
-        "from": "simulations"
+        "normalised": 0
     },
     "dl_ksz_doppler_alvarez.dat": {
         "authors": "Alvarez et al. 2016",
@@ -380,11 +412,16 @@
         "filetype": ".txt",
         "freq": null,
         "lmax": 25000,
+        "lmax": 25000,
         "lmin": 0,
         "reference": "https://ui.adsabs.harvard.edu/abs/2012ApJ...756...65Z/abstract",
         "type": "kSZ",
         "typebis": "Patchy kSZ",
+        "typebis": "Patchy kSZ",
         "used_in": "SPT",
+        "website": null,
+        "from": "simulations",
+        "normalised": 3000
         "website": null,
         "from": "simulations",
         "normalised": 3000
@@ -397,11 +434,12 @@
         "freq": null,
         "lmax": 8000,
         "lmin": 0,
-        "reference": "https://ui.adsabs.harvard.edu/abs/2010ApJ...709..920S/abstract",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2010ApJ...725.1452S/abstract",
         "type": "tSZ",
         "typebis": "",
         "used_in": "SPT",
-        "website": null
+        "website": null,
+	    "from": "halo model, pressure profile modelling from Ostriker et al. 2005 and Bode et al. 2009"
     },
     "dl_tSZ_1h2h_Abi_143.dat": {
         "authors": "Abi",
@@ -415,7 +453,8 @@
         "type": "tSZ",
         "typebis": "",
         "used_in": null,
-        "website": null
+        "website": null,
+	    "from": "halo model following Bolliet et al. 2018"
     },
     "dl_tsz_150_bat.dat": {
         "authors": "Battaglia",
@@ -425,11 +464,12 @@
         "freq": null,
         "lmax": 10000,
         "lmin": 2,
-        "reference": "",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2012ApJ...758...75B/abstract",
         "type": "tSZ",
         "typebis": "",
         "used_in": "SPT",
-        "website": null
+        "website": null,
+	    "from": "hydrodynamical TreePM-SPH simulations (include radiative cooling, star formation, supernova feedback, and energetic feedback from active galactic nuclei)"
     },
     "dl_tsz_150_bat_13500.dat": {
         "authors": "Battaglia",
@@ -439,11 +479,12 @@
         "freq": null,
         "lmax": 13500,
         "lmin": 2,
-        "reference": "",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2012ApJ...758...75B/abstract",
         "type": "tSZ",
         "typebis": "",
         "used_in": "SPT",
-        "website": null
+        "website": null,
+	    "from": "hydrodynamical TreePM-SPH simulations (include radiative cooling, star formation, supernova feedback, and energetic feedback from active galactic nuclei)"
     },
     "dl_tsz_150_bat_norm3000.dat": {
         "authors": "Battaglia",
@@ -453,11 +494,12 @@
         "freq": null,
         "lmax": 10000,
         "lmin": 2,
-        "reference": "",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2012ApJ...758...75B/abstract",
         "type": "tSZ",
         "typebis": "",
         "used_in": "SPT",
-        "website": null
+        "website": null,
+	    "from": "hydrodynamical TreePM-SPH simulations (include radiative cooling, star formation, supernova feedback, and energetic feedback from active galactic nuclei)"
     },
     "dl_tsz_MDRF.dat": {
         "authors": "Douspis",
@@ -551,60 +593,63 @@
         "normalised": 3000,
         "from": "theory"
     },
-    "sz_x_cib_template.dat": {
+    "sz_x_cib_template.dat": {  
         "authors": "Addison et al 2012",
         "comments": null,
         "extrapolated": false,
         "filetype": ".dat",
-        "freq": null,
+        "freq": 150,
         "lmax": 9999,
         "lmin": 2,
-        "reference": "Planck likelihood",
+        "reference": "Planck likelihood, https://ui.adsabs.harvard.edu/abs/2012MNRAS.427.1741A/abstract",
         "type": "SZxCIB",
         "typebis": "",
         "used_in": "ACT,Planck",
-        "website": ""
+        "website": "",
+	    "from": "halo model: CIB modelling from Xia et al. 2012, tSZ modelling from Efstathiou and Migliaccio 2012"
     },
     "sz_x_cib_template_13500.dat": {
         "authors": "Addison et al 2012",
         "comments": null,
         "extrapolated": true,
         "filetype": ".dat",
-        "freq": null,
+        "freq": 150,
         "lmax": 13500,
         "lmin": 2,
-        "reference": "Planck likelihood",
+        "reference": "Planck likelihood, https://ui.adsabs.harvard.edu/abs/2012MNRAS.427.1741A/abstract",
         "type": "SZxCIB",
         "typebis": "",
         "used_in": "ACT,Planck",
-        "website": ""
+        "website": "",
+	    "from": "halo model: CIB modelling from Xia et al. 2012, tSZ modelling from Efstathiou and Migliaccio 2012"
     },
     "tsz_143_eps0.50.dat": {
-        "authors": "Efstathiou,Migliacio",
-        "comments": "smoothed original before linear extroplation",
+        "authors": "Efstathiou, Migliaccio",
+        "comments": "smoothed original before linear extrapolation",
         "extrapolated": false,
         "filetype": ".dat",
         "freq": 143,
         "lmax": 10000,
         "lmin": 2,
-        "reference": "",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2012MNRAS.423.2492E/abstract",
         "type": "tSZ",
         "typebis": "",
         "used_in": "Planck",
-        "website": "Planck likelihood"
+        "website": "Planck likelihood",
+	    "from" : "based on halo model + universal pressure profile constraints from X-ray observations (A10)"
     },
     "tsz_143_eps0.50_13500.dat": {
-        "authors": "Efstathiou,Migliacio",
-        "comments": "smoothed original before linear extroplation",
+        "authors": "Efstathiou, Migliaccio",
+        "comments": "smoothed original before linear extrapolation",
         "extrapolated": true,
         "filetype": ".dat",
         "freq": 143,
         "lmax": 13500,
         "lmin": 2,
-        "reference": "",
+        "reference": "https://ui.adsabs.harvard.edu/abs/2012MNRAS.423.2492E/abstract",
         "type": "tSZ",
         "typebis": "",
         "used_in": "Planck",
-        "website": "Planck likelihood"
+        "website": "Planck likelihood",
+	    "from" : "based on halo model + universal pressure profile constraints from X-ray observations (A10)"
     }
-}
