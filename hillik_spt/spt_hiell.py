@@ -15,8 +15,14 @@ fg_list = {
     "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
+    "pksz": fg.pksz,
     "szxcib": fg.szxcib,
+    "pksz_emulator": fg.pksz_emulator,
+    "hksz_emulator": fg.hksz_emulator,
+    "tsz_emulator": fg.tsz_emulator,
     }
+emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zrei', 'dz', 'alpha0', 'kappa']
+emulator_keys_tsz = ['logA',  'omch2',  'ns', 'ombh2', 'cosmomc_theta', 'bias_SZ', 'alpha_SZ', 'mnu']
 
 
 class SPTHiellLikelihood(InstallableLikelihood):
@@ -34,7 +40,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
     frequencies: Sequence[int] = [95, 150, 220]
     ReportFGLmax = 13500
     BoltzmannLmax: Optional[int] = 10000
-    
+
     fgds_folder: Optional[str] = "foregrounds"
     data_folder: Optional[str] = "spt_hiell_2020/likelihood"
     desc_file: Optional[str]
@@ -43,11 +49,11 @@ class SPTHiellLikelihood(InstallableLikelihood):
     beamerr_file: Optional[str]
     window_file: Optional[str]
     bin0: Optional[int] = 0 #cut first bins
-    
+
     normalizeSZ_143GHz: Optional[bool] = True
     callFGprior: Optional[bool] = True
     applyFTSprior: Optional[bool] = True
-    
+
     def initialize(self):
         # Set path to data
         if (not getattr(self, "path", None)) and (not getattr(self, "packages_path", None)):
@@ -70,9 +76,13 @@ class SPTHiellLikelihood(InstallableLikelihood):
         if not os.path.exists(self.fgds_folder):
             raise LoggedError( self.log, f"The 'fgds_folder' directory does not exist. Check the given path [{self.fgds_folder}].")
 
-        #define the survey
+        # define the survey
         self.survey = "SPT"
 
+        # Check if foreground model is consistent
+        for this_fg in ["pksz", "hksz", "tsz"]:
+            if (this_fg in self.foregrounds["TT"].keys()) and (f"{this_fg}_emulator" in self.foregrounds["TT"].keys()):
+                raise ValueError(f'Cannot have two models for {this_fg} (emulator and template).')
         # Init foreground model
         self.fgs = []
         for name in self.foregrounds["TT"].keys():
@@ -81,12 +91,19 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
             self.log.debug("Adding '{}' foreground".format(name))
             kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
+            # print(self.foregrounds["TT"][name], name)
             if isinstance(self.foregrounds["TT"][name], str):
                 kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
             elif name == "szxcib":
-                filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                if "tsz_emulator" in self.foregrounds["TT"].keys():
+                    filename_tsz = os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz_emulator"])
+                    kwargs["emulator"] = True
+                else:
+                    filename_tsz = self.foregrounds["TT"]["tsz"] and \
+                        os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                    kwargs["emulator"] = False
                 filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                kwargs["filenames"] = (filename_tsz,filename_cib)
+                kwargs["filenames"] = (filename_tsz, filename_cib)
             self.fgs.append(fg_list[name](**kwargs))
 
         # Update data_folder location
@@ -208,14 +225,20 @@ class SPTHiellLikelihood(InstallableLikelihood):
         Cal = params[f"{self.survey}_cal"]
         CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
 
-        dl_cmb = np.zeros( self.lmax+1)
+        dl_cmb = np.zeros(self.lmax+1)
         dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
 
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
+        derived_params = {}
 #        dlfg = []
-        for fg in self.fgs:
-            dl_fg += fg.compute_dl( params)
-#            dlfg.append( fg.compute_dl(params))
+        for fgm in self.fgs:
+            if ('kSZ' in fgm.name) or ('tSZ' in fgm.name):
+                szsp, derived = fgm.compute_dl(params)
+                dl_fg += szsp
+                derived_params.update(derived)
+            else:
+                dl_fg += fgm.compute_dl(params)
+#            dlfg.append( fgm.compute_dl(params))
 #        print( "write fgs templates")
 #        np.save( "hillik_spt_fgs", np.array(dlfg))
 
@@ -238,7 +261,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
             cbs += list(tmpcb)
             cbd += list(self.spec[thisoffset+self.bin0:thisoffset+thisnbin])
-            
+
         # Residuals
         self.delta_cl = np.array(cbs) - np.array(cbd)
 
@@ -250,16 +273,14 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
         # compute LogLike
         LnL, detcov = self._gaussian_loglike(cov_w_beam, self.delta_cl)
-
         self.log.debug(f"chisq for cov only: {LnL} / {len(self.delta_cl)}")
-        return LnL, detcov
-
+        return LnL, detcov, derived_params
 
     def loglike(self, dl_boltz, **params):
         CalFactors = [params[f"{self.survey}_cal_{nu}"] for nu in self.frequencies]
         FTSfactor = params["FTS_calibration_error"]
 
-        chi2, detcov = self.compute_chi2( dl_boltz, **params)
+        chi2, detcov, derived_params = self.compute_chi2( dl_boltz, **params)
         SPTHiEllLnLike = chi2 + detcov
 
         # Add FG priors
@@ -283,15 +304,24 @@ class SPTHiellLikelihood(InstallableLikelihood):
 #        self.log.debug(f"lnLcov term = {detcov}")
         self.log.debug(f"LnL (after priors) = {SPTHiEllLnLike}")
 
-        return -0.5 * SPTHiEllLnLike
+        return -0.5 * SPTHiEllLnLike, derived_params
 
     def get_requirements(self):
         requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
+        if 'ksz_emulator' in ''.join([item for item in self.foregrounds["TT"].keys()]):
+            for key in emulator_keys_ksz:
+                requirements[key] = None
+        if 'tsz_emulator' in self.foregrounds["TT"].keys():
+            for key in emulator_keys_tsz:
+                requirements[key] = None
         return requirements
 
-    def logp(self, **params_values):
+    def logp(self, _derived, **params_values):
         dl = self.provider.get_Cl(units="muK2", ell_factor=True)
-        return self.loglike(dl, **params_values)
+        logp, derived_params = self.loglike(dl, **params_values)
+        if _derived is not None:
+            _derived.update(derived_params)
+        return logp
 
     def dof(self):
         indices = []

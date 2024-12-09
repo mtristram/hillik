@@ -12,7 +12,9 @@ cosmo_params = {
     "ombh2": 0.022223,
     "omch2": 0.119227,
     "ns": 0.9629,
-    "tau": 0.0563,
+    # "tau": 0.0563,
+    "zrei": 8.0,
+    "dz": 1.0,
 }
 
 calib_params = {
@@ -56,7 +58,7 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 2041.72, "EE": 9509.14, "TE": 10103.21}
+chi2s = {"TT": 2057.94, "EE": 9506.97, "TE": 10101.83}
 
 
 class HillikPlkTest(unittest.TestCase):
@@ -68,6 +70,7 @@ class HillikPlkTest(unittest.TestCase):
                 {"likelihood": {"hillik_planck.{}".format(mode): None}},
                 path=packages_path,
                 skip_global=True,
+                no_progress_bars=True,
             )
 
 ##     def test_camb(self):
@@ -93,13 +96,13 @@ class HillikPlkTest(unittest.TestCase):
 
         for mode, chi2 in chi2s.items():
             info = {
-                "debug": True,
+                "debug": False,
                 "likelihood": {"hillik_planck.{}".format(mode): None},
-                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}, "stop_at_error": True}},
                 "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
                 "packages_path": packages_path,
             }
-            
+
             model = get_model(info)
-#            print( f"COBAYA/{mode}: {-2 * model.loglikes({})[0][0]}")
-            self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
+            # print(f"COBAYA/{mode}: {-2 * model.loglikes({})[0][0]}")
+            self.assertLess(abs(-2 * model.loglikes({})[0][0] - chi2), 1)

@@ -1,0 +1,54 @@
+likelihood:
+  hillik_spt.TThighl:
+    foregrounds:
+      TT:
+        dust: null
+        tsz: dl_tsz_150_bat.dat
+        #ksz: null
+        hksz_emulator: NN_KSZ_late
+        pksz: dl_ksz_oz_patchy_nolowell_20110708_norm1_fake25000.txt
+        szxcib: sz_x_cib_template.dat
+        cib: cib_extra.dat
+        radio_poisson: null
+        cib_poisson: null
+
+params:
+  cosmomc_theta: 0.01040
+  logA: 3.074
+  ombh2: 0.02241
+  omch2: 0.1188
+  ns: 0.9686
+  Alens: 1.0
+  zrei: 8.0
+  dz: 1.0
+  # tau: 0.054
+  mnu: 0.0
+  alpha0: 3.7
+  kappa: 0.10
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_\mathrm{s}
+  Apksz_derived:
+    derived: True
+  Ahksz_derived:
+    derived: True
+  Atsz_derived:
+    derived: True
+  Apksz: 0.2
+  Atsz: 4.
+  Aksz: 0.
+
+theory:
+  camb:
+    stop_at_error: True
+    extra_args:
+      lens_potential_accuracy: 1
+      reionization_model: ExpReionization
+
+sampler:
+  evaluate:
+
+force: true
+resume: false
+debug: false
+

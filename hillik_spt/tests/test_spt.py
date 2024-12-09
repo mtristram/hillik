@@ -7,6 +7,9 @@ import numpy as np
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
     tempfile.gettempdir(), "SPT_packages"
 )
+test_path = os.path.join(
+    os.environ.get("GITHUB_WORKSPACE") or './', "hillik_spt/tests/"
+)
 
 cosmo_params = {
     "cosmomc_theta": 0.01040,
@@ -15,7 +18,9 @@ cosmo_params = {
     "omch2": 0.1188,
     "ns": 0.9686,
     "Alens": 1.0,
-    "tau": 0.060,
+    # "tau": 0.060,
+    "zrei": 8.0,
+    "dz": 1.0,
 }
 
 calib_params = {
@@ -67,6 +72,10 @@ fg_params = {
         Acib=1.5,
         Atsz=4.5,
         Aksz=1.5,
+        Apksz=0.,
+        Apksz_derived={'derived': True},
+        Ahksz_derived={'derived': True},
+        Atsz_derived={'derived': True},
         xi=0.1,
         beta_cib=1.5,
         SPT_radio_ps=1.,
@@ -103,7 +112,10 @@ fg_params = {
         )
     }
 
-chi2s = {"TThighl":601.03, "TT":1017.05, "EE":432.58, "TE":677.91, "TTTEEE":2124.51}
+chi2s = {"TThighl": 623.51, "TT": 1024.11, "EE": 439.48, "TE": 678.79, "TTTEEE": 2138.48}
+
+inifiles = ['test_sz_3tp.yaml', 'test_pksz_1rf.yaml', 'test_hksz_1rf.yaml', 'test_tsz_1rf.yaml']
+chi2s_sz = [446.89, 1239.614, 1325.79, 1464.22]
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -115,6 +127,7 @@ class SPTLikeTest(unittest.TestCase):
                 {"likelihood": {"hillik_spt.{}".format(mode): None}},
                 path=packages_path,
                 skip_global=True,
+                no_progress_bars=True,
             )
 
 ##     def test_camb(self):
@@ -137,19 +150,32 @@ class SPTLikeTest(unittest.TestCase):
 
     def test_cobaya(self):
         from cobaya.model import get_model
+        from cobaya.yaml import yaml_load_file
+        from cobaya.run import run
 
         for mode, chi2 in chi2s.items():
+            # print(mode)
             info = {
-                "debug": True,
+                "debug": False,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
-                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}, "stop_at_error": True}},
                 "params": {**cosmo_params, **calib_params[mode], **fg_params[mode]},
                 "packages_path": packages_path,
             }
-            
+
             model = get_model(info)
-            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
-            self.assertLess( abs(-2*model.loglikes({})[0][0] - chi2), 1)
+            # print(f"COBAYA/{mode}: {-2*model.loglikes({}, return_derived=False)[0]}")
+            self.assertLess(abs(-2*model.loglikes({}, return_derived=False)[0] - chi2), 1)
+
+            if mode == "TThighl":
+                try:
+                    import emul_sz
+                    for chi2, inifile in zip(chi2s_sz, inifiles):
+                        _, sampler = run(yaml_load_file(os.path.join(test_path, inifile)))
+                        # print(inifile, abs(-2.*sampler.logposterior.loglike))
+                        self.assertLess(abs(-2.*sampler.logposterior.loglike - chi2), 1.)
+                except ModuleNotFoundError:
+                    continue
 
 
 if __name__ == "__main__":

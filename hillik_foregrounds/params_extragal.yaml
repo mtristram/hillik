@@ -36,3 +36,12 @@
     ref: 1.
     proposal: 1
     latex: A_\mathrm{kSZ}
+  Apksz: 0.
+  Apksz_derived:
+    derived: True
+  Ahksz_derived:
+    derived: True
+  Atsz_derived:
+    derived: True
+  alpha_SZ: 1.789
+  bias_SZ: 0.8

@@ -27,7 +27,11 @@ fg_list = {
     "dust": fg.dust,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
+    "pksz": fg.pksz,
     "szxcib": fg.szxcib,
+    "pksz_emulator": fg.pksz_emulator,
+    "hksz_emulator": fg.hksz_emulator,
+    "tsz_emulator": fg.tsz_emulator,
     }
 
 default_spectra_list = [
@@ -51,6 +55,8 @@ default_spectra_list = [
     "220_Ex220_E",
 ]
 
+emulator_keys_ksz = ['ombh2', 'omch2', 'ns', 'cosmomc_theta', 'logA', 'zrei', 'dz', 'alpha0', 'kappa']
+emulator_keys_tsz = ['logA',  'omch2',  'ns', 'ombh2', 'cosmomc_theta', 'bias_SZ', 'alpha_SZ', 'mnu']
 
 class SPT3GPrototype(InstallableLikelihood):
     install_options = {
@@ -248,39 +254,62 @@ class SPT3GPrototype(InstallableLikelihood):
         #-----------------------------------------------
         # Initialise foreground model
         #-----------------------------------------------
-        self.fgs = {"TT":[],"TE":[],"EE":[]}
+        self.fgs = {"TT": [], "TE": [], "EE": []}
         for tag in self.fgs.keys():
             if tag in self.cross_spectra:
+                for this_fg in ["pksz", "hksz", "tsz"]:
+                    if (this_fg in self.foregrounds[tag.upper()].keys()) and (f"{this_fg}_emulator" in self.foregrounds[tag.upper()].keys()):
+                        raise ValueError(f'Cannot have two models for {this_fg} {tag} (emulator and template).')
                 for name in self.foregrounds[tag.upper()].keys():
                     if name not in fg_list.keys():
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
-                    self.log.debug("Adding '{}' foreground for {}".format(name,tag))
+                    self.log.debug(f"Adding '{name}' foreground for {tag}")
                     kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode=tag, auto=True, survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
                     elif name == "szxcib":
-                        filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+
+                        if "tsz_emulator" in self.foregrounds["TT"].keys():
+                            filename_tsz = self.foregrounds["TT"]["tsz_emulator"] and \
+                                os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz_emulator"])
+                            kwargs["emulator"] = True
+                        else:
+                            filename_tsz = self.foregrounds["TT"]["tsz"] and \
+                                os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                            kwargs["emulator"] = False
                         filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                        kwargs["filenames"] = (filename_tsz,filename_cib)
+                        kwargs["filenames"] = (filename_tsz, filename_cib)
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
-        self.log.info(f"SPT-3G 2022: Likelihood successfully initialised!")
-
+        self.log.info("SPT-3G 2022: Likelihood successfully initialised!")
 
     def get_requirements(self):
         # State requisites to the theory code
-        return {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
-
+        requirements = {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
+        if 'ksz_emulator' in ''.join([item for item in self.foregrounds["TT"].keys()]):
+            for key in emulator_keys_ksz:
+                requirements[key] = None
+        if 'tsz_emulator' in self.foregrounds["TT"].keys():
+            for key in emulator_keys_tsz:
+                requirements[key] = None
+        return requirements
 
     def compute_chi2(self, dl_cmb, **params):
 
         ells = np.arange(self.lmin, self.lmax+1)
 
         dlfg = {}
+        derived_params = {}
         for mode in self.use_cl:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
-            for fg in self.fgs[mode]: dlfg[mode] += fg.compute_dl( params)
+            for fgm in self.fgs[mode]: 
+                if ('kSZ' in fgm.name) or ('tSZ' in fgm.name):
+                    szsp, derived = fgm.compute_dl(params)
+                    dlfg[mode] += szsp
+                    derived_params.update(derived)
+                else:
+                    dlfg[mode] += fgm.compute_dl(params)
 
         db_model = np.empty_like(self.bandpowers)
         for i, (cross_spectrum, cross_frequency) in enumerate(
@@ -297,7 +326,7 @@ class SPT3GPrototype(InstallableLikelihood):
             dl_model += self.ApplyAberrationCorrection(self.aberration_coefficient, dl_model)
             
             # Add foregrounds
-            dl_model += dlfg[cross_spectrum][fg._cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
+            dl_model += dlfg[cross_spectrum][fgm._cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
             
             # Apply calibration
             cal = params.get("SPT3G_cal") * self.ApplyCalibration(
@@ -335,11 +364,11 @@ class SPT3GPrototype(InstallableLikelihood):
         chi2, slogdet = self._gaussian_loglike(cov_for_logl, delta_data_model, cholesky=True)
 
         self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
-        return chi2, slogdet
+        return chi2, slogdet, derived_params
 
     def loglike(self, dl_cmb, **params):
 
-        chi2, slogdet = self.compute_chi2( dl_cmb, **params)
+        chi2, slogdet, derived_params = self.compute_chi2( dl_cmb, **params)
 
         # Apply calibration prior
         self.log.debug("Apply calibration prior")
@@ -348,17 +377,20 @@ class SPT3GPrototype(InstallableLikelihood):
 
         self.log.debug(f"SPT3G detcov = {slogdet:.14f}")
         self.log.debug(f"SPT3G cal. prior = {cal_prior:.14f}")
-        return -0.5 * (chi2 + slogdet + cal_prior)
+        return -0.5 * (chi2 + slogdet + cal_prior), derived_params
 
-    def logp(self, **data_params):
+    def logp(self, _derived, **data_params):
         Cls = self.provider.get_Cl(ell_factor=True)
-        return self.loglike(
+        logp, derived_params = self.loglike(
             {"TT": Cls.get("tt"), "TE": Cls.get("te"), "EE": Cls.get("ee")}, **data_params
         )
+        if _derived is not None:
+            _derived.update(derived_params)
+        return logp
 
     def dof( self):
         return len(self._bp_cov_posdef)
-    
+
     def _gaussian_loglike(self, dlcov, res, cholesky=True):
         """
         Returns -Log Likelihood for Gaussian: (d^T Cov^{-1} d + log|Cov|)
