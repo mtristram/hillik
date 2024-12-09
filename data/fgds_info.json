@@ -1,3 +1,4 @@
+{
     "CLs_CIBCIB_fmccarthy_github_545.npy": {
         "authors": "McCarthy",
         "comments": null,
@@ -40,7 +41,6 @@
         "used_in": null,
         "website": null
     },
-    "ClSZ_poiss_corr_MD2_cppp_bestCl_NILC_extra12_cibps_lmax13500.dat": {
     "ClSZ_poiss_corr_MD2_cppp_bestCl_NILC_extra12_cibps_lmax13500.dat": {
         "authors": "Douspis",
         "comments": null,
@@ -421,7 +421,7 @@
         "used_in": "SPT",
         "website": null,
         "from": "simulations",
-        "normalised": 3000
+        "normalised": 3000,
         "website": null,
         "from": "simulations",
         "normalised": 3000
@@ -653,3 +653,4 @@
         "website": "Planck likelihood",
 	    "from" : "based on halo model + universal pressure profile constraints from X-ray observations (A10)"
     }
+}
