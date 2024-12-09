@@ -341,6 +341,22 @@
         "normalised": 3000,
         "from": "simulations"
     },
+    "dl_homogeneous_ksz_shaw2012_extrapolated.dat": {
+        "authors": "Shaw et al. 2012",
+        "comments": "CSF model ie includes cooling and star formation.",
+        "extrapolated": true,
+        "filetype": ".dat",
+        "freq": null,
+        "lmax": 25000,
+        "lmin": 0,
+        "reference": "http://dx.doi.org/10.1088/0004-637X/756/1/15",
+        "type": "kSZ",
+        "typebis": "Homogeneous kSZ",
+        "used_in": null,
+        "website": null,
+        "normalised": 3000,
+        "from": "simulations"
+    },
     "dl_ksz_doppler_alvarez.dat": {
         "authors": "Alvarez et al. 2016",
         "comments": "Doppler term of kSZ spectrm (l<1000) from Alvarez+2016.",
