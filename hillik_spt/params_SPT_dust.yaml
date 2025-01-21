@@ -1,33 +1,17 @@
-  #Dust
-#  SPT_Adust_95T:
-#    prior:
-#      min: 0.
-#      max: 10.
-#    ref: 0.4
-#    proposal: 0.4
-#    latex: A_\mathrm{dust}^{SPT}(95T)
-#  SPT_Adust_150T:
-#    prior:
-#      min: 0.
-#      max: 10.
-#    ref: 1.17
-#    proposal: 0.8
-#    latex: A_\mathrm{dust}^{SPT}(150T)
-#  SPT_Adust_220T:
-#    prior:
-#      min: 0.
-#      max: 30.
-#    ref: 8.0
-#    proposal: 2.5
-#    latex: A_\mathrm{dust}^{SPT}(220T)
-
-  SPT_AdustT:
+  SPT_AdustTT:
     prior:
-      min: 0.0
-      max: 150.0
-    ref: 70.0
-    proposal: 10.
+      dist: norm
+      loc: 5.46
+      scale: 1.57
+    ref: 5.46
+    proposal: 1.0
     latex: A_\mathrm{dustT}^{SPT}
-  SPT_beta_dustT:
+
+  SPT_beta_dustTT:
     value: 1.51
     latex: \beta_\mathrm{dustT}^{SPT}
+
+  SPT_alpha_dustTT:
+    value: -3.2
+    latex: \alpha_\mathrm{dustT}^{SPT}
+

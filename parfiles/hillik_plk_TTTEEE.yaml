@@ -58,3 +58,4 @@ theory:
 
 sampler:
   mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plk_TTTEEE.covmat

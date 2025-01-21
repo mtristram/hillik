@@ -1,0 +1,38 @@
+  #Dust
+  PLK_AdustTT:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.05
+    latex: A_\mathrm{dustTT}^{Planck}
+  
+  PLK_Adust100TT:
+    value: "lambda PLK_AdustTT: PLK_AdustTT*15700"
+  PLK_Adust143TT:
+    value: "lambda PLK_AdustTT: PLK_AdustTT*8690"
+  PLK_Adust217TT:
+    value: "lambda PLK_AdustTT: PLK_AdustTT*5900"
+
+  PLK_beta_dustTT:
+    value: 1.51
+    latex: \beta_\mathrm{dustTT}^{Planck}
+
+  PLK_alpha_dust100TT:
+    value: -2.55
+    latex: \alpha_\mathrm{dust100TT}^{Planck}
+  PLK_alpha_dust143TT:
+    value: -2.45
+    latex: \alpha_\mathrm{dust143TT}^{Planck}
+  PLK_alpha_dust217TT:
+    value: -2.40
+    latex: \alpha_\mathrm{dust217TT}^{Planck}
+
+  #Dust amp
+  PLK_dustT_100:
+    value: 0.
+  PLK_dustT_143:
+    value: 0.
+  PLK_dustT_217:
+    value: 0.

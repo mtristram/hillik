@@ -1,322 +1,439 @@
-""".. module:: ACTpol_full_DR4
+""".. module:: CMBlik
 
-:Synopsis: Definition of python-native CMB likelihood for ACT likelihood.
-Adapted from Fortran likelihood code
-https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
-full ACTPol spectra at 98x98, 98x150 and 150x150 GHz from 350 < l < 8000 measured during 2013-2016 in temperature and polarization
+:Synopsis: Definition of python-native CMB likelihood 
+Can use Planck, ACT or SPT datasets with common foreground models
 
 :Author: Matthieu Tristram
 
 """
+
+import itertools
 import os
+import re
 from typing import Optional, Sequence
 
-import hillik_foregrounds as fg
 import numpy as np
+from cobaya.conventions import packages_path_input
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
+import hillik_foregrounds as fg
 fg_list = {
     "cib": fg.cib,
     "radio_poisson": fg.ps_radio,
     "cib_poisson": fg.ps_dusty,
     "poisson": fg.ps,
     "dust": fg.dust,
+    "dust_amplitude": fg.dust_amplitude,
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
     }
 
+default_spectra_list = [
+    "90_Tx90_T",
+    "90_Tx90_E",
+    "90_Ex90_E",
+    "90_Tx150_T",
+    "90_Tx150_E",
+    "90_Ex150_E",
+    "90_Tx220_T",
+    "90_Tx220_E",
+    "90_Ex220_E",
+    "150_Tx150_T",
+    "150_Tx150_E",
+    "150_Ex150_E",
+    "150_Tx220_T",
+    "150_Tx220_E",
+    "150_Ex220_E",
+    "220_Tx220_T",
+    "220_Tx220_E",
+    "220_Ex220_E",
+]
 
 
 class CMBLikelihood(InstallableLikelihood):
+    survey: Optional[str] = ""
+    bin_min: Optional[int] = 1
+    bin_max: Optional[int] = 44
+    windows_lmin: Optional[int] = 1
+    windows_lmax: Optional[int] = 3200
 
-    frequencies: Sequence[int] = [98, 150]
+    spectra_to_fit: Optional[Sequence[str]] = []
+    foregrounds: Optional[dict]
+
+    # fmt: off
+    spec_bin_min: Optional[Sequence[int]] = [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: Optional[Sequence[int]] = [44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44, 44]
 
     fgds_folder: Optional[str] = "foregrounds"
-    data_folder: Optional[str] = "actpol_full_dr4/actpolfull_dr4.01/data"
-    spec_filename: Optional[str]
-    cov_filename: Optional[str]
-    bbl_filename: Optional[str]
-    leakd_filename: Optional[str]
+    data_folder: Optional[str] = f"hillik/{self.survey}"
+    # fmt: on
 
-    BoltzmannLmax = 6000
+    bandpower_filename: Optional[str]
+    covariance_filename: Optional[str]
+    beam_covariance_filename: Optional[str] = ""
+    cal_covariance_filename: Optional[str]
+    window_folder: Optional[str]
 
-    nnu      = 2     # number of frequencies
-    nspectot = 10    #TT90x90, TT90x150, TT150x150, TE90x90, TE90x150, TE150x90, TE150x150, EE90x90, EE90x150, EE150x150
-    nspecf   = 3     #95x95, 95x150, 150x150
-    nspectt  = 3     #TT
-    nspecte  = 4     #TE
-    nspecee  = 3     #EE
-    nbintt = 52      #max nbins in ACT TT data
-    nbinte = 52      #max nbins in ACT TE data
-    nbinee = 52      #max nbins in ACT EE data
-    nbint  = 520     #total bins
-    lmax_win = 7925  #ell max of the full window functions
-    bmax0  = 52      #number of bins in full window function
-    bminTT=5             # setting bins discarded in TT (i.e., ell>600)
-    bminTE=0             # bins discarded for TE
-    bminEE=0             # bins discarded for EE
+    aberration_coefficient: Optional[float] = -0.0004826
 
     def initialize(self):
         # Set path to data
-        if (not getattr(self, "path", None)) and (not getattr(self, "packages_path", None)):
+        if (not getattr(self, "path", None)) and (not getattr(self, packages_path_input, None)):
             raise LoggedError(
                 self.log,
-                "No path given to CIB_Likelihood data. Set the likelihood property 'path' or the common property '%s'.",
-                _packages_path,
+                "No path given to data. Set the likelihood property 'path' or "
+                f"the common property '{packages_path_input}'.",
             )
-
         # If no path specified, use the modules path
         data_file_path = os.path.normpath(
             getattr(self, "path", None) or os.path.join(self.packages_path, "data")
         )
 
-        # check data_folder
+        # Set folders
         self.data_folder = os.path.join(data_file_path, self.data_folder)
         if not os.path.exists(self.data_folder):
-            raise LoggedError( self.log, f"The 'data_folder' directory does not exist. Check the given path [{self.data_folder}].")
+            raise LoggedError( self.log, f"The 'data_folder' directory does not exist. Check the given path [{self.data_folder}].",)
         self.fgds_folder = os.path.join(data_file_path, self.fgds_folder)
         if not os.path.exists(self.fgds_folder):
             raise LoggedError( self.log, f"The 'fgds_folder' directory does not exist. Check the given path [{self.fgds_folder}].")
 
-        # Update data_folder location
-#        self.data_folder = os.path.join(self.data_folder, "data/actpol_full_dr4.01/data")
-
-        #define the survey
-        self.survey = ""
-        if self.use_wide and self.use_deep:
-            raise LoggedError(self.log, "Choose survey DEEP or WIDE, not both")
-        if self.use_wide: self.survey = "ACTw"
-        if self.use_deep: self.survey = "ACTd"
-        self.log.debug( f"Survey = {self.survey}")
-
-        #check modes
         # Get likelihood name and add the associated mode
-        likelihood_name = self.__class__.__name__
-        likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
-        self._is_mode = {mode.lower(): mode in likelihood_modes for mode in ["TT", "TE", "EE"]}
-        self.log.debug("mode = {}".format(self._is_mode))
+        lkl_name = self.__class__.__name__.upper()
+        self.use_cl = [lkl_name[i : i + 2] for i in range(0, len(lkl_name), 2)]
+
+        # Get spectra lists
+        with open(os.path.join(self.data_folder, self.bandpower_filename)) as f:
+            self.default_spectra_list = [xs for xs in f.readline().replace("\n","").replace("\t","   ").split(',') if xs != ""]
+        if len(self.spectra_to_fit) == 0: self.spectra_to_fit = self.default_spectra_list
+
+        # Compute cross-spectra frequencies
+        r = re.compile("(.+?)_(.)x(.+?)_(.)")
+        self.cross_frequencies = [r.search(spec).group(1, 3) for spec in self.spectra_to_fit]
+        self.cross_spectra = ["".join(r.search(spec).group(2, 4)) for spec in self.spectra_to_fit]
+        self.frequencies = sorted(
+            {int(freq) for freqs in self.cross_frequencies for freq in freqs}
+        )
+        self.log.debug(f"Using cross-frequencies {self.cross_frequencies}")
+        self.log.debug(f"Using cross-spectra {self.cross_spectra}")
+        self.log.debug(f"Using {self.frequencies} GHz frequency bands")
+
+        # Determine how many spectra are TT vs TE vs EE and the total number of bins we are fitting
+        self.N_s_TT = np.sum([c == "TT" for c in self.cross_spectra])
+        self.N_s_TE = np.sum([c == "TE" for c in self.cross_spectra])
+        self.N_s_EE = np.sum([c == "EE" for c in self.cross_spectra])
+
+        # Determine how many different frequencies get used
+        self.N_freq = len(self.frequencies)
 
         #-----------------------------------------------
-        #load spectrum
+        # Band Powers
         #-----------------------------------------------
-
-        # read bandpowers (1040)
-        # check file before
-        self.b_dat = np.loadtxt(os.path.join(self.data_folder, self.spec_filename), unpack=True)
-        self.b_dat = self.b_dat[0:self.nbint]
-
-        # Read windows (520,7924)
-        # check file before
-        self.win_func = np.zeros( (self.nbint, self.lmax_win+1) )
-        win_func = np.loadtxt(os.path.join(self.data_folder, self.bbl_filename))
-        nbint,lmax_win = np.shape(win_func)
-        if nbint != self.nbint or lmax_win != self.lmax_win-1:
-            raise LoggedError(self.log, "Wrong size for Window function (%s)" % self.bbl_filename)
-        self.win_func[:,2:] = win_func
-
-        # Read leakage (52)
-        # check file before
-        ell, self.l98, self.l150 = np.loadtxt(os.path.join(self.data_folder, self.leakd_filename),unpack=True)
-        if len(ell) != self.nbinte:
-            raise LoggedError(self.log, "Wrong size for Leakage template (%s)" % self.leakd_filename)
+        self.bandpowers = np.loadtxt(
+            os.path.join(self.data_folder, self.bandpower_filename), unpack=True
+        )
+        self.bandpowers = self.bandpowers.reshape(-1, self.bin_max)
 
         #-----------------------------------------------
-        #Select Data
+        # Covariance Matrix
         #-----------------------------------------------
-        self._bstart = 0
-        self._bend   = self.nbint
-        if self._is_mode['tt'] and not self._is_mode['te'] and not self._is_mode['ee']:
-            self._bstart = 0
-            self._bend   = self.nbintt*self.nspectt
-        if not self._is_mode['tt'] and self._is_mode['te'] and not self._is_mode['ee']:
-            self._bstart = self.nbintt*self.nspectt
-            self._bend   = self.nbintt*self.nspectt + self.nbinte*self.nspecte
-        if not self._is_mode['tt'] and not self._is_mode['te'] and self._is_mode['ee']:
-            self._bstart = self.nbintt*self.nspectt + self.nbinte*self.nspecte
-            self._bend   = self.nbint
+        bp_cov = np.loadtxt(
+            os.path.join(self.data_folder, self.covariance_filename)
+        )
 
         #-----------------------------------------------
-        #Read Covariance Matrix
+        # Beam Covariance Matrix
         #-----------------------------------------------
-        
-        #covmat (1040,1040)
-        covmat = np.loadtxt( os.path.join(self.data_folder, self.cov_filename))
-        covmat = covmat[:self.nbint,:self.nbint]
-
-        #cut lmin TT
-        for s in range(self.nspectt):
-            ishift = s*self.nbintt
-            covmat[ishift:ishift+self.bminTT,ishift:ishift+self.bminTT] = np.identity(self.bminTT)*1e10
-
-        #cut lmin TE
-        for s in range(self.nspecte):
-            ishift = self.nspectt*self.nbintt + s*self.nbinte
-            covmat[ishift:ishift+self.bminTE,ishift:ishift+self.bminTE] = np.identity(self.bminTE)*1e10
-
-        #cut lmin EE
-        for s in range(self.nspecee):
-            ishift = self.nspectt*self.nbintt + self.nspecte*self.nbinte + s*self.nbinee
-            covmat[ishift:ishift+self.bminEE,ishift:ishift+self.bminEE] = np.identity(self.bminEE)*1e10
-
-        #invert covmat
-        covmat = covmat[self._bstart:self._bend,self._bstart:self._bend]
-        self.fisher = np.linalg.inv( covmat)
+        if self.beam_covariance_filename != "":
+            self.beam_cov = np.loadtxt(
+                os.path.join(self.data_folder, self.beam_covariance_filename)
+            )
 
         #-----------------------------------------------
-        # Init foreground model
+        # Windows Functions
         #-----------------------------------------------
-        self.fgs = {'tt':[],'te':[],'ee':[]}
-        for tag,is_used in self._is_mode.items():
-            if is_used:
+        # Re-order/crop later when the binning is performed
+        self.windows = np.array(
+            [
+                np.loadtxt(
+                    os.path.join(self.data_folder, self.window_folder, f"window_{i}.txt"),
+                    unpack=True,
+                )[1:]
+                for i in range(self.bin_min, self.bin_max + 1)
+            ]
+        )
+
+        #-----------------------------------------------
+        # Compute spectra/cov indices given spectra to fit
+        #-----------------------------------------------
+        vec_indices = np.array([default_spectra_list.index(spec) for spec in self.spectra_to_fit])
+        cov_indices = np.concatenate(
+            [
+                np.arange(
+                    i * self.bin_max + self.spec_bin_min[i] - 1,
+                    i * self.bin_max + self.spec_bin_max[i],
+                    dtype=int,
+                )
+                for i in vec_indices
+            ]
+        )
+        self.bandpowers = self.bandpowers[vec_indices]
+        self.windows = self.windows[:, vec_indices, :]
+        self.spec_bin_min = np.array(self.spec_bin_min)[vec_indices]
+        self.spec_bin_max = np.array(self.spec_bin_max)[vec_indices]
+        self.N_b_total = np.sum(self.spec_bin_max - self.spec_bin_min + 1)  # total nb of bins
+        self.N_s = len(vec_indices)  # nb of spectra
+        if len(cov_indices) != self.N_b_total:
+            raise LoggedError(
+                self.log,
+                f"Total number of bin is not consistent {len(cov_indices)} (expected {self.N_b_total})",
+            )
+        for i in range(self.N_s):
+            self.log.debug(
+                "\t {:>3}x{:>3}-{}: [{:2d}-{:2d}]".format(
+                    *self.cross_frequencies[i],
+                    self.cross_spectra[i],
+                    self.spec_bin_min[i],
+                    self.spec_bin_max[i],
+                )
+            )
+
+        #-----------------------------------------------
+        # Select spectra/cov elements given indices
+        #-----------------------------------------------
+        self.log.debug(f"Selected bp ({self.N_s}): {vec_indices}")
+#        self.log.debug(f"Selected cov indices ({self.N_b_total}): {cov_indices}")
+        self.bp_cov   = bp_cov[np.ix_(cov_indices, cov_indices)]
+        self.beam_cov = self.beam_cov[np.ix_(cov_indices, cov_indices)]
+
+        #-----------------------------------------------
+        # Calibration Covariance
+        #-----------------------------------------------
+        calib_cov = np.loadtxt(os.path.join(self.data_folder, self.cal_covariance_filename))
+        cal_indices = np.array([[90.0, 150.0, 220.0].index(freq) for freq in self.frequencies])
+        if "TE" in self.cross_spectra:
+            cal_indices = np.concatenate([cal_indices, cal_indices + 3])
+        elif "TT" not in self.cross_spectra:
+            # Only polar calibrations shift by 3
+            cal_indices = cal_indices + 3
+        calib_cov = calib_cov[np.ix_(cal_indices, cal_indices)]
+        self.inv_calib_cov = np.linalg.inv(calib_cov)
+        self.calib_params = np.array(
+            ["SPT3G_cal_{}{}".format(*p) for p in itertools.product(["T", "E"], [90, 150, 220])]
+        )[cal_indices]
+        self.log.debug(f"Calibration parameters: {self.calib_params}")
+
+        self.lmin = self.windows_lmin
+        self.lmax = self.windows_lmax
+
+        #-----------------------------------------------
+        # Initialise foreground model
+        #-----------------------------------------------
+        self.fgs = {"TT":[],"TE":[],"EE":[]}
+        for tag in self.fgs.keys():
+            if tag in self.cross_spectra:
                 for name in self.foregrounds[tag.upper()].keys():
                     if name not in fg_list.keys():
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
-                    self.log.debug("Adding '{}' foreground for {}".format(name,tag.upper()))
-                    kwargs = dict(lmax=self.lmax_win, freqs=self.frequencies, mode=tag.upper(), auto=True, survey=self.survey)
+                    self.log.debug("Adding '{}' foreground for {}".format(name,tag))
+                    kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode=tag, auto=True, survey=self.survey)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
-                    elif name == "szxcib":
-                        filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
-                        filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                        kwargs["filenames"] = (filename_tsz,filename_cib)
                     self.fgs[tag].append(fg_list[name](**kwargs))
 
-        if self._is_mode['tt']: self.log.debug(f"nbintt: {self.nbintt}")
-        if self._is_mode['te']: self.log.debug(f"nbinte: {self.nbinte}")
-        if self._is_mode['ee']: self.log.debug(f"nbinee: {self.nbinee}")
-
-        self.log.info("Initialized!")
+        self.log.info(f"{self.survey}: Likelihood successfully initialised!")
 
 
-    def _dl2cl( self, dl):
-        cl2dl = np.ones( self.lmax_win+1)
-
-        lth = np.arange( self.lmax_win+1)
-        cl2dl[1:] = (lth*(lth+1)/2./np.pi)[1:]
-
-        return dl/cl2dl
+    def get_requirements(self):
+        # State requisites to the theory code
+        return {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
 
 
     def compute_chi2(self, dl_cmb, **params):
-        """
-        dl_cmb: Dl TT
-        """
-        surv = self.survey[:-1]
-        cal = params[f'{surv}_cal']
-        ct1 = params[f'{surv}_cal_98']  #Cal and leakage errors included in covmat and so fixed to 1
-        ct2 = params[f'{surv}_cal_150'] #Cal and leakage errors included in covmat and so fixed to 1
-        yp1 = params[f'{surv}_pe_98']
-        yp2 = params[f'{surv}_pe_150']
-        a1  = params[f'{surv}_leak_98']
-        a2  = params[f'{surv}_leak_150']
 
-        #Calculate CMB+fg
-        dlth = { 'tt':np.zeros( (self.nspectt,self.lmax_win+1) ),
-                 'te':np.zeros( (self.nspecte,self.lmax_win+1) ),
-                 'ee':np.zeros( (self.nspecee,self.lmax_win+1) )}
-        for tag in ['tt','te','ee']:
-            dlth[tag][:,:self.BoltzmannLmax+1] = dl_cmb[tag][:self.BoltzmannLmax+1]
+        ells = np.arange(self.lmin, self.lmax+1)
 
-        for tag in dlth.keys():
-#            dlfg = []
-            for fg in self.fgs[tag]:
-                dlth[tag] += fg.compute_dl( params) #array( nspecf, lmax_win+1)
-#                dlfg.append( fg.compute_dl(params))
-#            print( "write fgs templates")
-#            np.save( f"hillik_{self.survey}_fgs_{tag}", np.array(dlfg))
+        dlfg = {}
+        for mode in self.use_cl:
+            dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
+            for fg in self.fgs[mode]: dlfg[mode] += fg.compute_dl( params)
 
-        #Get theory in Cls
-        X_theory = dlth
-        for k,val in X_theory.items():
-            val[:,:2] = 0.
-            X_theory[k] = self._dl2cl(val)
+        db_model = np.empty_like(self.bandpowers)
+        for i, (cross_spectrum, cross_frequency) in enumerate(
+            zip(self.cross_spectra, self.cross_frequencies)
+        ):
 
-        # Get binned model
-        X_model = []
-        for s in range(self.nspectt):
-            ishift = s*self.nbintt
-            X_model += list( self.win_func[ishift:ishift+self.nbintt] @ X_theory['tt'][s] )
-        for s in range(self.nspecte):
-            ishift = self.nspectt*self.nbintt + s*self.nbinte
-            X_model += list( self.win_func[ishift:ishift+self.nbinte] @ X_theory['te'][s] )
-        for s in range(self.nspecee):
-            ishift = self.nspectt*self.nbintt + self.nspecte*self.nbinte + s*self.nbinee
-            X_model += list( self.win_func[ishift:ishift+self.nbinee] @ X_theory['ee'][s] )
-        X_model = np.asarray(X_model)
+            # Add CMB
+            dl_model = dl_cmb[cross_spectrum][ells]
 
-        # Add leakage (Warning: need same binning in tt, te and ee)
-        # TiEj = TiEj + TiTj*gamma_j
-        # EiEj = EiEj + TiEj*gamma_i + TjEi*gamma_j + TiTj*gamma_i*gamma_j
-        ntt = self.nbintt
-        nte = self.nbinte
-        nee = self.nbinee
-        X_model[3*ntt+0*nte:3*ntt+1*nte] += X_model[0*ntt:1*ntt]*a1*self.l98[:nte]    #TE(98x98)   <- TT(98x98)
-        X_model[3*ntt+1*nte:3*ntt+2*nte] += X_model[1*ntt:2*ntt]*a2*self.l150[:nte]   #TE(98x150)  <- TT(98x150)
-        X_model[3*ntt+2*nte:3*ntt+3*nte] += X_model[1*ntt:2*ntt]*a1*self.l98[:nte]    #TE(150x98)  <- TT(98x150)
-        X_model[3*ntt+3*nte:3*ntt+4*nte] += X_model[2*ntt:3*ntt]*a2*self.l150[:nte]   #TE(150x150) <- TT(150x150)
+            # Add super sample lensing
+            dl_model += self.ApplySuperSampleLensing(params.get("kappa"), dl_model)
 
-        #EE(98x98) <- 2*TE(98x98) + TT(98x98)
-        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] += ( 2*X_model[3*ntt+0*nte:3*ntt+1*nte]*a1*self.l98[:nte]
-                                                          + X_model[0*ntt:1*ntt]*(a1*self.l98[:nte])**2.)
-        #EE(98x150) <- TE(98x150) + TE(150x98) + TT(98x150)
-        X_model[3*ntt+4*nte+1*nee:3*ntt+4*nte+2*nee] += ( X_model[3*ntt+1*nte:3*ntt+2*nte]*a1*self.l98[:nte] +
-                                                          X_model[3*ntt+2*nte:3*ntt+3*nte]*a2*self.l150[:nte] +
-                                                          X_model[1*ntt:2*ntt]*a1*self.l98[:nte]*a2*self.l150[:nte])
-        #EE(150x150) <- 2*TE(150x150) + TT(150x150)
-        X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] += ( 2*X_model[3*ntt+3*nte:3*ntt+4*nte]*a2*self.l150[:nte]
-                                                          + X_model[2*ntt:3*ntt]*(a2*self.l150[:nte])**2.)
+            # Add Aberration correction
+            dl_model += self.ApplyAberrationCorrection(self.aberration_coefficient, dl_model)
+            
+            # Add foregrounds
+            dl_model += dlfg[cross_spectrum][fg._cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
+            
+            # Apply calibration
+            cal = params.get(f"{self.survey}_cal") * self.ApplyCalibration(
+                params.get(f"{self.survey}_cal_{cross_spectrum[0]}{cross_frequency[0]}"),
+                params.get(f"{self.survey}_cal_{cross_spectrum[1]}{cross_frequency[1]}"),
+                params.get(f"{self.survey}_cal_{cross_spectrum[0]}{cross_frequency[1]}"),
+                params.get(f"{self.survey}_cal_{cross_spectrum[1]}{cross_frequency[0]}")
+            )
+            dl_model = dl_model / cal
+            
+            # Binning via window and concatenate
+            db_model[i] = self.windows[:, i, :] @ dl_model
 
-        # Calibrate
-        X_model[0*ntt:1*ntt] *= cal*ct1*ct1
-        X_model[1*ntt:2*ntt] *= cal*ct1*ct2
-        X_model[2*ntt:3*ntt] *= cal*ct2*ct2
-        X_model[3*ntt+0*nte:3*ntt+1*nte] *= cal*ct1*ct1*yp1
-        X_model[3*ntt+1*nte:3*ntt+2*nte] *= cal*ct1*ct2*yp2
-        X_model[3*ntt+2*nte:3*ntt+3*nte] *= cal*ct1*ct2*yp1
-        X_model[3*ntt+3*nte:3*ntt+4*nte] *= cal*ct1*ct2*yp2
-        X_model[3*ntt+4*nte+0*nee:3*ntt+4*nte+1*nee] *= cal*ct1*ct1*yp1*yp1
-        X_model[4*nte+3*ntt+1*nee:3*ntt+4*nte+2*nee] *= cal*ct1*ct2*yp1*yp2
-        X_model[3*ntt+4*nte+2*nee:3*ntt+4*nte+3*nee] *= cal*ct2*ct2*yp2*yp2
+        # Select bins and calculate difference of theory and data
+        self.log.debug("Compute residuals")
+        delta_data_model = np.concatenate(
+            [
+                (self.bandpowers[i] - db_model[i])[self.spec_bin_min[i] - 1 : self.spec_bin_max[i]]
+                for i in range(self.N_s)
+            ]
+        )
+        dbs = np.concatenate(
+            [db_model[i][self.spec_bin_min[i] - 1 : self.spec_bin_max[i]] for i in range(self.N_s)]
+        )
 
-        # Select data
-        self.delta_cl = (self.b_dat - X_model)[self._bstart:self._bend]
+        # Add the beam coariance to the band power covariance
+        self.log.debug("Add beam cov")
+        cov_for_logl = self._bp_cov + self.beam_cov * np.outer(dbs, dbs)
+                
+        # Compute chisq
+        self.log.debug("Compute chi2")
+        chi2, slogdet = self._gaussian_loglike(cov_for_logl, delta_data_model, cholesky=True)
 
-        #chi2
-        lnlike = self.delta_cl @ self.fisher @ self.delta_cl
-
-        self.log.debug(f"chisq = {lnlike} / {sum(np.diag(self.fisher>1e-9))}")
-
-        return lnlike
-
-    def get_requirements(self):
-        requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","ee"]})
-        return requirements
-
-    def logp(self, **params_values):
-        dl = self.provider.get_Cl(units="muK2", ell_factor=True)
-        return self.loglike(dl, **params_values)
+        self.log.debug(f"{self.survey} chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
+        return chi2, slogdet
 
     def loglike(self, dl_cmb, **params):
-        return -0.5*self.compute_chi2( dl_cmb, **params)
+
+        chi2, slogdet = self.compute_chi2( dl_cmb, **params)
+
+        # Apply calibration prior
+        self.log.debug("Apply calibration prior")
+        delta_cal = np.array([params.get(p) - 1.0 for p in self.calib_params])
+        cal_prior = delta_cal @ self.inv_calib_cov @ delta_cal
+
+        self.log.debug(f"SPT3G detcov = {slogdet:.14f}")
+        self.log.debug(f"SPT3G cal. prior = {cal_prior:.14f}")
+        return -0.5 * (chi2 + slogdet + cal_prior)
+
+    def logp(self, **data_params):
+        Cls = self.provider.get_Cl(ell_factor=True)
+        return self.loglike(
+            {"TT": Cls.get("tt"), "TE": Cls.get("te"), "EE": Cls.get("ee")}, **data_params
+        )
 
     def dof( self):
-        return sum(np.diag(self.fisher>1e-9))
-        
-    def reduction_matrix( self, mode='tt'):
-        if mode == 'tt':
-            nbin,nspec = self.nbintt, self.nspectt
-        elif mode == 'te':
-            nbin,nspec = self.nbinte, self.nspecte
-        elif mode == 'ee':
-            nbin,nspec = self.nbinee, self.nspecee
+        return len(self._bp_cov)
+    
+    def _gaussian_loglike(self, dlcov, res, cholesky=True):
+        """
+        Returns -Log Likelihood for Gaussian: (d^T Cov^{-1} d + log|Cov|)
+        """
 
-        X = np.zeros( (len(self.delta_cl), nbin) )
-        
-        for ix in range(nspec):
-            for ib in range(nbin):
-                X[ix*nbin+ib,ib] = 1.
+        if cholesky:
+            from scipy.linalg import cho_factor, cho_solve
 
-        return X
+            L, low = cho_factor(dlcov)
+
+            # compute ln det
+            slogdet = 2.0 * np.sum(np.log(np.diag(L)))
+
+            # Compute C-1.d
+            invCd = cho_solve((L, low), res)
+
+            # Compute chi2
+            chi2 = res @ invCd
+
+        else:
+            chi2 = res @ np.linalg.inv(dlcov) @ res
+            sign, slogdet = np.linalg.slogdet(dlcov)
+
+        return chi2, slogdet
+
+    # Super sample lensing
+    # Based on Manzotti et al. 2014 (https://arxiv.org/pdf/1401.7992.pdf) Eq. 32
+    # Applies correction to the spectrum and returns the correction slotted into the fg array
+    def ApplySuperSampleLensing(self, kappa, Dl_theory):
+
+        # Grab ells helper (1-3200)
+        ells = np.arange(1, self.lmax + 1)
+
+        # Grab Cl derivative
+        Cl_derivative = self._GetClDerivative(Dl_theory)
+
+        # Calculate super sample lensing correction
+        # (In Cl space) SSL = -k/l^2 d/dln(l) (l^2Cl) = -k(l*dCl/dl + 2Cl)
+        ssl_correction = ells * Cl_derivative  # l*dCl/dl
+        ssl_correction = (
+            ssl_correction * ells * (ells + 1) / (2 * np.pi)
+        )  # Convert this part to Dl space already
+        ssl_correction = ssl_correction + 2 * Dl_theory  # 2Cl - but already converted to Dl
+        ssl_correction = -kappa * ssl_correction  # -kappa
+
+        return ssl_correction
+
+    # Aberration Correction
+    # Based on Jeong et al. 2013 (https://arxiv.org/pdf/1309.2285.pdf) Eq. 23
+    # Applies correction to the spectrum and returns the correction by itself
+    def ApplyAberrationCorrection(self, ab_coeff, Dl_theory):
+        # AC = beta*l(l+1)dCl/dln(l)/(2pi)
+
+        # Grab ells helper (1-3200)
+        ells = np.arange(1, self.lmax + 1)
+
+        # Grab Cl derivative
+        Cl_derivative = self._GetClDerivative(Dl_theory)
+
+        # Calculate aberration correction
+        # (In Cl space) AC = -coeff*dCl/dln(l) = -coeff*l*dCl/dl
+        # where coeff contains the boost amplitude and direction (beta*<cos(theta)> in Jeong+ 13)
+        aberration_correction = -ab_coeff * Cl_derivative * ells
+        aberration_correction = (
+            aberration_correction * ells * (ells + 1) / (2 * np.pi)
+        )  # Convert to Dl
+
+        return aberration_correction
+
+    # Helper to get the derivative of the spectrum
+    # Takes Dl in, but returns Cl derivative#
+    # Handles end points approximately
+    # Smoothes any spike at the ell_max
+    def _GetClDerivative(self, Dl_theory):
+
+        # Grab ells helper (1-3200)
+        ells = np.arange(1, self.lmax + 1)
+
+        # Calculate derivative
+        Cl_derivative = Dl_theory * 2 * np.pi / (ells * (ells + 1))  # Convert to Cl
+        Cl_derivative[1:-1] = 0.5 * (Cl_derivative[2:] - Cl_derivative[:-2])  # Find gradient
+        Cl_derivative[0] = Cl_derivative[1]  # Handle start approximately
+        Cl_derivative[-1] = Cl_derivative[-2]  # Handle end approximately
+
+        # Smooth over spike at lmax
+        # Transition point between Boltzmann solver Cl and where the spectrum comes from a lookup table/interpolation can cause a spike in derivative
+        #  if (CosmoSettings%lmax_computed_cl .LT. lmax-1) then
+        #    Cl_derivative(CosmoSettings%lmax_computed_cl) = 0.75*Cl_derivative(CosmoSettings%lmax_computed_cl-1) + 0.25*Cl_derivative(CosmoSettings%lmax_computed_cl+2)
+        #    Cl_derivative(CosmoSettings%lmax_computed_cl+1) = 0.75*Cl_derivative(CosmoSettings%lmax_computed_cl+2) + 0.25*Cl_derivative(CosmoSettings%lmax_computed_cl-1)
+
+        return Cl_derivative
+
+    # Calibration
+    # Data is scaled as: TT: T1*T2, TE: 0.5*(T1*E2+T2*E1), EE: E1*E2
+    # Theory is scaled by the inverse
+    # In function this is calculated as  0.5*(cal1*cal2+cal3*cal4)
+    def ApplyCalibration(self, cal1, cal2, cal3, cal4):
+
+        # This is how the data spectra are calibrated
+        calibration = 0.5 * (cal1 * cal2 + cal3 * cal4)
+        return calibration
+
+
