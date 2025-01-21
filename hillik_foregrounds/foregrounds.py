@@ -152,7 +152,7 @@ class fgmodel(HasLogger):
         template = np.zeros( lmax+1)
         template[np.array(ell,int)] = ell*(ell+1)/2/np.pi * ell**(alpha)
 
-        #normalize l=3000
+        #normalize Dl
         if lnorm is not None:
             template = template / template[lnorm]
 
@@ -173,7 +173,7 @@ class fgmodel(HasLogger):
         template = np.zeros( max(self.lmax,int(max(l))) + 1)
         template[np.array(l,int)] = data
 
-        #normalize l=3000
+        #normalize Dl
         if lnorm is not None:
             template = template / template[lnorm]
         
@@ -263,54 +263,27 @@ class dust(fgmodel):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "Dust"
         
-        if filename is None:
-            alpha_dust = -2.5 if mode == "TT" else -2.4
-            self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
-        else:
-            self.dlg = self._read_dl_template( filename)
-        
     def compute_dl(self, pars):
-        if   self.mode == "TT": beta1,beta2 = pars[f"{self.survey}_beta_dustT"],pars[f"{self.survey}_beta_dustT"]
-        elif self.mode == "TE": beta1,beta2 = pars[f"{self.survey}_beta_dustT"],pars[f"{self.survey}_beta_dustP"]
-        elif self.mode == "ET": beta1,beta2 = pars[f"{self.survey}_beta_dustP"],pars[f"{self.survey}_beta_dustT"]
-        elif self.mode == "EE": beta1,beta2 = pars[f"{self.survey}_beta_dustP"],pars[f"{self.survey}_beta_dustP"]
-
-        if   self.mode == "TT": ad1,ad2 = pars[f'{self.survey}_AdustT'],pars[f'{self.survey}_AdustT']
-        elif self.mode == "TE": ad1,ad2 = pars[f'{self.survey}_AdustT'],pars[f'{self.survey}_AdustP']
-        elif self.mode == "ET": ad1,ad2 = pars[f'{self.survey}_AdustP'],pars[f'{self.survey}_AdustT']
-        elif self.mode == "EE": ad1,ad2 = pars[f'{self.survey}_AdustP'],pars[f'{self.survey}_AdustP']
-
-        #PLK amplitude of Dl(l=10) at 353GHz
-        PLK_dl353 = {'TT':{100:108125,143:31700,217:14700},
-                     'EE':{100:995,143:610,217:380},
-                     'TE':{100:2400,143:1540,217:1000},
-                     'ET':{100:2400,143:1540,217:1000}}
-        PLK_alpha = {'TT':{100:-2.6,143:-2.4,217:-2.3},
-                     'EE':{f:-2.4 for f in [100,143,217]},
-                     'TE':{f:-2.4 for f in [100,143,217]},
-                     'ET':{f:-2.4 for f in [100,143,217]}}
-
         dl = []
         for xf, (f1, f2) in enumerate(self._cross_frequencies):
-            #rescale PLK for each combination of mask
+
             if self.survey == "PLK":
-                if mode == "TT":
-                     ad = pars[f'{self.survey}_amp_dust_{max(f1,f2)}T']
-                     alpha = pars[f'{self.survey}_alpha_dust_{max(f1,f2)}T']
-                else:
-                     ad = pars[f'{self.survey}_amp_dust_{max(f1,f2)}T']
-                     alpha = pars[f'{self.survey}_alpha_dust_{max(f1,f2)}P']
-                ad = PLK_dl353[self.mode][max(f1,f2)]/dlg[10]
+                #rescale PLK for each combination of mask
+                alpha = pars[f'{self.survey}_alpha_dust{max(f1,f2)}{self.mode}']
+                ad    = pars[f'{self.survey}_Adust{max(f1,f2)}{self.mode}']
+                nu0   = 353
             else:
-                alpha = pars[f'{self.survey}_alpha_dustT'] if self.mode == 'TT' else pars[f'{self.survey}_alpha_dustP']
-                ad = 1.
-
+                alpha = pars[f'{self.survey}_alpha_dust{self.mode}']
+                ad    = pars[f'{self.survey}_Adust{self.mode}']
+                nu0   = 150
+            
             dlg = self._gen_dl_powerlaw( alpha, lnorm=self.lnorm)
-
-            dl.append( ad * ad1 * ad2 * dlg
-                       * self._dustRatio( self.fdust[f1], self.fdust[353], beta=beta1)
-                       * self._dustRatio( self.fdust[f2], self.fdust[353], beta=beta2)
+            
+            dl.append( ad * dlg
+                       * self._dustRatio( self.fdust[f1], self.fdust[nu0], beta=pars[f'{self.survey}_beta_dust{self.mode}'])
+                       * self._dustRatio( self.fdust[f2], self.fdust[nu0], beta=pars[f'{self.survey}_beta_dust{self.mode}'])
                        )
+
         return np.array(dl)
 
 
