@@ -38,6 +38,23 @@ fradio = {
 fcib = fdust
 fsync = fradio
 
+# MJy.sr-1 -> Kcmb for Planck bandpasses
+gnu = {
+    'PLK': {100: 244.059, 143: 371.658, 217: 483.485, 353: 287.45, 545: 58.04, 857: 2.27},
+    'SPT': {95: 210.954, 150: 395.441, 220: 477.01689},
+}
+# frequency dependence (100,143,217,353,545,857) GHz of the SZ effect
+fnu = {
+    'PLK': {100: -4.031, 143: -2.785, 217: 0.187, 353: 6.205, 545: 14.455, 857: 26.335},
+    'SPT': {95: -4.19685021, 150: -2.51324552, 220: 0.10415438},
+}
+# Color correction
+cc = {
+    'PLK': {100: 1.076, 143: 1.017, 217: 1.119, 353: 1.097, 545: 1.068, 857: 0.995},
+    'SPT': {95: 0.989254, 150: 1.04893, 220: 1.00587},
+}
+
+
 #Parameter names
 #{survey}_A{fg}_{freq(xfreq)}
 
@@ -481,27 +498,22 @@ class szxcib(fgmodel):
 
 # tSZ, CIB, tSZxCIB from Halo Model
 class halo_model(fgmodel):
-    # MJy.sr-1 -> Kcmb for Planck bandpasses
-    gnu = {100: 244.059, 143: 371.658, 217: 483.485, 353: 287.45, 545: 58.04, 857: 2.27}
-    # frequency dependence (100,143,217,353,545,857) GHz of the SZ effect
-    fnu = {100: -4.031, 143: -2.785, 217: 0.187, 353: 6.205, 545: 14.455, 857: 26.335}
-    # Color correction
-    cc = {100: 1.076, 143: 1.017, 217: 1.119, 353: 1.097, 545: 1.068, 857: 0.995}
+    
     def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
         super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
         self.name = "HaloModel"
 
         self.ell = np.arange(lmax + 1)
-
         self.freqs = freqs
         self.ufreqs = np.unique(freqs)
+
         snu = self._read_SNU(filename)
-        self.instrument = dict( name="hillipop",
+        self.instrument = dict( name=self.survey,
                                 mode=["CIB","tSZ","tSZxCIB"],
                                 nu=self.ufreqs,
-                                Kcmb_MJy=[self.gnu[f] for f in self.ufreqs],    # MJy.sr-1 -> Kcmb
-                                fsz=[self.fnu[f] for f in self.ufreqs],         # SZ dependence
-                                cc=[self.cc[f] for f in self.ufreqs],           # color correction
+                                Kcmb_MJy=[gnu[self.survey][f] for f in self.ufreqs],    # MJy.sr-1 -> Kcmb
+                                fsz=[fnu[self.survey][f] for f in self.ufreqs],         # SZ dependence
+                                cc=[cc[self.survey][f] for f in self.ufreqs],           # color correction
                                 snu=snu)
 
     def _read_SNU(self,filename):
@@ -551,20 +563,3 @@ class halo_model(fgmodel):
         return dl
 
 
-
-def read_SNU(freqs, filename):
-    snu = {}
-    with h5py.File(filename, "r") as f:
-        dataset = dict(nu="frequencies",z="redshift",snu_eff="SNU")
-        for par,col in dataset.items():
-            if col not in f:
-                raiseError( f"Missing dataset '{col}' !")
-            snu[par] = f[col][:]
-            print(f"SNU({par}) = {np.shape(snu[par])}")
-    try:
-        ifreq = [snu["nu"].tolist().index(f) for f in freqs]
-    except:
-        raiseError( f"frequencies not found in SNU file: {freqs}")
-    snu["snu_eff"] = snu["snu_eff"][ifreq]
-
-    return snu
