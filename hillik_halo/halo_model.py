@@ -474,10 +474,10 @@ class HaloModel(Theory):
             tsz_intgmh2 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell * self.current_state["biasmz_tsz"][None,:,:]
             tsz_intgz1 = intg.simps(tsz_intgmh1, dx=dm, axis=1) * dVcdz
             tsz_intgz2 = intg.simps(tsz_intgmh2, dx=dm, axis=1) ** 2 * dVcdz * _power
+            cl_one = intg.simps(tsz_intgz1, self._z)   # one halo
+            cl_two = intg.simps(tsz_intgz2, self._z)   # two halo
             for f1, f2 in cwr(range(nfreq), 2):
-                cl_one = fsz[f1] * fsz[f2] * intg.simps(tsz_intgz1, self._z)   # one halo
-                cl_two = fsz[f1] * fsz[f2] * intg.simps(tsz_intgz2, self._z)   # two halo
-                cl_tsz[(nu[f1],nu[f2])] = cl_one + cl_two
+                cl_tsz[(nu[f1],nu[f2])] = fsz[f1] * fsz[f2] * (cl_one + cl_two)
             if save_outputs: np.savetxt( f"cl_{inst['name']}_tsz.dat", np.array([v for k,v in cl_tsz.items()]))
             Cls.update( dict(tSZ=cl_tsz))
         if verbose_timing: print( "\tCompute cl(tSZ) ({:.4f}s)".format(time.time()-t1))

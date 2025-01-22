@@ -534,7 +534,7 @@ class halo_model(fgmodel):
         """
         Get cl from dict and return array of cross-freq
         """
-        extcl = [cl[self.freqs[f1],self.freqs[f2]] for f1, f2 in self._cross_frequencies]
+        extcl = [cl[f1,f2] for f1, f2 in self._cross_frequencies]
         return np.array(extcl)
 
     def compute_dl(self, pars, **kwargs):
