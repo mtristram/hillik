@@ -222,6 +222,11 @@ class HaloModel(Theory):
         # Halo mass sampling (corresponding to NFW pre-computed files)
 #        self._mh = 10 ** (np.arange(60, 151) / 10)
         self._x = np.logspace(-6, 1, 50)
+        #MD:
+        juska=10
+        xmax = np.log10(juska)
+        self._x = np.logspace(-6, xmax, 50)
+        #
         self._delta_h_cib = 200
         self._delta_h_tsz = 500
 
@@ -231,7 +236,7 @@ class HaloModel(Theory):
         self._m500c = np.tile(self._mh, (len(self._z), 1)).T
 
         # reading tabulated y_ell integration
-        self._yint_tab = np.loadtxt(os.path.dirname(__file__)+'/y_ell_integration.txt')
+        #self._yint_tab = np.loadtxt(os.path.dirname(__file__)+'/y_ell_integration.txt')
 
         # Defaults Halo parameters
         self._parameters = {
@@ -242,6 +247,16 @@ class HaloModel(Theory):
             "B": 1.41,
         }
 
+
+        gamma = 0.31
+        alpha = 1.33
+        beta = 4.13
+        P_0 = 6.41
+        c_500 = 1.81
+        pp_a = 1.0510
+        pp_b = 5.4905
+        self.coeffs_PP = [beta, alpha, P_0, alpha, beta, gamma, c_500]
+        self.juska=10
         self.mode = []
         self.log.info("HaloModel loaded succesfully")
 
@@ -785,7 +800,34 @@ class HaloModel(Theory):
         res = a * b * eV_to_J / cm_to_m ** 3  # converting to SI units
         return res  # dim m,z final units are SI # eV*cm**-3
 
-    def _y_ell_tab(self, delta_h, lcdm):
+
+
+    def yelldex(self): #MD
+        
+        #yy=np.linspace(-np.log(1e6),np.log(5e5),100)
+        yy=np.linspace(-13.816,13.816,200)
+        yy=np.exp(yy)
+
+        pp_beta, pp_alpha, pp_P0p, pp_a, pp_b, pp_g, pp_c500 = self.coeffs_PP
+        xx1     = np.logspace(-6,np.log10(self.juska),100000)
+        profile = (pp_c500 * xx1) ** (-pp_g) * (1.0 + (pp_c500 * xx1) ** pp_a) ** ((pp_g - pp_b) / pp_a)
+        part11  = profile*xx1
+        t0= time.time()
+        intgn = np.zeros(np.size(yy))
+        for i in range(len(yy)):
+            #print(i)
+            integral = part11*np.sin(yy[i] * xx1)/(yy[i])
+            yyi=yy[i]
+            intgn[i] = intg.simpson(integral, x=xx1) 
+        ytilde=np.log(intgn)
+        ytilde[yy>1e5]=-35.0
+        ytilde[np.where(np.isnan(ytilde))[0][0]:]=-35.0
+        print(time.time()-t0)
+        print(np.size(np.array([yy,ytilde]).T))
+        return np.array([np.log(yy),ytilde]).T
+
+    
+    def _y_ell_tab(self, delta_h, lcdm): # MD maybe r500*B
         r500 = self._r_delta(delta_h,lcdm)  # array(mh,nz)
         l500 = lcdm.angular_diameter_distance(self._z).value / r500  # array(mh,nz)
         Mpc_to_m = 3.086e22  # Mpc to m
@@ -794,8 +836,10 @@ class HaloModel(Theory):
         a = (sigT / electron_mass) * 4 * np.pi * (r500 * Mpc_to_m) / l500 ** 2  # array(mh,nz)
 
         C_t = self._C(lcdm)
-        P_0 = 6.41
-        yl = self._yint_tab
+        #P_0 = 6.41
+        #yl = self._yint_tab
+        P_0 = self.coeffs_PP[2]
+        yl = self.yelldex()
         intgn = np.zeros((len(self._ell), len(self._mh), len(self._z)))
 
         for i in range(len(self._ell)):
@@ -827,11 +871,11 @@ class HaloModel(Theory):
         Ez = np.sqrt(lcdm.Om0 * (1 + self._z) ** 3 + lcdm.Ode0)
 
         # constants from https://www.aanda.org/articles/aa/pdf/2013/02/aa20040-12.pdf
-        gamma_t = 0.31
-        alpha_t = 1.33
-        beta_t = 4.13
-        P_0_t = 6.41
-        c_500_t = 1.81
+        #gamma_t = 0.31
+        #alpha_t = 1.33
+        #beta_t = 4.13
+        #P_0_t = 6.41
+        #c_500_t = 1.81
 
         h = self._parameters["H0"] / 100
 
