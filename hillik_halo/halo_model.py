@@ -312,11 +312,13 @@ class HaloModel(Theory):
         state["chi"] = lcdm.comoving_distance(self._z).value
 
         # Get the matter power spectrum:
-        Pk_interp = self.provider.get_Pk_interpolator(
-            var_pair=("delta_tot", "delta_tot"), nonlinear=self.nonlinear, extrap_kmin=np.min(self._k), extrap_kmax=np.max(self._k)
-            )
-
         t1 = time.time()
+        Pk_interp = self.provider.get_Pk_interpolator(
+            var_pair=("delta_tot", "delta_tot"), 
+            nonlinear=self.nonlinear, 
+            extrap_kmin=np.min(self._k), 
+            extrap_kmax=np.max(self._k)
+        )
         # Get Pk at z, k
         state["Pk"] = Pk_interp.P(self._z, self._k)
 #        self.log.debug(f"Pk = {self._Pk}")
@@ -438,7 +440,7 @@ class HaloModel(Theory):
 
         Ez = np.sqrt(lcdm.Om0 * (1 + self._z) ** 3 + lcdm.Ode0)
         dm = np.log10(self._mh[1] / self._mh[0])
-        geo = constants.c * 1e-3 / lcdm.H0 / Ez / (chi * (1 + self._z)) ** 2  # array(z)
+        geo   = constants.c * 1e-3 / lcdm.H0 / Ez / (chi * (1 + self._z)) ** 2  # array(z)
         dVcdz = constants.c * 1e-3 / lcdm.H0 / Ez * chi** 2
 
         _power = self.current_state["power"]
@@ -504,22 +506,6 @@ class HaloModel(Theory):
 
                 cl_one = intg.simps(txc_intgz1, self._z)
                 cl_two = intg.simps(txc_intgz2, self._z)
-##                 cl_one = np.zeros( len(self._ell))
-##                 cl_two = np.zeros( len(self._ell))
-##                 for il in range(len(self._ell)):
-##                     djcensub = (dj_cen[f2] + dj_sub[f2] * unfw[il, :, :]) * ccunit[f2] * fsz[f1] + \
-##                                (dj_cen[f1] + dj_sub[f1] * unfw[il, :, :]) * ccunit[f1] * fsz[f2]
-##                     txc_intgmh1 = y_ell[il] * djcensub / cosm * self.current_state["hmfmz_cib"]
-##                     txc_intgmh2 = y_ell[il] * hmfbias
-##                     txc_intgmh3 = djcensub / cosm * hmfbias
-
-##                     txc_intgz1 = intg.simps(txc_intgmh1, dx=dm, axis=0) * dVcdz
-##                     txc_intgz2 = ( intg.simps(txc_intgmh2, dx=dm, axis=0) * \
-##                                    intg.simps(txc_intgmh3, dx=dm, axis=0) * \
-##                                    dVcdz * _power[il])
-
-##                     cl_one[il] = intg.simps(txc_intgz1, self._z)
-##                     cl_two[il] = intg.simps(txc_intgz2, self._z)
                 cl_txc[(nu[f1],nu[f2])] = cl_one + cl_two
             if save_outputs: np.savetxt( f"cl_{inst['name']}_txc.dat", np.array([v for k,v in cl_txc.items()]))
             Cls.update( dict(tSZxCIB=cl_txc))

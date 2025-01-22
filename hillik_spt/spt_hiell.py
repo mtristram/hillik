@@ -16,6 +16,7 @@ fg_list = {
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
+    "halo_model": fg.halo_model,
     }
 
 
@@ -74,7 +75,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         self.survey = "SPT"
 
         # Init foreground model
-        self.fgs = []
+        self.fgs = {'TT':[]}
         for name in self.foregrounds["TT"].keys():
             if name not in fg_list.keys():
                 raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
@@ -87,13 +88,15 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                 filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                 kwargs["filenames"] = (filename_tsz,filename_cib)
-            self.fgs.append(fg_list[name](**kwargs))
+            self.fgs['TT'].append(fg_list[name](**kwargs))
 
         # Update data_folder location
         self.data_folder = os.path.join(self.data_folder, "data/spt_hiell_2020")
 
         # get info from the desc_file
         self._update_with_desc_file()
+
+        self.use_halo_model = "halo_model" in self.foregrounds["TT"]
 
         self.log.debug(f"nall: {self.nall}")
         self.log.debug(f"nfreq: {self.nfreq}")
@@ -213,8 +216,8 @@ class SPTHiellLikelihood(InstallableLikelihood):
 
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
 #        dlfg = []
-        for fg in self.fgs:
-            dl_fg += fg.compute_dl( params)
+        for fg in self.fgs['TT']:
+            dl_fg += fg.compute_dl( params, theory=self.provider)
 #            dlfg.append( fg.compute_dl(params))
 #        print( "write fgs templates")
 #        np.save( "hillik_spt_fgs", np.array(dlfg))
@@ -286,8 +289,12 @@ class SPTHiellLikelihood(InstallableLikelihood):
         return -0.5 * SPTHiEllLnLike
 
     def get_requirements(self):
-        requirements = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
-        return requirements
+        req = dict(Cl={mode: self.BoltzmannLmax for mode in ["tt"]})
+        if self.use_halo_model:
+            req.update(
+                dict(Cl_from_halo_model=dict(mode=["CIB","tSZ","tSZxCIB"], lmax=self.lmax))
+            )
+        return req
 
     def logp(self, **params_values):
         dl = self.provider.get_Cl(units="muK2", ell_factor=True)
