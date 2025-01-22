@@ -31,6 +31,7 @@ fg_list = {
     "tsz": fg.tsz,
     "ksz": fg.ksz,
     "szxcib": fg.szxcib,
+    "halo_model": fg.halo_model,
     }
 
 #bintab for Hillipop lite
@@ -106,7 +107,6 @@ class _HillipopLikelihood(InstallableLikelihood):
         else:
             self.wf = bins.Bins.fromdeltal( 2, self.lmax+1, 1)
 
-
         # Data
         basename = os.path.join(self.data_folder, self.xspectra_basename)
         self._dldata = self._read_dl_xspectra(basename)
@@ -129,7 +129,7 @@ class _HillipopLikelihood(InstallableLikelihood):
             for name in self.foregrounds["TT"].keys():
                 if name not in fg_list.keys():
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-
+                
                 self.log.debug("Adding '{}' foreground for TT".format(name))
                 kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", auto=False, survey=self.survey)
                 if isinstance(self.foregrounds["TT"][name], str):
@@ -138,6 +138,8 @@ class _HillipopLikelihood(InstallableLikelihood):
                     filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                     filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                     kwargs["filenames"] = (filename_tsz,filename_cib)
+                if name == "halo_model":
+                    self.use_halo_model = True
                 fgsTT.append(fg_list[name](**kwargs))
         self.fgs['TT'] = fgsTT
         
@@ -333,7 +335,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         dlmodel = [dlth[mode]] * self._nxspec
 #        dlfg = []
         for fg in self.fgs[mode]:
-            dlmodel += fg.compute_dl(pars)
+            dlmodel += fg.compute_dl(pars, theory=self.provider)
 #            dlfg.append( fg.compute_dl(pars))
 #        print( "write fgs templates")
 #        np.save( "hillik_plk_fgs", np.array(dlfg))
@@ -423,7 +425,14 @@ class _HillipopLikelihood(InstallableLikelihood):
         return X
 
     def get_requirements(self):
-        return dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
+        req = dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
+
+        if hasattr(self, "use_halo_model") and self.use_halo_model:
+            req.update(
+                dict(Cl_from_halo_model=dict(mode=["CIB","tSZ","tSZxCIB"], lmax=self.lmax))
+            )
+        print(req)
+        return req
 
     def logp(self, **params_values):
         dl = self.provider.get_Cl(ell_factor=True)

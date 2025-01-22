@@ -242,9 +242,8 @@ class HaloModel(Theory):
             "B": 1.41,
         }
 
-        self._var_pairs = [("delta_tot", "delta_tot")]
         self.mode = []
-        self.log.info("Initialized!")
+        self.log.info("HaloModel loaded succesfully")
 
 
     def get_requirements(self):
@@ -283,7 +282,7 @@ class HaloModel(Theory):
         needs = {}
         needs["Pk_interpolator"] = {
             "vars_pairs": [("delta_tot", "delta_tot")],
-            "nonlinear": (True, False) if self.nonlinear else False,
+            "nonlinear": self.nonlinear,
             "z": self._z[np.linspace(0,len(self._z)-1,120,dtype=int)],
             "k_max": self.kmax,
         }
@@ -313,11 +312,8 @@ class HaloModel(Theory):
         state["chi"] = lcdm.comoving_distance(self._z).value
 
         # Get the matter power spectrum:
-        for var_pair in self._var_pairs:
-            Pk_interp = self.provider.get_Pk_interpolator(
-                var_pair=var_pair, nonlinear=self.nonlinear,
-#                extrap_kmin=np.min(self._k), extrap_kmax=np.max(self._k)
-                extrap_kmin=np.min(self._k), extrap_kmax=np.max(self._k*1.2)  #WARNING: NEEDED FOR SPIRE !
+        Pk_interp = self.provider.get_Pk_interpolator(
+            var_pair=("delta_tot", "delta_tot"), nonlinear=self.nonlinear, extrap_kmin=np.min(self._k), extrap_kmax=np.max(self._k)
             )
 
         t1 = time.time()
@@ -357,7 +353,7 @@ class HaloModel(Theory):
             state["y_ell"] = self._y_ell_tab(self._delta_h_tsz,lcdm)  # array(ell,mh,z)
         if verbose_timing: print( "\tCompute y_ell ({:.4f}s)".format(time.time()-t1))
 
-#        self._current_state = state
+#        self.current_state = state
 
         if verbose_timing: print( "HaloModel ({:.4f}s)".format( time.time()-t0))
 
@@ -374,8 +370,8 @@ class HaloModel(Theory):
         t0 = time.time()
 
         name = instrument["name"]
-        if name in self._current_state:
-            cl = self._current_state[name]
+        if name in self.current_state:
+            cl = self.current_state[name]
 
         else:
             try:
@@ -384,7 +380,7 @@ class HaloModel(Theory):
                 raise LoggedError(
                     self.log, "No Cl's were computed. Are you sure that you have requested them?"
                 )
-            self._current_state[name] = cl
+            self.current_state[name] = cl
 
         if verbose_timing: print( "Compute cls ({:.4f}s)".format(time.time()-t0))
         return cl
@@ -424,9 +420,9 @@ class HaloModel(Theory):
         fsz      = np.array(inst.get( "fsz",      np.ones(nfreq)))
         ccunit   = cc/(Kcmb_MJy * 1e6)
 
-        lcdm = self._current_state["lcdm"]
-        unfw = self._current_state["unfw"]
-        chi  = self._current_state["chi"]
+        lcdm = self.current_state["lcdm"]
+        unfw = self.current_state["unfw"]
+        chi  = self.current_state["chi"]
 
         Cls = dict(ell=self._ell)
 
@@ -445,7 +441,7 @@ class HaloModel(Theory):
         geo = constants.c * 1e-3 / lcdm.H0 / Ez / (chi * (1 + self._z)) ** 2  # array(z)
         dVcdz = constants.c * 1e-3 / lcdm.H0 / Ez * chi** 2
 
-        _power = self._current_state["power"]
+        _power = self.current_state["power"]
 
         # CIB
         t1 = time.time()
@@ -458,7 +454,7 @@ class HaloModel(Theory):
                     cib_intgmh = ( dj_cen[f1] * dj_sub[f2] * unfw[il, :, :] +
                                    dj_cen[f2] * dj_sub[f1] * unfw[il, :, :] +
                                    dj_sub[f1] * dj_sub[f2] * unfw[il, :, :]** 2
-                                   ) * self._current_state["hmfmz_cib"]  # array(mh,z)
+                                   ) * self.current_state["hmfmz_cib"]  # array(mh,z)
                     cib_intgz1 = intg.simps(cib_intgmh, dx=dm, axis=0) * geo
                     cib_intgz2 = Jv[f1, il, :] * Jv[f2, il, :] * geo * _power[il]
 
@@ -472,10 +468,10 @@ class HaloModel(Theory):
         # tSZ
         t1 = time.time()
         if "tSZ" in mode:
-            y_ell = self._current_state["y_ell"]
+            y_ell = self.current_state["y_ell"]
             cl_tsz = {}
-            tsz_intgmh1 = self._current_state["hmfmz_tsz"][None,:,:] * y_ell ** 2
-            tsz_intgmh2 = self._current_state["hmfmz_tsz"][None,:,:] * y_ell * self._current_state["biasmz_tsz"][None,:,:]
+            tsz_intgmh1 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell ** 2
+            tsz_intgmh2 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell * self.current_state["biasmz_tsz"][None,:,:]
             tsz_intgz1 = intg.simps(tsz_intgmh1, dx=dm, axis=1) * dVcdz
             tsz_intgz2 = intg.simps(tsz_intgmh2, dx=dm, axis=1) ** 2 * dVcdz * _power
             for f1, f2 in cwr(range(nfreq), 2):
@@ -489,15 +485,15 @@ class HaloModel(Theory):
         # tSZxCIB
         t1 = time.time()
         if "tSZxCIB" in mode:
-            y_ell = self._current_state["y_ell"]   # array(l,mh,z)
-            hmfbias_cib = self._current_state["biasmz_cib"] * self._current_state["hmfmz_cib"]   # array(mh,z)
-            hmfbias_tsz = self._current_state["biasmz_tsz"] * self._current_state["hmfmz_tsz"]   # array(mh,z)
+            y_ell = self.current_state["y_ell"]   # array(l,mh,z)
+            hmfbias_cib = self.current_state["biasmz_cib"] * self.current_state["hmfmz_cib"]   # array(mh,z)
+            hmfbias_tsz = self.current_state["biasmz_tsz"] * self.current_state["hmfmz_tsz"]   # array(mh,z)
             cl_txc = {}
             cosm = (1 + self._z) * chi**2  # array(z)
             for f1, f2 in cwr(range(nfreq), 2):
                 djcensub = (dj_cen[f2][None,:,:] + dj_sub[f2][None,:,:] * unfw) * ccunit[f2] * fsz[f1] + \
                            (dj_cen[f1][None,:,:] + dj_sub[f1][None,:,:] * unfw) * ccunit[f1] * fsz[f2]   # array(l,mh,z)
-                txc_intgmh1 = y_ell * djcensub / cosm * self._current_state["hmfmz_tsz"]  # 1h term hmf with deltah=500
+                txc_intgmh1 = y_ell * djcensub / cosm * self.current_state["hmfmz_tsz"]  # 1h term hmf with deltah=500
                 txc_intgmh2 = y_ell * hmfbias_tsz  # 2h term has hmf and bias with deltah=200 for cib (below) halo and 500 for tsz halo
                 txc_intgmh3 = djcensub * hmfbias_cib / cosm
 
@@ -513,7 +509,7 @@ class HaloModel(Theory):
 ##                 for il in range(len(self._ell)):
 ##                     djcensub = (dj_cen[f2] + dj_sub[f2] * unfw[il, :, :]) * ccunit[f2] * fsz[f1] + \
 ##                                (dj_cen[f1] + dj_sub[f1] * unfw[il, :, :]) * ccunit[f1] * fsz[f2]
-##                     txc_intgmh1 = y_ell[il] * djcensub / cosm * self._current_state["hmfmz_cib"]
+##                     txc_intgmh1 = y_ell[il] * djcensub / cosm * self.current_state["hmfmz_cib"]
 ##                     txc_intgmh2 = y_ell[il] * hmfbias
 ##                     txc_intgmh3 = djcensub / cosm * hmfbias
 
@@ -620,8 +616,8 @@ class HaloModel(Theory):
         nfreq,nz = np.shape(snu_eff)
 
         dj_sub = np.zeros((nfreq, len(self._mh), nz))
-        lcdm = self._current_state["lcdm"]
-        chi  = self._current_state["chi"]
+        lcdm = self.current_state["lcdm"]
+        chi  = self.current_state["chi"]
 
         for i, mh in enumerate(self._mh):
             ms = self._msub(mh * (1 - self.fsub))  # array1d
@@ -649,8 +645,8 @@ class HaloModel(Theory):
         and dividing it by the total halo mass.
         (not multiplied by hmf)
         """
-        lcdm = self._current_state["lcdm"]
-        chi  = self._current_state["chi"]
+        lcdm = self.current_state["lcdm"]
+        chi  = self.current_state["chi"]
 
         mhalo = self._mh * (1 - self.fsub)
 
@@ -659,7 +655,7 @@ class HaloModel(Theory):
         return dj_cen
 
     def _sfr(self, mhalo):
-        lcdm = self._current_state["lcdm"]
+        lcdm = self.current_state["lcdm"]
         mhalo = np.atleast_1d(mhalo)
         sfrmhdot = self._sfr_mhdot(mhalo)
         mhdot = self._Mdot(mhalo)
@@ -719,7 +715,7 @@ class HaloModel(Theory):
         Jnu = np.zeros((nfreq, len(self._ell), nz))
 
         dm = np.log10(self._mh[1] / self._mh[0])
-        hmfbias = self._current_state["hmfmz_cib"] * self._current_state["biasmz_cib"]  # array(m,z)
+        hmfbias = self.current_state["hmfmz_cib"] * self.current_state["biasmz_cib"]  # array(m,z)
         for il in range(len(self._ell)):
             rest1 = (dj_cen + dj_sub * unfw[il, :, :]) * hmfbias    # array(fq,m,z)
             intg_mh = intg.simps(rest1, dx=dm, axis=1)

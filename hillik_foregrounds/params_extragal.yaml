@@ -36,3 +36,10 @@
     ref: 1.
     proposal: 1
     latex: A_\mathrm{kSZ}
+
+#HaloModel
+  logMmax: 12.94217128427922,
+  etamax: 0.4028353504978569,
+  sigmaMh: 1.807080723258688,
+  tauMh: 1.2040244128818796,
+  B: 1.41

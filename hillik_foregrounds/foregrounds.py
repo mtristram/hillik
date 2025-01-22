@@ -3,7 +3,7 @@ import astropy.io.fits as fits
 import numpy as np
 import itertools
 from cobaya.log import HasLogger, LoggedError
-
+import h5py
 
 t_cmb = 2.72548
 k_b = 1.3806503e-23
@@ -179,7 +179,7 @@ class fgmodel(HasLogger):
         
         return template[:self.lmax+1]
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         """
         Return spectra model for each cross-spectra
         """
@@ -198,7 +198,7 @@ class ps(fgmodel):
         self.name = "PS"
         self.dltemp = self._gen_dl_powerlaw(0.,lnorm=lnorm)
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         if self.mode == "TT":
             dl_ps = []
             for f1, f2 in self._cross_frequencies:
@@ -215,7 +215,7 @@ class ps_radio(fgmodel):
         self.name = "PS radio"
         self.ll2pi = self._gen_dl_powerlaw(0.,lnorm=lnorm)
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append(
@@ -237,7 +237,7 @@ class ps_dusty(fgmodel):
         self.name = "PS dusty"
         self.ll2pi = self._gen_dl_powerlaw(0.,lnorm=lnorm)
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append(
@@ -269,7 +269,7 @@ class dust(fgmodel):
         else:
             self.dlg = self._read_dl_template( filename)
         
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         if   self.mode == "TT": beta1,beta2 = pars[f"{self.survey}_beta_dustT"],pars[f"{self.survey}_beta_dustT"]
         elif self.mode == "TE": beta1,beta2 = pars[f"{self.survey}_beta_dustT"],pars[f"{self.survey}_beta_dustP"]
         elif self.mode == "ET": beta1,beta2 = pars[f"{self.survey}_beta_dustP"],pars[f"{self.survey}_beta_dustT"]
@@ -318,7 +318,7 @@ class dust_amplitude(fgmodel):
         alpha_dust = -2.5 if mode == "TT" else -2.4
         self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
     
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         if   self.mode == "TT": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustT'
         elif self.mode == "TE": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustP'
         elif self.mode == "ET": ad1,ad2 = f'{self.survey}_dustP',f'{self.survey}_dustT'
@@ -346,7 +346,7 @@ class sync(fgmodel):
         self.dl_syn = self._gen_dl_powerlaw( alpha_syn, lnorm=100)
         self.beta_syn = -0.7
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dl_syn
@@ -378,7 +378,7 @@ class cib(fgmodel):
         else:
             self.dl_cib = self._read_dl_template( filename, lnorm=lnorm)
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         dl = []
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dl_cib
@@ -413,7 +413,7 @@ class tsz(fgmodel):
                                )
         self.dl_sz = np.array(self.dl_sz)
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         if self.mode == "TT":
             return pars["Atsz"] * self.dl_sz
         else:
@@ -432,7 +432,7 @@ class ksz(fgmodel):
             self.dl_ksz.append(ksz_tmpl)
         self.dl_ksz = np.array(self.dl_ksz)
 
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         if self.mode == "TT":
             return pars["Aksz"] * self.dl_ksz
         else:
@@ -464,7 +464,7 @@ class szxcib(fgmodel):
         else:
             raise ValueError( f"Missing template for SZxCIB  for {self.survey}")
             
-    def compute_dl(self, pars):
+    def compute_dl(self, pars, **kwargs):
         dl_szxcib = []
         for f1, f2 in self._cross_frequencies:
             dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]*pars["Atsz"]) * (
@@ -477,3 +477,94 @@ class szxcib(fgmodel):
             return -1. * pars["xi"] * np.array(dl_szxcib)
         else:
             return 0.
+
+
+# tSZ, CIB, tSZxCIB from Halo Model
+class halo_model(fgmodel):
+    # MJy.sr-1 -> Kcmb for Planck bandpasses
+    gnu = {100: 244.059, 143: 371.658, 217: 483.485, 353: 287.45, 545: 58.04, 857: 2.27}
+    # frequency dependence (100,143,217,353,545,857) GHz of the SZ effect
+    fnu = {100: -4.031, 143: -2.785, 217: 0.187, 353: 6.205, 545: 14.455, 857: 26.335}
+    # Color correction
+    cc = {100: 1.076, 143: 1.017, 217: 1.119, 353: 1.097, 545: 1.068, 857: 0.995}
+    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
+        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+        self.name = "HaloModel"
+
+        self.ell = np.arange(lmax + 1)
+
+        self.freqs = freqs
+        self.ufreqs = np.unique(freqs)
+        snu = self._read_SNU(filename)
+        self.instrument = dict( name="hillipop",
+                                mode=["CIB","tSZ","tSZxCIB"],
+                                nu=self.ufreqs,
+                                Kcmb_MJy=[self.gnu[f] for f in self.ufreqs],    # MJy.sr-1 -> Kcmb
+                                fsz=[self.fnu[f] for f in self.ufreqs],         # SZ dependence
+                                cc=[self.cc[f] for f in self.ufreqs],           # color correction
+                                snu=snu)
+
+    def _read_SNU(self,filename):
+        snu = {}
+        with h5py.File(filename, "r") as f:
+            dataset = dict(nu="frequencies",z="redshift",snu_eff="SNU")
+            for par,col in dataset.items():
+                if col not in f:
+                    raise LoggedError(self.log, f"Missing dataset '{col}' !")
+                snu[par] = f[col][:]
+                self.log.debug(f"SNU({par}) = {np.shape(snu[par])}")
+        try:
+            ifreq = [snu["nu"].tolist().index(f) for f in self.ufreqs]
+        except:
+            raise LoggedError( self.log, f"frequencies not found in SNU file: {self.ufreqs}")
+        snu["snu_eff"] = snu["snu_eff"][ifreq]
+
+        return snu
+
+    def _log_interp(self, xp, yp):
+        sgn = np.sign(np.sum(yp))
+        # Remove warning due to log10(ell=0), looks ok
+        with np.errstate(divide="ignore"):
+            log_interp = sgn * np.power(
+                10.0, np.interp(np.log10(self.ell), np.log10(xp), np.log10(sgn * yp))
+            )
+        return log_interp
+
+    def _append_cls(self, cl):
+        """
+        Get cl from dict and return array of cross-freq
+        """
+        extcl = [cl[self.freqs[f1],self.freqs[f2]] for f1, f2 in self._cross_frequencies]
+        return np.array(extcl)
+
+    def compute_dl(self, pars, **kwargs):
+        theory = kwargs.get("theory")
+        if not theory:
+            raise LoggedError(self.log, f"Missing 'theory' for '{self.name}' model!")
+
+        Cl = theory.get_Cl_from_halo_model( self.instrument)
+        cl_cib = np.array([self._log_interp(Cl["ell"], cl) for cl in self._append_cls(Cl["CIB"])])
+        cl_tsz = np.array([self._log_interp(Cl["ell"], cl) for cl in self._append_cls(Cl["tSZ"])])
+        cl_txc = np.array([self._log_interp(Cl["ell"], cl) for cl in self._append_cls(Cl["tSZxCIB"])])
+        ll2pi = self.ell * (self.ell + 1) / 2.0 / np.pi
+        dl = ll2pi * (cl_cib + cl_tsz + cl_txc) * 1e12
+        return dl
+
+
+
+def read_SNU(freqs, filename):
+    snu = {}
+    with h5py.File(filename, "r") as f:
+        dataset = dict(nu="frequencies",z="redshift",snu_eff="SNU")
+        for par,col in dataset.items():
+            if col not in f:
+                raiseError( f"Missing dataset '{col}' !")
+            snu[par] = f[col][:]
+            print(f"SNU({par}) = {np.shape(snu[par])}")
+    try:
+        ifreq = [snu["nu"].tolist().index(f) for f in freqs]
+    except:
+        raiseError( f"frequencies not found in SNU file: {freqs}")
+    snu["snu_eff"] = snu["snu_eff"][ifreq]
+
+    return snu
