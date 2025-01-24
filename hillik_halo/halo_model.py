@@ -11,7 +11,7 @@ from cobaya.log import LoggedError
 from cobaya.theory import Theory
 from scipy import constants
 from scipy import integrate as intg
-from scipy.interpolate import InterpolatedUnivariateSpline
+from scipy.interpolate import InterpolatedUnivariateSpline, interp1d
 
 verbose_timing = True
 save_outputs = False
@@ -215,7 +215,9 @@ class HaloModel(Theory):
         #_k_unfw: array(nk)
         #_unfw: array(m,k,z)
         #_snu_eff: array(nfq,nz)
-
+        
+        
+        
         self._k = _default_k_sampling
         self._ell = []
 
@@ -239,7 +241,7 @@ class HaloModel(Theory):
         #self._yint_tab = np.loadtxt(os.path.dirname(__file__)+'/y_ell_integration.txt')
 
         # Defaults Halo parameters
-        self._parameters = {
+        self._parameters2 = {
             "logMmax": 12.94217128427922,  # Meffmax=8753289339381.791
             "etamax": 0.4028353504978569,
             "sigmaMh": 1.807080723258688,
@@ -247,6 +249,7 @@ class HaloModel(Theory):
             "B": 1.41,
         }
 
+        self.B = 1.41
 
         gamma = 0.31
         alpha = 1.33
@@ -259,6 +262,11 @@ class HaloModel(Theory):
         self.juska=10
         self.mode = []
         self.log.info("HaloModel loaded succesfully")
+        
+        self.r_sigma_t=6.6524   # !reduced Thomson cross-section
+        self.r_me=9.11  # !reduced electron mas
+        self.r_c_light=2.99792458 #!reduce speed of light
+        self.G = 4.301e-9 #km2 Mpc MSun-1 s
 
 
     def get_requirements(self):
@@ -270,7 +278,24 @@ class HaloModel(Theory):
                  optional parameters are needed)
         """
         # These are currently required to construct a new cosmology model.
-        return {"omegab", "omegam", "omegal", "H0"}.union(self._parameters.keys())
+        #return {"omegab", "omegam", "omegal", "H0", "mnu"}.union(self._parameters.keys())
+        requirements = \
+                        {'omegam': None, 
+                         'H0': None,
+                         'sigma8':None,
+                         'ombh2': None,
+                         'omch2': None,
+                         'ns': None,
+                         'omegab': None,
+                         "omegam": None,
+                         "omegal": None,
+                         "mnu": None,
+                         'angular_diameter_distance': {'z': self._z},
+                         'Hubble': {'z': self._z, 'units': 'km/s/Mpc'},
+                         }
+        
+        return requirements
+ 
 
     def must_provide(self, **requirements):
         super().must_provide(**requirements)
@@ -301,13 +326,26 @@ class HaloModel(Theory):
             "z": self._z[np.linspace(0,len(self._z)-1,120,dtype=int)],
             "k_max": self.kmax,
         }
-        # needs['comoving_radial_distance'] = {'z': self.z}
 
+        lnRmin= 0.005
+        lnRmax= 4
+        dlnR= 0.01666667
+
+        self.lnR_array = np.linspace(lnRmin,lnRmax,91)
+
+        # needs['comoving_radial_distance'] = {'z': self.z}
+        needs["Hubble"]={'z': self._z, 'units': 'km/s/Mpc'}
+        
+        needs["sigma_R"]={'z': self._z[np.linspace(0,len(self._z)-1,120,dtype=int)],'k_max': self.kmax, 'R': np.exp(self.lnR_array),'vars_pairs': (['delta_tot', 'delta_tot'])}
+        
+ 
         return needs
 
     def calculate(self, state, want_derived=True, **params_values_dict):
         t0 = time.time()
 
+
+        
         self.log.debug("Calculating inside HM model")
         self._parameters = params_values_dict
         self.log.debug(f"parameters={self._parameters}")
@@ -322,9 +360,27 @@ class HaloModel(Theory):
 #        self.log.debug(f"omegal = {Ode0}")
 #        self.log.debug(f"H0 = {H0}")
 
+        
+        Om0_in = self.provider.get_param("omegam")
+        h100_in = H0 /100.
+        Hz_theory = self.provider.get_Hubble(self._z) # units [km/s/Mpc]
+        Ez_theory = Hz_theory/(H0)
+        rhocrit0 = 3 * H0**2 /8 /np.pi / self.G
+        
+        rhom0 = Om0_in*rhocrit0 # [Msun/Mpc^3]
+        dA_theory = self.provider.get_angular_diameter_distance(self._z) # units [Mpc]
+        dVdzdO_theory = self.r_c_light*1e8*1e-3/H0 * (1.+self._z)**2 * \
+            dA_theory**2 / Ez_theory * 4 * np.pi # units [Mpc^3]  #MD *4pi for full sky
+
+        
+
         lcdm = LambdaCDM(H0=H0, Om0=Om0, Ode0=Ode0, Ob0=Ob0) #WARNING approx LCDM (enough for halo_model)
         state["lcdm"] = lcdm
-        state["chi"] = lcdm.comoving_distance(self._z).value
+        #state["chi"] = lcdm.comoving_distance(self._z).value
+
+        #print(lcdm.comoving_distance(self._z).value)
+        #print(self.provider.get_angular_diameter_distance(self._z)*(1+self._z))
+        state["chi"] = self.provider.get_angular_diameter_distance(self._z)*(1+self._z)
 
         # Get the matter power spectrum:
         t1 = time.time()
@@ -387,9 +443,10 @@ class HaloModel(Theory):
         t0 = time.time()
 
         name = instrument["name"]
-        if name in self.current_state:
-            cl = self.current_state[name]
-
+        aa=0.
+        if aa==1.234 : #name in self.current_state:
+            #MD cl = self.current_state[name]
+            aaa=0
         else:
             try:
                 cl = self.compute_cls( instrument)
@@ -441,6 +498,11 @@ class HaloModel(Theory):
         unfw = self.current_state["unfw"]
         chi  = self.current_state["chi"]
 
+        H0_theory = self._parameters["H0"] 
+        Hz_theory = self.provider.get_Hubble(self._z) # units [km/s/Mpc]
+        Ez_theory = Hz_theory/(H0_theory)
+
+
         Cls = dict(ell=self._ell)
 
         t1 = time.time()
@@ -453,11 +515,16 @@ class HaloModel(Theory):
             Jv = self._J_nu(unfw, dj_cen, dj_sub)  # array(freq,l)
         if verbose_timing: print( "\tCompute Jnu ({:.4f}s)".format(time.time()-t1))
 
-        Ez = np.sqrt(lcdm.Om0 * (1 + self._z) ** 3 + lcdm.Ode0)
+#        Ez = np.sqrt(lcdm.Om0 * (1 + self._z) ** 3 + lcdm.Ode0)
+        Ez = Ez_theory
         dm = np.log10(self._mh[1] / self._mh[0])
-        geo   = constants.c * 1e-3 / lcdm.H0 / Ez / (chi * (1 + self._z)) ** 2  # array(z)
-        dVcdz = constants.c * 1e-3 / lcdm.H0 / Ez * chi** 2
+        #geo   = constants.c * 1e-3 / lcdm.H0 / Ez / (chi * (1 + self._z)) ** 2  # array(z)
+        #dVcdz = constants.c * 1e-3 / lcdm.H0 / Ez * chi** 2
 
+        geo   = constants.c * 1e-3 / H0_theory / Ez / (chi * (1 + self._z)) ** 2  # array(z)
+        dVcdz = constants.c * 1e-3 / H0_theory / Ez * chi** 2
+
+        
         _power = self.current_state["power"]
 
         # CIB
@@ -489,6 +556,7 @@ class HaloModel(Theory):
             cl_tsz = {}
             tsz_intgmh1 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell ** 2
             tsz_intgmh2 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell * self.current_state["biasmz_tsz"][None,:,:]
+            print("dm", np.shape(dm))
             tsz_intgz1 = intg.simps(tsz_intgmh1, dx=dm, axis=1) * dVcdz
             tsz_intgz2 = intg.simps(tsz_intgmh2, dx=dm, axis=1) ** 2 * dVcdz * _power
             cl_one = intg.simps(tsz_intgz1, self._z)   # one halo
@@ -539,7 +607,10 @@ class HaloModel(Theory):
 
         lcdm = state["lcdm"]
         Pk = state["Pk"]
-        mean_density0 = lcdm.Om0 * lcdm.critical_density0.to(u.Msun / u.Mpc ** 3).value
+        critical_density0 = 3 *self._parameters["H0"]**2 /8 /np.pi / self.G
+        #mean_density0 = self.provider.get_param("omegam") * lcdm.critical_density0.to(u.Msun / u.Mpc ** 3).value
+        mean_density0 = self.provider.get_param("omegam") * critical_density0
+        
         radius = (3 * self._mh / (4 * np.pi * mean_density0)) ** (1.0 / 3.0)
 
         def bias(delta_halo, sigma):
@@ -561,21 +632,69 @@ class HaloModel(Theory):
         state["hmfmz_tsz"] = np.zeros( Nmz)
         state["biasmz_cib"] = np.zeros( Nmz)
         state["biasmz_tsz"] = np.zeros( Nmz)
-        sigma1, sigma2 = self._sigmas(radius, Pk)  # array(m,z)
+        #sigma1, sigma2 = self._sigmas(radius, Pk)  # array(m,z)
+
+
+
+        # computes sigma and dsigma/dM
+
+        h100 = self._parameters["H0"]/100.
+        _,_,sigma_nodes = self.provider.get_sigma_R()
+                
+        sigmaR_interpR = interp1d(np.exp(self.lnR_array),sigma_nodes,axis=1,fill_value="extrapolate")
+                
+        sigmaR_arr = sigmaR_interpR(radius) # r in Mpc
+
+        dsigmadR_arr = np.gradient(sigmaR_arr, radius,axis=1, edge_order=1)
+        dRdM = 1./3. * radius/self._mh
+                
+        dsigmadM_arr = dsigmadR_arr*dRdM
+
+        #sigmaC = np.zeros(Nmz)
+        
+        sigmaC = interp1d(self._z[np.linspace(0,len(self._z)-1,120,dtype=int)], np.log(sigmaR_arr), axis=0, fill_value="extrapolate")
+
+        sigma1 = np.exp(sigmaC(self._z)).T
+
+        dsigma = interp1d(self._z[np.linspace(0,len(self._z)-1,120,dtype=int)], np.log(-dsigmadM_arr), axis=0, fill_value="extrapolate")
+        
+        sigma2 = (np.exp(dsigma(self._z)).T)/sigma1*self._mh[:,None]*3/0.5
+        print(sigma2)
+        
         for im, mass in enumerate(self._mh):
             # CIB
-            fsig = self.tinker.fsigma(self._z, sigma1[im], self._delta_h_cib / lcdm.Om(self._z))
+            Ez = self.provider.get_Hubble(self._z)/self.provider.get_param("H0")
+            Om_z = np.array(self.provider.get_param("omegam")  *(1.+self._z)**3. / Ez**(2.))
+            #fsig = self.tinker.fsigma(self._z, sigma1[im], self._delta_h_cib / lcdm.Om(self._z))
+            fsig = self.tinker.fsigma(self._z, sigma1[im], self._delta_h_cib / Om_z)
+            
             dn_dm = fsig * mean_density0 * np.abs(0.5 * sigma2[im] / 3) / mass ** 2
             state["hmfmz_cib"][im] = mass * dn_dm * np.log(10)
-            state["biasmz_cib"][im] = bias(self._delta_h_cib / lcdm.Om(self._z), sigma1[im])
+            state["biasmz_cib"][im] = bias(self._delta_h_cib / Om_z, sigma1[im])
 
             # tSZ
-            fsig = self.tinker.fsigma(self._z, sigma1[im], self._delta_h_tsz / lcdm.Om(self._z))
+            fsig = self.tinker.fsigma(self._z, sigma1[im], self._delta_h_tsz / Om_z)
             dn_dm = fsig * mean_density0 * np.abs(0.5 * sigma2[im] / 3) / mass ** 2
-            state["hmfmz_tsz"][im] = mass * dn_dm * np.log(10)
-            state["biasmz_tsz"][im] = bias(self._delta_h_tsz / lcdm.Om(self._z), sigma1[im])
+            state["hmfmz_tsz"][im] = mass * dn_dm #* np.log(10)
+            state["biasmz_tsz"][im] = bias(self._delta_h_tsz / Om_z, sigma1[im])
             # state["biasmz_tsz"][im] = state["biasmz_cib"][im]   #WHY ?
 
+
+
+
+        print("sigma")
+        print(sigma1.shape)
+        print(sigmaR_arr.shape)
+
+        np.save("hmf_tsz.npy", { "hmf": state["hmfmz_tsz"], "masse":self._mh, "redshift":self._z})
+
+        np.save("sigma2.npy", { "sigma": sigma2, "masse":self._mh, "redshift":self._z})
+        np.save("sigmaC.npy", { "sigma": sigmaR_arr.T, "masse":self._mh, "redshift":self._z[np.linspace(0,len(self._z)-1,120,dtype=int)], "dsigma":dsigmadM_arr.T})
+        
+
+
+        
+        
 
     def _sigmas(self, radius, Pk):
         """
@@ -660,17 +779,18 @@ class HaloModel(Theory):
         mhalo = np.atleast_1d(mhalo)
         sfrmhdot = self._sfr_mhdot(mhalo)
         mhdot = self._Mdot(mhalo)
-        return mhdot * sfrmhdot * lcdm.Ob(self._z) / lcdm.Om(self._z)
-
+        #return mhdot * sfrmhdot * lcdm.Ob(self._z) / lcdm.Om(self._z)
+        return mhdot * sfrmhdot * self._parameters["omegam"]/self._parameters["omegab"]*(self._z/self._z)
+    
     def _sfr_mhdot(self, mhalo):
         """
         SFR/Mhdot lognormal distribution wrt halomass
         """
 
-        Meffmax = 10 ** (self._parameters["logMmax"])
-        etamax = self._parameters["etamax"]
-        sigmaMh = self._parameters["sigmaMh"]
-        tauMh = self._parameters["tauMh"]
+        Meffmax = 10 ** (self._parameters2["logMmax"])
+        etamax = self._parameters2["etamax"]
+        sigmaMh = self._parameters2["sigmaMh"]
+        tauMh = self._parameters2["tauMh"]
         z_c = 1.5
         sigpow = sigmaMh - np.where(self._z < z_c, z_c - self._z, 0) * tauMh
         #sigpow = sigmaMh - np.array([max(0., z_c-z) for z in self._z_])*tauMh
@@ -755,7 +875,8 @@ class HaloModel(Theory):
         """
 
         r500 = self._r_delta(delta_h,lcdm)  # array(mh,nz)
-        l500 = lcdm.angular_diameter_distance(self._z).value / r500  # array(mh,nz)
+        #l500 = lcdm.angular_diameter_distance(self._z).value / r500  # array(mh,nz)
+        l500 = self.provider.get_angular_diameter_distance(self._z)/r500
 
         Mpc_to_m = 3.086e22  # Mpc to m
         sigT = constants.value("Thomson cross section")
@@ -776,8 +897,11 @@ class HaloModel(Theory):
 
     def _C(self, lcdm):
         h = self._parameters["H0"] / 100
-        Ez = np.sqrt(lcdm.Om0 * (1 + self._z) ** 3 + lcdm.Ode0)
-        M_tilde = self._m500c / self._parameters["B"]  # array(m,z)
+        #Ez = np.sqrt(self.provider.get_param("omegam") * (1 + self._z) ** 3 + lcdm.Ode0)
+
+        Ez = self.provider.get_Hubble(self._z)/self.provider.get_param("H0")
+#        M_tilde = self._m500c / self._parameters["B"]  # array(m,z)
+        M_tilde = self._m500c / self.B  # array(m,z)
         a = 1.65 * (h / 0.7) ** 2 * Ez ** (8.0 / 3)
         b = (h / 0.7 * M_tilde / 3e14) ** (2.0 / 3 + 0.12)
         eV_to_J = 1.6e-19  # eV in  J
@@ -815,7 +939,9 @@ class HaloModel(Theory):
     
     def _y_ell_tab(self, delta_h, lcdm): # MD maybe r500*B
         r500 = self._r_delta(delta_h,lcdm)  # array(mh,nz)
-        l500 = lcdm.angular_diameter_distance(self._z).value / r500  # array(mh,nz)
+        #l500 = lcdm.angular_diameter_distance(self._z).value / r500  # array(mh,nz)
+        l500 = self.provider.get_angular_diameter_distance(self._z)/r500
+
         Mpc_to_m = 3.086e22  # Mpc to m
         sigT = constants.value("Thomson cross section")
         electron_mass = constants.electron_mass * constants.c ** 2
@@ -844,8 +970,15 @@ class HaloModel(Theory):
         Output:
             r_delta: array(mh,z) [Units: Mpc]
         """
-        M_tilde = self._m500c / self._parameters["B"]
-        r3 = 3 * M_tilde / (4 * np.pi * delta_h * lcdm.critical_density(self._z).to(u.Msun / u.Mpc ** 3).value)
+#        M_tilde = self._m500c / self._parameters["B"]
+        M_tilde = self._m500c / self.B
+        critical_density = 3 *self.provider.get_Hubble(self._z)**2 /8 /np.pi / self.G
+        #r3 = 3 * M_tilde / (4 * np.pi * delta_h * lcdm.critical_density(self._z).to(u.Msun / u.Mpc ** 3).value)
+        r3 = 3 * M_tilde / (4 * np.pi * delta_h * critical_density)
+        
+        #print("crit")
+        #print(lcdm.critical_density(self._z).to(u.Msun / u.Mpc ** 3).value)
+        #print(3 *self.provider.get_Hubble(self._z)**2 /8 /np.pi / self.G)#*1.989/3.085678**3*1e-39)
         return r3 ** (1 / 3)
 
     def _P_e(self, lcdm):
@@ -854,7 +987,8 @@ class HaloModel(Theory):
             P_e: array(mh,z,x) [Unit:J/m^3]
         """
 
-        Ez = np.sqrt(lcdm.Om0 * (1 + self._z) ** 3 + lcdm.Ode0)
+        #Ez = np.sqrt(self.provider.get_param("omegam") * (1 + self._z) ** 3 + lcdm.Ode0)
+        Ez = self.provider.get_Hubble(self.z_array)/self._parameters["H0"]
 
         # constants from https://www.aanda.org/articles/aa/pdf/2013/02/aa20040-12.pdf
         #gamma_t = 0.31
@@ -868,7 +1002,8 @@ class HaloModel(Theory):
         eV_to_J = 1.6e-19  # eV in  J
         cm_to_m = 0.01
 
-        M_tilde = self._m500c / self._parameters["B"]  # array(m,z)
+#        M_tilde = self._m500c / self._parameters["B"]  # array(m,z)
+        M_tilde = self._m500c / self.B  # array(m,z)
         a1 = 1.65 * (h / 0.7) ** 2 * Ez ** (8.0 / 3)
         b1 = (h / 0.7 * M_tilde / 3e14) ** (2.0 / 3 + 0.12)
         C_t = a1 * b1 * eV_to_J / cm_to_m ** 3  # converting to SI units
