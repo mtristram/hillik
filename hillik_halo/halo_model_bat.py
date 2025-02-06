@@ -34,73 +34,11 @@ save_outputs = False
 
 
 # fmt: off
-#k values to which get the Pk for integration inside the halo-model
-_default_k_sampling = np.array([
-    7.04746845e-06, 7.55289345e-06, 8.09456614e-06, 8.67508610e-06, 9.29723935e-06, 9.96401172e-06, 1.06786032e-05, 1.14444431e-05,
-    1.22652070e-05, 1.31448339e-05, 1.40875451e-05, 1.50978650e-05, 1.61806422e-05, 1.73410732e-05, 1.85847272e-05, 1.99175726e-05,
-    2.13460060e-05, 2.28768826e-05, 2.45175496e-05, 2.62758806e-05, 2.81603143e-05, 3.01798944e-05, 3.23443132e-05, 3.46639581e-05,
-    3.71499616e-05, 3.98142544e-05, 4.26696229e-05, 4.57297706e-05, 4.90093836e-05, 5.25242015e-05, 5.62910923e-05, 6.03281343e-05,
-    6.46547017e-05, 6.92915586e-05, 7.42609581e-05, 7.95867492e-05, 8.52944913e-05, 9.14115770e-05, 9.79673632e-05, 1.04993312e-04,
-    1.12523143e-04, 1.20592993e-04, 1.29241590e-04, 1.38510440e-04, 1.48444027e-04, 1.59090023e-04, 1.70499521e-04, 1.82727276e-04,
-    1.95831972e-04, 2.09876501e-04, 2.24928265e-04, 2.41059500e-04, 2.58347623e-04, 2.76875602e-04, 2.96732356e-04, 3.18013183e-04,
-    3.40820211e-04, 3.65262897e-04, 3.91458544e-04, 4.19532871e-04, 4.49620612e-04, 4.81866162e-04, 5.16424275e-04, 5.53460799e-04,
-    5.93153482e-04, 6.35692814e-04, 6.81282949e-04, 7.30142683e-04, 7.82506503e-04, 8.38625711e-04, 8.98769635e-04, 9.63226914e-04,
-    1.03230689e-03, 1.10634110e-03, 1.18568483e-03, 1.27071887e-03, 1.36185133e-03, 1.45951955e-03, 1.56419227e-03, 1.67637182e-03,
-    1.79659659e-03, 1.92544354e-03, 2.06353104e-03, 2.21152179e-03, 2.37012604e-03, 2.54010494e-03, 2.72227426e-03, 2.91750826e-03,
-    3.12674391e-03, 3.35098536e-03, 3.59130879e-03, 3.84886755e-03, 4.12489772e-03, 4.42072401e-03, 4.73776614e-03, 5.07754566e-03,
-    5.44169324e-03, 5.83195647e-03, 6.25020830e-03, 6.69845601e-03, 7.17885080e-03, 7.69369818e-03, 8.24546900e-03, 8.83681129e-03,
-    9.47056303e-03, 1.01497657e-02, 1.08776789e-02, 1.16577960e-02, 1.24938610e-02, 1.33898863e-02, 1.43501720e-02, 1.53793267e-02,
-    1.64822896e-02, 1.76643540e-02, 1.89311928e-02, 2.02888857e-02, 2.17439486e-02, 2.33033647e-02, 2.49746177e-02, 2.67657284e-02,
-    2.86852926e-02, 3.07425227e-02, 3.29472917e-02, 3.53101806e-02, 3.78425293e-02, 4.05564912e-02, 4.34650909e-02, 4.65822873e-02,
-    4.99230405e-02, 5.35033833e-02, 5.73404984e-02, 6.14528008e-02, 6.58600262e-02, 7.05833256e-02, 7.56453671e-02, 8.10704442e-02,
-    8.68845929e-02, 9.31157163e-02, 9.97937187e-02, 1.06950649e-01, 1.14620855e-01, 1.22841146e-01, 1.31650974e-01, 1.41092619e-01,
-    1.51211393e-01, 1.62055857e-01, 1.73678056e-01, 1.86133767e-01, 1.99482768e-01, 2.13789122e-01, 2.29121488e-01, 2.45553449e-01,
-    2.63163865e-01, 2.82037252e-01, 3.02264186e-01, 3.23941740e-01, 3.47173948e-01, 3.72072306e-01, 3.98756306e-01, 4.27354008e-01,
-    4.58002659e-01, 4.90849347e-01, 5.26051708e-01, 5.63778686e-01, 6.04211339e-01, 6.47543709e-01, 6.93983759e-01, 7.43754360e-01,
-    7.97094371e-01, 8.54259782e-01, 9.15524937e-01, 9.81183861e-01, 1.05155166e+00, 1.12696605e+00, 1.20778894e+00, 1.29440824e+00,
-    1.38723962e+00, 1.48672862e+00, 1.59335270e+00, 1.70762356e+00, 1.83008962e+00, 1.96133860e+00, 2.10200039e+00, 2.25275006e+00,
-    2.41431108e+00, 2.58745882e+00, 2.77302423e+00, 2.97189788e+00, 3.18503420e+00, 3.41345607e+00, 3.65825972e+00, 3.92062002e+00,
-    4.20179608e+00, 4.50313730e+00, 4.82608989e+00, 5.17220375e+00, 5.54313994e+00, 5.94067865e+00, 6.36672774e+00, 6.82333190e+00,
-    7.31268244e+00, 7.83712786e+00, 8.39918506e+00, 9.00155145e+00, 9.64711789e+00, 1.03389826e+01, 1.10804659e+01, 1.18751264e+01,
-    1.27267777e+01, 1.36395071e+01, 1.46176949e+01, 1.56660357e+01, 1.67895605e+01, 1.79936615e+01, 1.92841173e+01, 2.06671210e+01,
-    2.21493099e+01, 2.37377974e+01, 2.54402067e+01, 2.72647082e+01, 2.92200579e+01, 3.13156398e+01, 3.35615112e+01, 3.59684502e+01,
-    3.85480082e+01, 4.13125651e+01, 4.42753883e+01, 4.74506971e+01, 5.08537302e+01, 5.45008195e+01, 5.84094680e+01, 6.25984339e+01,
-    6.70878210e+01, 7.18991745e+01, 7.70555850e+01, 8.25817990e+01, 8.85043379e+01, 9.48516250e+01, 1.01654122e+02, 1.08944475e+02,
-    1.16757673e+02, 1.25131211e+02, 1.34105276e+02, 1.43722937e+02, 1.54030349e+02, 1.65076981e+02, 1.76915847e+02, 1.89603764e+02,
-    2.03201623e+02, 2.17774683e+02, 2.33392883e+02, 2.50131176e+02, 2.68069895e+02, 2.87295128e+02, 3.07899142e+02, 3.29980820e+02,
-    3.53646134e+02, 3.79008660e+02, 4.06190115e+02, 4.35320950e+02, 4.66540968e+02, 5.00000000e+02])
-#    kmax = 500
-#    logmink = np.log10(7.04746845e-06)
-#    logkmax = np.log10(kmax)
-#    diff = logkmax - logmink
-#    kfin = np.logspace(logmink, np.log10(kmax), int(diff/step+1))
-# fmt: on
-
-# fmt: off
 _default_ell_sampling = np.array([2, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 114, 187, 200, 320, 502, 684, 890, 1158, 1505, 1956, 3000, 5000, 8000, 10000, 13499])
 #lmax = 13500
 #_default_ell_sampling = np.arange(2,lmax, 200)
 
 
-# fmt: on
-
-# fmt: off
-_default_z_sampling = np.array([
-    0.012,  0.035,  0.059,  0.084,  0.109,  0.135,  0.161,  0.189,
-    0.216,  0.245,  0.274,  0.303,  0.334,  0.365,  0.396,  0.429,
-    0.462,  0.496,  0.531,  0.567,  0.603,  0.641,  0.679,  0.718,
-    0.758,  0.799,  0.841,  0.884,  0.928,  0.972,  1.018,  1.065,
-    1.113,  1.163,  1.213,  1.265,  1.317,  1.371,  1.427,  1.483,
-    1.541,  1.6  ,  1.661,  1.723,  1.786,  1.851,  1.917,  1.985,
-    2.055,  2.126,  2.199,  2.273,  2.35 ,  2.428,  2.508,  2.589,
-    2.673,  2.758,  2.846,  2.936,  3.027,  3.121,  3.217,  3.315,
-    3.416,  3.519,  3.624,  3.732,  3.842,  3.955,  4.07 ,  4.188,
-    4.309,  4.433,  4.559,  4.689,  4.821,  4.957,  5.095,  5.237,
-    5.383,  5.531,  5.683,  5.839,  5.998,  6.161,  6.328,  6.499,
-    6.674,  6.852,  7.035,  7.222,  7.414,  7.61 ,  7.81 ,  8.016,
-    8.226,  8.441,  8.661,  8.886,  9.116,  9.351,  9.593,  9.839,
-    10.092])
-# fmt: on
 
 
 class Tinker08:
@@ -224,6 +162,7 @@ class HaloModel(Theory):
             )
 
         # Read input NFW
+        '''
         with h5py.File(os.path.join(self._data_file_path, "halo_data_NFW.hdf5"), "r") as f:
             dataset = dict(_mh="mass_halo",_z="redshift",_k_unfw="k",_unfw="nfw_profile")
             for par,col in dataset.items():
@@ -238,60 +177,54 @@ class HaloModel(Theory):
         #_snu_eff: array(nfq,nz)
 
         self._unfw = 0.*self._unfw
+        '''
 
         #print("mh init", np.shape(self._mh), self._mh)
 
         #MD
-        z1 = 1e-5
-        z2 = 3.5
-        nbpas_z=102
+        z1 = getattr(self, "zmin", 1e-5)
+        z2 = getattr(self, "zmax", 5)
+        nbpas_z = getattr(self, "nbpas_z", 102)
+   
         powlogz = 0.25 #! 1.0
-        #powlogz = 1
         AA=(z2/z1)**(1./(nbpas_z-1)**powlogz)
         redshift = np.zeros(nbpas_z)
         for jz in range(nbpas_z):
             redshift[jz]=z1*AA**(jz**powlogz) #!test
-
         self._z = redshift
 
-
-
-        M1 = 1e13
-        M2 = 1e15/0.6733
-        nbpas_M = 91#200
+        # M range for CIB
+        logmass = np.arange(6, 13, 0.1) 
+        mass = 10**logmass
+        # M range for tSZ
+        M1 = getattr(self, "Mmin_sz", 1e13)
+        M2 = getattr(self, "Mmax_sz", 1e15/0.6733)
+        nbpas_M = getattr(self, "nbpas_M", 100)
+   
         logM1 = np.log10(M1)
         logM2 = np.log10(M2)
         masse = np.zeros(nbpas_M)
         for jm in range(nbpas_M):
             masse[jm]=10**(logM1+(jm)*(logM2-logM1)/(nbpas_M-1.))
             
-        self._m  = np.hstack([self._mh[self._mh <1e13],masse])
+        self._m  = np.hstack([mass,masse])
 
-        #self._mh =self._mh /0.6733/1.42
-
-        #print(np.shape(self._m), self._m)
 
         
-        #self._z[0] = 1e-3
-        #self._z[1] = 5e-3
         
-        
-        
-        
-        self._k = _default_k_sampling
+
         #MD
-        k_min = 1e-5; k_max = 10;
+        k_min = 1e-5; k_max = 100;
         nbpas_k = 200
         self._k = np.logspace(np.log(k_min), np.log(k_max), nbpas_k, base=np.e)
 
         
         self._ell = []
 
-        # Halo mass sampling (corresponding to NFW pre-computed files)
-#        self._mh = 10 ** (np.arange(60, 151) / 10)
-        self._x = np.logspace(-6, 1, 50)
+
         #MD:
-        self.juska=5
+        self.juska = getattr(self, "juskaXr500", 5)
+
         xmax = np.log10(self.juska)
         self._x = np.logspace(-6, xmax, 50)
         #
@@ -304,7 +237,7 @@ class HaloModel(Theory):
        # self._m500c = np.tile(self._mh, (len(self._z), 1)).T
 
         # reading tabulated y_ell integration
-        self._yint_tab = np.loadtxt(os.path.dirname(__file__)+'/y_ell_integration.txt')
+        #self._yint_tab = np.loadtxt(os.path.dirname(__file__)+'/y_ell_integration.txt')
 
         # Defaults Halo parameters
         self._parameters2 = {
@@ -312,7 +245,8 @@ class HaloModel(Theory):
             "etamax": 0.4028353504978569,
             "sigmaMh": 1.807080723258688,
             "tauMh": 1.2040244128818796,
-            "B": 1.41,
+            #"B": 1.41,
+            "B": 1.41,#1./0.982,
         }
 
         self.B = self._parameters2["B"]
@@ -640,13 +574,13 @@ class HaloModel(Theory):
                                    dj_cen[f2] * dj_sub[f1] * unfw[il, :, :] +
                                    dj_sub[f1] * dj_sub[f2] * unfw[il, :, :]** 2
                                    ) * self.current_state["hmfmz_cib"]  # array(mh,z)
-                    #cib_intgz1 = intg.simps(cib_intgmh, dx=dm, axis=0) * geo
-                    cib_intgz1 = intg.simps(cib_intgmh, x=np.log10(self._mh), axis=0) * geo
+                    #cib_intgz1 = intg.simpson(cib_intgmh, dx=dm, axis=0) * geo
+                    cib_intgz1 = intg.simpson(cib_intgmh, x=np.log10(self._mh), axis=0) * geo
                     
                     cib_intgz2 = Jv[f1, il, :] * Jv[f2, il, :] * geo * _power[il]
 
-                    cl_one[il] = ccunit[f1] * intg.simps(cib_intgz1, self._z) * ccunit[f2]   # one halo
-                    cl_two[il] = ccunit[f1] * intg.simps(cib_intgz2, self._z) * ccunit[f2]   # two halo
+                    cl_one[il] = ccunit[f1] * intg.simpson(cib_intgz1, self._z) * ccunit[f2]   # one halo
+                    cl_two[il] = ccunit[f1] * intg.simpson(cib_intgz2, self._z) * ccunit[f2]   # two halo
                 cl_cib[(nu[f1],nu[f2])] = cl_one + cl_two
             if save_outputs: np.savetxt( f"cl_{inst['name']}_cib.dat", np.array([v for k,v in cl_cib.items()]))
             Cls.update( dict(CIB=cl_cib))
@@ -660,10 +594,10 @@ class HaloModel(Theory):
             tsz_intgmh1 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell ** 2
             tsz_intgmh2 = self.current_state["hmfmz_tsz"][None,:,:] * y_ell * self.current_state["biasmz_tsz"][None,:,:]
             #print("dm", np.shape(dm))
-            tsz_intgz1 = intg.simps(tsz_intgmh1, x=np.log10(self._mh), axis=1) * dVcdz
-            tsz_intgz2 = intg.simps(tsz_intgmh2, x=np.log10(self._mh), axis=1) ** 2 * dVcdz * _power
-            cl_one = intg.simps(tsz_intgz1, self._z)   # one halo
-            cl_two = intg.simps(tsz_intgz2, self._z)*0 #MD   # two halo
+            tsz_intgz1 = intg.simpson(tsz_intgmh1, x=np.log10(self._mh), axis=1) * dVcdz
+            tsz_intgz2 = intg.simpson(tsz_intgmh2, x=np.log10(self._mh), axis=1) ** 2 * dVcdz * _power
+            cl_one = intg.simpson(tsz_intgz1, self._z)   # one halo
+            cl_two = intg.simpson(tsz_intgz2, self._z) #MD   # two halo
             for f1, f2 in cwr(range(nfreq), 2):
                 #print( fsz[f1] , fsz[f2])
                 cl_tsz[(nu[f1],nu[f2])] = fsz[f1] * fsz[f2] * (cl_one + cl_two)
@@ -689,13 +623,13 @@ class HaloModel(Theory):
                 txc_intgmh2 = y_ell * hmfbias_tsz  # 2h term has hmf and bias with deltah=200 for cib (below) halo and 500 for tsz halo
                 txc_intgmh3 = djcensub * hmfbias_cib / cosm
 
-                txc_intgz1 = intg.simps(txc_intgmh1, x=xx, axis=1) * dVcdz
-                txc_intgz2 = ( intg.simps(txc_intgmh2, x=xx, axis=1) * \
-                               intg.simps(txc_intgmh3, x=xx, axis=1) * \
+                txc_intgz1 = intg.simpson(txc_intgmh1, x=xx, axis=1) * dVcdz
+                txc_intgz2 = ( intg.simpson(txc_intgmh2, x=xx, axis=1) * \
+                               intg.simpson(txc_intgmh3, x=xx, axis=1) * \
                                dVcdz * _power)
 
-                cl_one = intg.simps(txc_intgz1, self._z)
-                cl_two = intg.simps(txc_intgz2, self._z)
+                cl_one = intg.simpson(txc_intgz1, self._z)
+                cl_two = intg.simpson(txc_intgz2, self._z)
                 cl_txc[(nu[f1],nu[f2])] = cl_one + cl_two
             if save_outputs: np.savetxt( f"cl_{inst['name']}_txc.dat", np.array([v for k,v in cl_txc.items()]))
             Cls.update( dict(tSZxCIB=cl_txc))
@@ -840,11 +774,11 @@ class HaloModel(Theory):
         wrk2 = np.where( rk > 1e-3, (9 * rk * np.cos(rk) + 3 * np.sin(rk) * (rk ** 2 - 3)) / rk ** 3, 0)
         integ2 = Pk[None, :, :] * self._k** 2 * wrk1[:, None, :] * wrk2[:, None, :]
 
-#        sigma1 = np.sqrt((0.5 / np.pi ** 2) * intg.simps(integ1, self._k))
-#        sigma2 = 1.0 / (np.pi * sigma1) ** 2 * intg.simps(integ2, self._k)
+#        sigma1 = np.sqrt((0.5 / np.pi ** 2) * intg.simpson(integ1, self._k))
+#        sigma2 = 1.0 / (np.pi * sigma1) ** 2 * intg.simpson(integ2, self._k)
         #speed-up x1.5
-        sigma1 = np.sqrt((0.5 / np.pi ** 2) * np.array([intg.simps(itg, self._k) for itg in integ1]))
-        sigma2 = 1.0 / (np.pi * sigma1) ** 2 * np.array([intg.simps(itg, self._k) for itg in integ2])
+        sigma1 = np.sqrt((0.5 / np.pi ** 2) * np.array([intg.simpson(itg, self._k) for itg in integ1]))
+        sigma2 = 1.0 / (np.pi * sigma1) ** 2 * np.array([intg.simpson(itg, self._k) for itg in integ2])
 
         return sigma1, sigma2
 
@@ -867,9 +801,9 @@ class HaloModel(Theory):
             sfrsub = np.minimum(sfrI, sfrII)  # array(ms,z)
 
             integral = sfrsub * subhmf[:, None] / self.KC
-            dlnmsub = np.log10(ms[1] / ms[0])
-            #intgn = intg.simps(integral, dx=dlnmsub, axis=0)
-            intgn = intg.simps(integral, x=np.log10(ms), axis=0)
+            #dlnmsub = np.log10(ms[1] / ms[0])
+            #intgn = intg.simpson(integral, dx=dlnmsub, axis=0)
+            intgn = intg.simpson(integral, x=np.log10(ms), axis=0)
             
             dj_sub[:, i, :] = snu_eff * (1+self._z) * intgn * chi**2
 
@@ -917,6 +851,7 @@ class HaloModel(Theory):
         sigpow = sigmaMh - np.where(self._z < z_c, z_c - self._z, 0) * tauMh
         #sigpow = sigmaMh - np.array([max(0., z_c-z) for z in self._z_])*tauMh
 
+        '''
         a = np.zeros((len(mhalo), len(self._z)))
         for i in range(len(mhalo)):
             if mhalo[i] < Meffmax:
@@ -927,12 +862,12 @@ class HaloModel(Theory):
                 a[i, :] = etamax * np.exp(
                     -((np.log(mhalo[i]) - np.log(Meffmax)) ** 2) / (2 * sigpow ** 2)
                 )
-
+        ''' 
         # Faster way (/2 time)
-        # a = etamax * np.exp(-((np.log(mhalo[:, None]) - np.log(Meffmax)) ** 2) / (2 * sigpow ** 2))
-        # a[mhalo < Meffmax] = etamax * np.exp(
-        #     -((np.log(mhalo[mhalo < Meffmax, None]) - np.log(Meffmax)) ** 2) / (2 * sigmaMh ** 2)
-        # )
+        a = etamax * np.exp(-((np.log(mhalo[:, None]) - np.log(Meffmax)) ** 2) / (2 * sigpow ** 2))
+        a[mhalo < Meffmax] = etamax * np.exp(
+             -((np.log(mhalo[mhalo < Meffmax, None]) - np.log(Meffmax)) ** 2) / (2 * sigmaMh ** 2)
+         )
 
         return a
 
@@ -961,8 +896,8 @@ class HaloModel(Theory):
         hmfbias = self.current_state["hmfmz_cib"] * self.current_state["biasmz_cib"]  # array(m,z)
         for il in range(len(self._ell)):
             rest1 = (dj_cen + dj_sub * unfw[il, :, :]) * hmfbias    # array(fq,m,z)
-            #intg_mh = intg.simps(rest1, dx=dm, axis=1)
-            intg_mh = intg.simps(rest1, x=np.log10(self._mh), axis=1)
+            #intg_mh = intg.simpson(rest1, dx=dm, axis=1)
+            intg_mh = intg.simpson(rest1, x=np.log10(self._mh), axis=1)
             
             Jnu[:, il, :] = intg_mh
 
@@ -1012,10 +947,10 @@ class HaloModel(Theory):
         x_ls = self._x / l500[:, :, None]  # array(mh,nz,x)
 
 #        integral = [Pex2 * np.sin(ell * x_ls) / (ell * x_ls) for ell in self._ell]
-#        y_ell = intg.simps(integral, x=self._x) * a
+#        y_ell = intg.simpson(integral, x=self._x) * a
 
         #quicker by a factor 2
-        y_ell = np.array([intg.simps(Pex2 * np.sin(ell * x_ls) / (ell * x_ls), x=self._x) * a for ell in self._ell])
+        y_ell = np.array([intg.simpson(Pex2 * np.sin(ell * x_ls) / (ell * x_ls), x=self._x) * a for ell in self._ell])
 
         return y_ell
 
@@ -1229,7 +1164,7 @@ class HaloModel(Theory):
         lnk = np.log(self._k)
         Wrk = (3 * (np.sin(rk) - rk * np.cos(rk)) / rk ** 3)
         integ = rest*Wrk**2
-        sig = (0.5/np.pi**2) * intg.simps(integ, x=lnk, axis=-1)
+        sig = (0.5/np.pi**2) * intg.simpson(integ, x=lnk, axis=-1)
         
         delta_c = 1.686  # critical density of the universe. Redshift evolution
         # is small and neglected
