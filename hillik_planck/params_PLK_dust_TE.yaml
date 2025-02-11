@@ -1,0 +1,53 @@
+  #Dust
+  PLK_AdustTE:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.02
+    latex: A_\mathrm{dustTE}^{Planck}
+
+  PLK_Adust100TE:
+    value: "lambda PLK_AdustTE: PLK_AdustTE*719"
+  PLK_Adust143TE:
+    value: "lambda PLK_AdustTE: PLK_AdustTE*446"
+  PLK_Adust217TE:
+    value: "lambda PLK_AdustTE: PLK_AdustTE*272"
+
+  PLK_beta_dustTE:
+    value: 1.51
+    latex: \beta_\mathrm{dustTE}^{Planck}
+
+  PLK_alpha_dust100TE:
+    value: -2.55
+    latex: \alpha_\mathrm{dust100TE}^{Planck}
+  PLK_alpha_dust143TE:
+    value: -2.55
+    latex: \alpha_\mathrm{dust143TE}^{Planck}
+  PLK_alpha_dust217TE:
+    value: -2.55
+    latex: \alpha_\mathrm{dust217TE}^{Planck}
+
+
+  PLK_Adust100ET:
+    value: "lambda PLK_Adust100TE: PLK_Adust100TE"
+  PLK_Adust143ET:
+    value: "lambda PLK_Adust143TE: PLK_Adust143TE"
+  PLK_Adust217ET:
+    value: "lambda PLK_Adust217TE: PLK_Adust217TE"
+
+  PLK_beta_dustET:
+    value: "lambda PLK_beta_dustTE: PLK_beta_dustTE"
+    latex: \beta_\mathrm{dustET}^{Planck}
+
+  PLK_alpha_dust100ET:
+    value: "lambda PLK_alpha_dust100TE: PLK_alpha_dust100TE"
+    latex: \alpha_\mathrm{dust100ET}^{Planck}
+  PLK_alpha_dust143ET:
+    value: "lambda PLK_alpha_dust143TE: PLK_alpha_dust143TE"
+    latex: \alpha_\mathrm{dust143ET}^{Planck}
+  PLK_alpha_dust217ET:
+    value: "lambda PLK_alpha_dust217TE: PLK_alpha_dust217TE"
+    latex: \alpha_\mathrm{dust217ET}^{Planck}
+
