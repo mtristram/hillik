@@ -219,7 +219,7 @@ class SED(HasLogger):
             bp = self._bandpass[f]
             nu = bp['nu'] + self._bp_shifts[f]
             U = np.trapz(bp['transmission']*dBdT(nu)*self.fgRatio(bp['nu'],**kwargs), nu)
-            D = np.trapz(bp['transmission']*dBdT(nu), nu])
+            D = np.trapz(bp['transmission']*dBdT(nu), nu)
             amp[f] = U/D
         return amp
 
