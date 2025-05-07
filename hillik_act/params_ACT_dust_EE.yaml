@@ -1,0 +1,16 @@
+  ACT_AdustEE:
+    prior:
+      dist: norm
+      loc: 0.168
+      scale: 0.017
+    ref: 0.168
+    proposal: 0.01
+    latex: A_\mathrm{dustEE}^{ACT}
+
+  ACT_beta_dustEE:
+    value: 1.5
+    latex: \beta_\mathrm{dustEE}^{ACT}
+
+  ACT_alpha_dustEE:
+    value: -2.4
+    latex: \alpha_\mathrm{dustEE}^{ACT}

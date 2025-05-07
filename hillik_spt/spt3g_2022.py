@@ -51,6 +51,14 @@ default_spectra_list = [
     "220_Ex220_E",
 ]
 
+feff = {
+    "tsz":   {90:96.48, 150:148.95, 220:219.58}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "dust":  {90:96.67, 150:149.90, 220:222.0}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "cib":   {90:96.67, 150:149.90, 220:222.0}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "radio": {90:94.40, 150:146.00, 220:212.7}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "sync":  {90:94.40, 150:146.00, 220:212.7}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+}
+
 
 class SPT3GPrototype(InstallableLikelihood):
     install_options = {
@@ -251,12 +259,13 @@ class SPT3GPrototype(InstallableLikelihood):
         self.fgs = {"TT":[],"TE":[],"EE":[]}
         for tag in self.fgs.keys():
             if tag in self.cross_spectra:
+                cross = [tuple(int(x) for x in xfq) for xfq,cs in zip(self.cross_frequencies,self.cross_spectra) if cs == tag]
                 for name in self.foregrounds[tag.upper()].keys():
                     if name not in fg_list.keys():
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                     self.log.debug("Adding '{}' foreground for {}".format(name,tag))
-                    kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode=tag, auto=True, survey=self.survey)
+                    kwargs = dict(lmax=self.lmax, cross=cross, mode=tag, survey=self.survey, feff=feff)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
                     elif name == "szxcib":

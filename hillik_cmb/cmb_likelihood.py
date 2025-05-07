@@ -6,7 +6,6 @@ Can use Planck, ACT or SPT datasets with common foreground models
 :Author: Matthieu Tristram
 
 """
-
 import itertools
 import os
 import re
@@ -16,6 +15,20 @@ import numpy as np
 from cobaya.conventions import packages_path_input
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
+
+
+#def initialize(self):
+#def get_requirements(self)
+#def log_likelihood(self, dl_cmb, **params)
+#def logp(self, **data_params)
+#def dof( self)
+#def _gaussian_loglike(self, dlcov, res, cholesky=True)
+#def ApplySuperSampleLensing(self, kappa, Dl_theory)
+#def ApplyAberrationCorrection(self, ab_coeff, Dl_theory)
+#def _GetClDerivative(self, Dl_theory)
+#def ApplyCalibration(self, cal1, cal2, cal3, cal4)
+
+
 
 import hillik_foregrounds as fg
 fg_list = {
@@ -203,7 +216,6 @@ class CMBLikelihood(InstallableLikelihood):
         # Select spectra/cov elements given indices
         #-----------------------------------------------
         self.log.debug(f"Selected bp ({self.N_s}): {vec_indices}")
-#        self.log.debug(f"Selected cov indices ({self.N_b_total}): {cov_indices}")
         self.bp_cov   = bp_cov[np.ix_(cov_indices, cov_indices)]
         self.beam_cov = self.beam_cov[np.ix_(cov_indices, cov_indices)]
 
@@ -251,7 +263,7 @@ class CMBLikelihood(InstallableLikelihood):
         return {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
 
 
-    def compute_chi2(self, dl_cmb, **params):
+    def log_likelihood(self, dl_cmb, **params):
 
         ells = np.arange(self.lmin, self.lmax+1)
 
@@ -310,11 +322,7 @@ class CMBLikelihood(InstallableLikelihood):
         chi2, slogdet = self._gaussian_loglike(cov_for_logl, delta_data_model, cholesky=True)
 
         self.log.debug(f"{self.survey} chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
-        return chi2, slogdet
 
-    def loglike(self, dl_cmb, **params):
-
-        chi2, slogdet = self.compute_chi2( dl_cmb, **params)
 
         # Apply calibration prior
         self.log.debug("Apply calibration prior")
@@ -323,12 +331,13 @@ class CMBLikelihood(InstallableLikelihood):
 
         self.log.debug(f"SPT3G detcov = {slogdet:.14f}")
         self.log.debug(f"SPT3G cal. prior = {cal_prior:.14f}")
+
         return -0.5 * (chi2 + slogdet + cal_prior)
 
     def logp(self, **data_params):
-        Cls = self.provider.get_Cl(ell_factor=True)
-        return self.loglike(
-            {"TT": Cls.get("tt"), "TE": Cls.get("te"), "EE": Cls.get("ee")}, **data_params
+        Dls = self.provider.get_Cl(ell_factor=True)
+        return self.log_likehood(
+            {"TT": Dls.get("tt"), "TE": Dls.get("te"), "EE": Dls.get("ee")}, **data_params
         )
 
     def dof( self):
@@ -354,7 +363,8 @@ class CMBLikelihood(InstallableLikelihood):
             chi2 = res @ invCd
 
         else:
-            chi2 = res @ np.linalg.inv(dlcov) @ res
+            invcov = np.linalg.inv(dlcov)
+            chi2 = self._fast_chi_square( invcov, res)
             sign, slogdet = np.linalg.slogdet(dlcov)
 
         return chi2, slogdet

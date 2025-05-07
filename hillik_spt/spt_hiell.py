@@ -18,6 +18,14 @@ fg_list = {
     "szxcib": fg.szxcib,
     }
 
+feff = {
+    "tsz":   {95:96.55, 150:152.26, 220:220.1}, #col5 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "dust":  {95:96.89, 150:153.37, 220:221.6}, #col1 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "cib":   {95:96.89, 150:153.37, 220:221.6}, #col1 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "radio": {95:93.50, 150:149.46, 220:215.8}, #col3 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+    "sync":  {95:93.50, 150:149.46, 220:215.8}, #col3 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
+}
+
 
 class SPTHiellLikelihood(InstallableLikelihood):
     install_options = {
@@ -73,22 +81,6 @@ class SPTHiellLikelihood(InstallableLikelihood):
         #define the survey
         self.survey = "SPT"
 
-        # Init foreground model
-        self.fgs = []
-        for name in self.foregrounds["TT"].keys():
-            if name not in fg_list.keys():
-                raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-
-            self.log.debug("Adding '{}' foreground".format(name))
-            kwargs = dict(lmax=self.ReportFGLmax, freqs=self.frequencies, mode='TT', auto=True, survey=self.survey)
-            if isinstance(self.foregrounds["TT"][name], str):
-                kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
-            elif name == "szxcib":
-                filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
-                filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                kwargs["filenames"] = (filename_tsz,filename_cib)
-            self.fgs.append(fg_list[name](**kwargs))
-
         # Update data_folder location
         self.data_folder = os.path.join(self.data_folder, "data/spt_hiell_2020")
 
@@ -135,11 +127,28 @@ class SPTHiellLikelihood(InstallableLikelihood):
         for j in range(self.nfreq):
             for k in range(j, self.nfreq):
                 self.indices.append((j, k))
+        self.cross = [(self.frequencies[i],self.frequencies[j]) for i,j in self.indices]
 
         # define offsets for xfreq in Cl vector
         self.offsets = [0]
         for i in range(1, self.nband):
             self.offsets.append(self.offsets[i - 1] + self.nbins[i - 1])
+
+        # Init foreground model
+        self.fgs = []
+        for name in self.foregrounds["TT"].keys():
+            if name not in fg_list.keys():
+                raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
+
+            self.log.debug("Adding '{}' foreground".format(name))
+            kwargs = dict(lmax=self.ReportFGLmax, cross=self.cross, mode='TT', auto=True, survey=self.survey, feff=feff)
+            if isinstance(self.foregrounds["TT"][name], str):
+                kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+            elif name == "szxcib":
+                filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                kwargs["filenames"] = (filename_tsz,filename_cib)
+            self.fgs.append(fg_list[name](**kwargs))
 
         self.log.info("Initialized!")
 
@@ -212,12 +221,8 @@ class SPTHiellLikelihood(InstallableLikelihood):
         dl_cmb[:self.BoltzmannLmax] = dl_boltz['tt'][:self.BoltzmannLmax]
 
         dl_fg = np.zeros( (self.nband, self.lmax+1) )
-#        dlfg = []
         for fg in self.fgs:
             dl_fg += fg.compute_dl( params)
-#            dlfg.append( fg.compute_dl(params))
-#        print( "write fgs templates")
-#        np.save( "hillik_spt_fgs", np.array(dlfg))
 
         # Loop on nband
         cbs = []
