@@ -1,0 +1,87 @@
+# A cobaya likelihood for ACT DR6 data
+# see https://github.com/simonsobs/LAT_MFLike/blob/master/mflike/MFLike.yaml
+# for more details regarding section
+
+data_folder: ACTDR6MFLike/v1.0
+
+input_file: dr6_data.fits
+
+requested_cls: ["tt"]
+
+# Specify default set of spectra and scale cuts
+# to be used
+defaults:
+  symmetrize: false
+  polarizations: [TT]
+  polarizations_auto: &polarizations_auto [TT]
+  lmax: &lmax 8500
+  scales:
+    TT: [2, *lmax]
+
+data:
+  experiments:
+    - dr6_pa4_f220
+    - dr6_pa5_f090
+    - dr6_pa5_f150
+    - dr6_pa6_f090
+    - dr6_pa6_f150
+
+  spectra:
+    - experiments: [dr6_pa4_f220, dr6_pa4_f220]
+      polarizations: &pol_pa4_f220 [TT]
+      scales: &scales_pa4
+        TT: [1000, *lmax]
+    - experiments: [dr6_pa4_f220, dr6_pa5_f090]
+      polarizations: *pol_pa4_f220
+      scales: *scales_pa4
+    - experiments: [dr6_pa4_f220, dr6_pa5_f150]
+      polarizations: *pol_pa4_f220
+      scales: *scales_pa4
+    - experiments: [dr6_pa4_f220, dr6_pa6_f090]
+      polarizations: *pol_pa4_f220
+      scales: *scales_pa4
+    - experiments: [dr6_pa4_f220, dr6_pa6_f150]
+      polarizations: *pol_pa4_f220
+      scales: *scales_pa4
+
+    - experiments: [dr6_pa5_f090, dr6_pa5_f090]
+      polarizations: *polarizations_auto
+      scales:
+        TT: [1000, *lmax]
+    - experiments: [dr6_pa5_f090, dr6_pa5_f150]
+      scales:
+        TT: [1000, *lmax]
+    - experiments: [dr6_pa5_f090, dr6_pa6_f090]
+      scales:
+        TT: [1000, *lmax]
+    - experiments: [dr6_pa5_f090, dr6_pa6_f150]
+      scales:
+        TT: [1000, *lmax]
+
+    - experiments: [dr6_pa5_f150, dr6_pa5_f150]
+      polarizations: *polarizations_auto
+      scales:
+        TT: [800, *lmax]
+    - experiments: [dr6_pa5_f150, dr6_pa6_f090]
+      scales:
+        TT: [1000, *lmax]
+    - experiments: [dr6_pa5_f150, dr6_pa6_f150]
+      scales:
+        TT: [800, *lmax]
+
+    - experiments: [dr6_pa6_f090, dr6_pa6_f090]
+      polarizations: *polarizations_auto
+      scales:
+        TT: [1000, *lmax]
+    - experiments: [dr6_pa6_f090, dr6_pa6_f150]
+      scales:
+        TT: [1000, *lmax]
+
+    - experiments: [dr6_pa6_f150, dr6_pa6_f150]
+      polarizations: *polarizations_auto
+      scales:
+        TT: [600, *lmax]
+
+foregrounds: !defaults [foregrounds]
+
+params: !defaults [params_ACT_systematics,params_extragal,params_ACT_dust_TT,params_ACT_ps]
