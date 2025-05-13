@@ -1,5 +1,5 @@
   #Poisson Noise
-  PLK_radio_ps:
+  PLK_radio_TT:
     prior:
       min: 0.
       max: 150.

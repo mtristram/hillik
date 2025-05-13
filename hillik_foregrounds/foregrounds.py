@@ -306,10 +306,7 @@ class ps_radio(fgmodel):
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
 
-        if self.mode == "TT":
-            return pars[f"{self.survey}_radio_ps"] * np.array(dl)
-        else:
-            return 0.
+        return pars[f"{self.survey}_radio_{self.mode}"] * np.array(dl)
 
 
 # Infrared Point Sources

@@ -14,3 +14,12 @@
   SPT3G_alpha_dustEE:
     value: -2.42
     latex: \alpha_\mathrm{dustEE}^{SPT3G}
+
+  #PS
+  SPT3G_radio_EE:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.
+    proposal: 1.
+    latex: A_\mathrm{radioEE}^\mathrm{SPT3G}

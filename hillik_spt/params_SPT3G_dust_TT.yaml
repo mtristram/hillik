@@ -17,13 +17,13 @@
 
 
   #Poisson
-  SPT3G_radio_ps:
+  SPT3G_radio_TT:
     prior:
       min: 0.
       max: 150.
     ref: 11.
     proposal: 1.
-    latex: A_\mathrm{radio}^\mathrm{SPT3G}
+    latex: A_\mathrm{radioTT}^\mathrm{SPT3G}
   beta_radio:
     value: -0.8
     latex: \beta_\mathrm{radio}^\mathrm{PS}

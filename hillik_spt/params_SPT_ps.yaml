@@ -42,13 +42,13 @@
 #    proposal: 6
 #    latex: A^\mathrm{PS}(220x220)
 
-  SPT_radio_ps:
+  SPT_radio_TT:
     prior:
       min: 0.
       max: 150.
     ref: 1.
     proposal: 1.
-    latex: A_\mathrm{radio}^\mathrm{SPT}
+    latex: A_\mathrm{radioTT}^\mathrm{SPT}
   beta_radio:
     value: -0.8
     latex: \beta_\mathrm{radio}^\mathrm{PS}
