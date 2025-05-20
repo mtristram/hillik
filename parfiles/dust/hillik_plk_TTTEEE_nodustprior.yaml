@@ -3,17 +3,7 @@ debug: false
 likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE: 
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-  hillik_spt.TThighl:
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-  hillik_spt.TTTEEE:
-    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
-    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-  hillik_act.TTTEEE: 
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-    lmin: 2000
+  hillik_planck.TTTEEE: null
 
 params:
   # Cosmo
@@ -27,7 +17,6 @@ params:
     prior:
       min: 2.6
       max: 3.5
-    ref: 3.040
     proposal: 0.05
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
@@ -36,30 +25,47 @@ params:
     prior:
       min: 0.9
       max: 1.1
-    ref: 0.968
     proposal: 0.016
   omegabh2:
     prior:
       min: 0.017
       max: 0.027
-    ref: 0.0222
     proposal: 0.0003
+    latex: \Omega_\mathrm{b}h^2
   omegach2:
     prior:
       min: 0.09
       max: 0.15
-    ref: 0.119
     proposal: 0.004
   tau:
     prior:
       min: 0.01
       max: 0.15
-    ref: 0.058
     proposal: 0.03
 
   #derived
   theta_s_100:
   sigma8:
+
+  #Dust
+  PLK_AdustTT:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_AdustTE:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_AdustEE:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
 
 theory:
   cosmopower:
@@ -72,4 +78,4 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plk_TTTEEE_nodustprior.covmat

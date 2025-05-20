@@ -4,15 +4,15 @@ likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: 
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_Viero]
   hillik_spt.TThighl:
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_Viero]
   hillik_spt.TTTEEE:
     spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
     spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_Viero]
   hillik_act.TTTEEE: 
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_Viero]
     lmin: 2000
 
 params:

@@ -3,17 +3,7 @@ debug: false
 likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE: 
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-  hillik_spt.TThighl:
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-  hillik_spt.TTTEEE:
-    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
-    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-  hillik_act.TTTEEE: 
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/cib/foregrounds_cib_McCarthy]
-    lmin: 2000
+  hillik_planck.TTTEEE: null
 
 params:
   # Cosmo
@@ -57,6 +47,20 @@ params:
     ref: 0.058
     proposal: 0.03
 
+  #foregrounds
+  beta_cib:
+    prior:
+      min: 1.0
+      max: 3.0
+    ref: 1.8
+    proposal: 0.05
+  beta_radio:
+    prior:
+      min: -1.5
+      max: 0.
+    ref: -0.8
+    proposal: 0.1
+
   #derived
   theta_s_100:
   sigma8:
@@ -73,3 +77,4 @@ theory:
 sampler:
   mcmc:
     covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
+

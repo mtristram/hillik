@@ -8,14 +8,8 @@ likelihood:
   hillik_spt.TTTEEE:
     spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
     spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-  hillik_act.deep.TTTEEE:
-    bminTT: 33
-    bminTE: 23
-    bminEE: 13
-  hillik_act.wide.TTTEEE:
-    bminTT: 33
-    bminTE: 23
-    bminEE: 13
+  hillik_act.TTTEEE:
+    lmin: 2000
 
 params:
   # Cosmo
@@ -29,6 +23,7 @@ params:
     prior:
       min: 2.6
       max: 3.5
+    ref: 3.040
     proposal: 0.05
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
@@ -37,22 +32,25 @@ params:
     prior:
       min: 0.9
       max: 1.1
+    ref: 0.968
     proposal: 0.016
   omegabh2:
     prior:
       min: 0.017
       max: 0.027
+    ref: 0.0222
     proposal: 0.0003
-    latex: \Omega_\mathrm{b}h^2
   omegach2:
     prior:
       min: 0.09
       max: 0.15
+    ref: 0.119
     proposal: 0.004
   tau:
     prior:
       min: 0.01
       max: 0.15
+    ref: 0.058
     proposal: 0.03
 
   #derived
@@ -70,3 +68,5 @@ theory:
 
 sampler:
   mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
+
