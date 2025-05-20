@@ -19,16 +19,6 @@ from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
 import hillik_foregrounds as fg
-fg_list = {
-    "cib": fg.cib,
-    "radio_poisson": fg.ps_radio,
-    "cib_poisson": fg.ps_dusty,
-    "poisson": fg.ps,
-    "dust": fg.dust,
-    "tsz": fg.tsz,
-    "ksz": fg.ksz,
-    "szxcib": fg.szxcib,
-    }
 
 default_spectra_list = [
     "90_Tx90_T",
@@ -261,7 +251,7 @@ class SPT3GPrototype(InstallableLikelihood):
             if tag in self.cross_spectra:
                 cross = [tuple(int(x) for x in xfq) for xfq,cs in zip(self.cross_frequencies,self.cross_spectra) if cs == tag]
                 for name in self.foregrounds[tag.upper()].keys():
-                    if name not in fg_list.keys():
+                    if not hasattr(fg,name):
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                     self.log.debug("Adding '{}' foreground for {}".format(name,tag))
@@ -272,7 +262,7 @@ class SPT3GPrototype(InstallableLikelihood):
                         filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                         filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                         kwargs["filenames"] = (filename_tsz,filename_cib)
-                    self.fgs[tag].append(fg_list[name](**kwargs))
+                    self.fgs[tag].append(getattr(fg,name)(**kwargs))
 
         self.log.info(f"SPT-3G 2022: Likelihood successfully initialised!")
 

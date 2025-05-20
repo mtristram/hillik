@@ -7,17 +7,6 @@ from cobaya.log import LoggedError
 
 import hillik_foregrounds as fg
 
-fg_list = {
-    "cib": fg.cib,
-    "radio_poisson": fg.ps_radio,
-    "cib_poisson": fg.ps_dusty,
-    "poisson": fg.ps,
-    "dust": fg.dust,
-    "tsz": fg.tsz,
-    "ksz": fg.ksz,
-    "szxcib": fg.szxcib,
-    }
-
 feff = {
     "tsz":   {95:96.55, 150:152.26, 220:220.1}, #col5 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
     "dust":  {95:96.89, 150:153.37, 220:221.6}, #col1 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
@@ -137,7 +126,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         # Init foreground model
         self.fgs = []
         for name in self.foregrounds["TT"].keys():
-            if name not in fg_list.keys():
+            if not hasattr(fg,name):
                 raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
             self.log.debug("Adding '{}' foreground".format(name))
@@ -148,7 +137,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
                 filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                 filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                 kwargs["filenames"] = (filename_tsz,filename_cib)
-            self.fgs.append(fg_list[name](**kwargs))
+            self.fgs.append(getattr(fg,name)(**kwargs))
 
         self.log.info("Initialized!")
 
