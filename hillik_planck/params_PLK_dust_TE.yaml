@@ -1,32 +1,35 @@
   #Dust
-  PLK_AdustTE:
-    prior:
-      dist: norm
-      loc: 1.0
-      scale: 0.05
-    ref: 1.0
-    proposal: 0.02
-    latex: A_\mathrm{dustTE}^{Planck}
-
   PLK_Adust100TE:
-    value: "lambda PLK_AdustTE: PLK_AdustTE*719"
+    prior:
+      min:  0.
+      max: 10.
+    ref: 1.0
+    proposal: 0.1
   PLK_Adust143TE:
-    value: "lambda PLK_AdustTE: PLK_AdustTE*446"
+    prior:
+      min: 0.
+      max: 5.
+    ref: 0.6
+    proposal: 0.05
   PLK_Adust217TE:
-    value: "lambda PLK_AdustTE: PLK_AdustTE*272"
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.06
+    proposal: 0.01
 
   PLK_beta_dustTE:
     value: 1.51
     latex: \beta_\mathrm{dustTE}^{Planck}
 
   PLK_alpha_dust100TE:
-    value: -2.55
+    value: -2.4
     latex: \alpha_\mathrm{dust100TE}^{Planck}
   PLK_alpha_dust143TE:
-    value: -2.55
+    value: -2.4
     latex: \alpha_\mathrm{dust143TE}^{Planck}
   PLK_alpha_dust217TE:
-    value: -2.55
+    value: -2.4
     latex: \alpha_\mathrm{dust217TE}^{Planck}
 
 
