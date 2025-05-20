@@ -1,9 +1,9 @@
   ACT_AdustEE:
     prior:
       dist: norm
-      loc: 0.168
+      loc: 0.1681
       scale: 0.017
-    ref: 0.168
+    ref: 0.1681
     proposal: 0.01
     latex: A_\mathrm{dustEE}^{ACT}
 

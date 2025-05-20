@@ -11,23 +11,12 @@ full ACT DR6 spectra at 90, 150, 220 in temperature and polarization
 import os
 from typing import Optional, Sequence
 
-import hillik_foregrounds as fg
+import hillik_foregrounds as hfg
 import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
 import sacc
-
-fg_list = {
-    "cib": fg.cib,
-    "radio_poisson": fg.ps_radio,
-    "cib_poisson": fg.ps_dusty,
-    "poisson": fg.ps,
-    "dust": fg.dust,
-    "tsz": fg.tsz,
-    "ksz": fg.ksz,
-    "szxcib": fg.szxcib,
-    }
 
 
 #not used for ACT
@@ -53,6 +42,8 @@ class ACTDR6Likelihood(InstallableLikelihood):
     data_folder: Optional[str] = "ACTDR6MFLike/v1.0"
     input_file: Optional[str]  = "dr6_data.fits"
 
+    lmin: Optional[int] = 2
+    lmax: Optional[int] = 8500
     BoltzmannLmax: Optional[str] = 9000
 
     #----------------------------------------------------------------
@@ -85,23 +76,17 @@ class ACTDR6Likelihood(InstallableLikelihood):
         self.survey = "ACT"
         self.log.debug( f"Survey = {self.survey}")
 
-        #check modes
-        # Get likelihood name and add the associated mode
-        likelihood_name = self.__class__.__name__
-        likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
-        if "TE" in likelihood_modes:
-            likelihood_modes.append("ET")
-        if "TE" in self.foregrounds:
-            self.foregrounds['ET'] = self.foregrounds['TE']
-        self._is_mode = {mode: mode in likelihood_modes for mode in ["TT", "TE", "ET", "EE"]}
-        self.log.debug("mode = {}".format(self._is_mode))
-
-
         #all info in the dict spectra: experiments, polarization, scales, ell, dl, bpw
         self.spectra = self.data["spectra"]
         self.maps = self.data["experiments"]
         default_cuts = self.defaults
-        
+
+        #check modes
+        if "TE" in self.foregrounds:
+            self.foregrounds['ET'] = self.foregrounds['TE']
+        self._is_mode = {mode: mode in self.defaults["polarizations"] for mode in ["TT", "TE", "ET", "EE"]}
+        self.log.debug("mode = {}".format(self._is_mode))
+
         #-----------------------------------------------
         #load spectrum
         #-----------------------------------------------
@@ -127,7 +112,12 @@ class ACTDR6Likelihood(InstallableLikelihood):
             for pol in spec["polarizations"]:
                 spec[pol] = {}
                 m1,m2 = spec["experiments"]
+
+                #redefine lmin/lmax if global set
+                if spec["scales"][pol][0] < self.lmin: spec["scales"][pol][0] = self.lmin
+                if spec["scales"][pol][1] > self.lmax: spec["scales"][pol][1] = self.lmax
                 lmin,lmax = spec["scales"][pol]
+
                 dt,exp1,exp2 = get_cl_name(pol,m1,m2)
                 ls,dls = data.get_ell_cl(dt,exp1,exp2)
                 spec[pol]['leff'] = np.array([l for l,dl in zip(ls,dls) if l>=lmin and l<=lmax])
@@ -146,14 +136,14 @@ class ACTDR6Likelihood(InstallableLikelihood):
         self.logp_const = np.log(2 * np.pi) * (-len(select_ind) / 2) - 0.5*np.linalg.slogdet(covmat)[1]
 
         #lmin,lmax from the bandpass
-        self.lmin = self.BoltzmannLmax
-        self.lmax = 2
+        self.lmin_bpw = self.BoltzmannLmax
+        self.lmax_bpw = 2
         for spec in self.spectra:
             for pol in spec["polarizations"]:
                 lmin,lmax = min(spec[pol]["bpw"].values),max(spec[pol]["bpw"].values)
-                self.lmin = min(self.lmin,lmin)
-                self.lmax = max(self.lmax,lmax)
-        self.log.debug( f"lrange = [{self.lmin},{self.lmax}]")
+                self.lmin_bpw = min(self.lmin_bpw,lmin)
+                self.lmax_bpw = max(self.lmax_bpw,lmax)
+        self.log.debug( f"lrange = [{self.lmin_bpw},{self.lmax_bpw}]")
 
         #get frequencies
         self.frequencies = [int(m[-3:]) for m in self.maps]
@@ -164,7 +154,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
             bpl = data.tracers[m+'_s0']
             self.beams[m] = dict( nu=bpl.nu,
                                   bandpass=bpl.bandpass,
-                                  beam=bpl.beam[:self.lmax+1,:]/bpl.beam[0,:][np.newaxis,...]) #normalize to 1 at l=0
+                                  beam=bpl.beam[:self.lmax_bpw+1,:]/bpl.beam[0,:][np.newaxis,...]) #normalize to 1 at l=0
 #            self.beams['T'][m] = data.tracers[m+'_s0']
 #            self.beams['E'][m] = data.tracers[m+'_s2']
 
@@ -178,12 +168,12 @@ class ACTDR6Likelihood(InstallableLikelihood):
             if pol == 'ET': pol = 'TE'
             if self._is_mode[pol]:
                 for name in self.foregrounds[pol].keys():
-                    if name not in fg_list.keys():
+                    if not hasattr(hfg,name):
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                     self.log.debug("Adding '{}' foreground for {}".format(name,pol))
-                    kwargs = dict(lmax=self.lmax, cross=xfreq, mode=pol, survey=self.survey, beams=self.beams)
-#                    kwargs = dict(lmax=self.lmax, cross=xfreq, mode=pol, survey=self.survey, feff=feff)
+                    kwargs = dict(lmax=self.lmax_bpw, cross=xfreq, mode=pol, survey=self.survey, beams=self.beams)
+#                    kwargs = dict(lmax=self.lmax_bpw, cross=xfreq, mode=pol, survey=self.survey, feff=feff)
                     if name == "dust": kwargs['lnorm'] = 500
                     if isinstance(self.foregrounds[pol][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[pol][name])
@@ -191,7 +181,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
                         filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                         filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                         kwargs["filenames"] = (filename_tsz,filename_cib)
-                    fgs.append(fg_list[name](**kwargs))
+                    fgs.append(getattr(hfg,name)(**kwargs))
         
         self.log.info("Initialized!")
 
@@ -202,7 +192,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
         """
 
         #get foregrounds
-        dl_fg = {pol:self._compute_all_fg( fg_list, params) for pol,fg_list in self.fgs.items()}
+        dl_fg = {pol:self._compute_all_fg( fgs, params) for pol,fgs in self.fgs.items()}
 
         # Get residual
         delta_dl = []
@@ -256,7 +246,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
 
     def _compute_all_fg( self, fg_list, params):
-        dl_fg = np.zeros( (len(self.spectra), self.lmax+1) )
+        dl_fg = np.zeros( (len(self.spectra), self.lmax_bpw+1) )
 
         for fg in fg_list:
             dl_fg += fg.compute_dl( params)

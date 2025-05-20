@@ -15,11 +15,6 @@ defaults:
   polarizations: [TT, TE, ET, EE]
   polarizations_auto: &polarizations_auto [TT, TE, EE]
   lmax: &lmax 8500
-  scales:
-    TT: [2, *lmax]
-    TE: [2, *lmax]
-    ET: [2, *lmax]
-    EE: [2, *lmax]
 
 data:
   experiments:
