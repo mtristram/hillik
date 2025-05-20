@@ -169,19 +169,20 @@ class SED(HasLogger):
         """
 
         amp = {}
+        self._bp_shifts = {}
 
         if 'beams' in kwargs:
             self._beams = kwargs['beams']
             self._sed = self._beam_chromaticity
-            self._bp_shifts = {m:0. for m in self._beams}
             
         elif 'bandpass' in kwargs:
-            self_.bandpass = kwargs['bandpass']
+            self._bandpass = kwargs['bandpass']
             self._sed = self._bandpass_integration
 
         elif 'feff' in kwargs:
             self._feff = kwargs['feff'][self.name]
             self._sed = self._nu_eff
+
         else:
             self._sed = self._nu_default
 
@@ -241,6 +242,7 @@ class SED(HasLogger):
 # ACT: 150 dust, 150 tSZ
 # SPT: 220 dust, 143 tSZ
 # SPT3G: 150 dust, 143 tSZ
+Tcib = 25.  #T=9.7 ?!?
 
 class TSZ(SED):
     name = "tsz"
@@ -249,7 +251,7 @@ class TSZ(SED):
 
 class CIB(SED):
     name = "cib"
-    def fgRatio( self, nu, nu0=150, beta=1.75, T=25): #T=9.7 ?!?
+    def fgRatio( self, nu, nu0=150, beta=1.75, T=25):
         return (nu/nu0)**beta * (f_Planck(nu,T)/f_Planck(nu0,T)) / ( dBdT(nu)/dBdT(nu0) )
     
 class DUST(SED):
@@ -308,6 +310,7 @@ class ps_radio(fgmodel):
 
         return pars[f"{self.survey}_radio_{self.mode}"] * np.array(dl)
 
+radio_poisson = ps_radio
 
 # Infrared Point Sources
 class ps_dusty(fgmodel):
@@ -320,7 +323,7 @@ class ps_dusty(fgmodel):
     def compute_dl(self, pars):
         dl = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
-        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_dusty'], T=pars.get('T_cib',25.))
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_dusty'], T=pars.get('T_cib',Tcib))
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
 
@@ -329,6 +332,7 @@ class ps_dusty(fgmodel):
         else:
             return 0.
 
+cib_poisson = ps_dusty
 
 
 #Galactic Dust model
@@ -346,9 +350,9 @@ class dust(fgmodel):
     def compute_dl(self, pars):
         dl = []
 
-        nu0 = 353 if self.survey == "PLK" else 150
+#        nu0 = 353 if self.survey == "PLK" else 150
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
-        sed = self.sed( self._freqs, nu0=nu0, beta=pars[f'{self.survey}_beta_dust{self.mode}'], T=pars.get('T_dust',19.6))
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars[f'{self.survey}_beta_dust{self.mode}'], T=pars.get('T_dust',19.6))
 
         for xf, (f1, f2) in enumerate(self._cross_frequencies):
 
@@ -358,12 +362,12 @@ class dust(fgmodel):
                 ad    = pars[f'{self.survey}_Adust{max(f1,f2)}{self.mode}']
             else:
                 alpha = pars[f'{self.survey}_alpha_dust{self.mode}']
-                ad    = pars[f'{self.survey}_Adust{self.mode}']            
+                ad    = pars[f'{self.survey}_Adust{self.mode}']
             dlg = self._gen_dl_powerlaw( alpha)
 
-            ell = np.arange( 2,self.lmax+1)
-            dlg = np.zeros( self.lmax+1)
-            dlg[ell] = (ell/self.lnorm)**(2+alpha)
+#            ell = np.arange( 2,self.lmax+1)
+#            dlg = np.zeros( self.lmax+1)
+#            dlg[ell] = (ell/self.lnorm)**(2+alpha)
             
             dl.append( ad * dlg * sed[f1] * sed[f2] )
 
@@ -378,7 +382,6 @@ class dust_amplitude(fgmodel):
         self.lnorm = 200
         self.dlfg = np.zeros( lmax+1)
 
-        ell = np.arange( 2, lmax+1)
         alpha_dust = -2.5 if mode == "TT" else -2.4
         self.dlfg = self._gen_dl_powerlaw( alpha_dust)
     
@@ -421,7 +424,7 @@ class sync(fgmodel):
             return 0.
 
 
-# CIB clustered (one spectrum for all freqs)
+# CIB clustered
 class cib(fgmodel):
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
@@ -437,7 +440,7 @@ class cib(fgmodel):
     def compute_dl(self, pars):
         dl = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
-        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_cib'],T=pars.get('T_cib',25.))
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_cib'],T=pars.get('T_cib',Tcib))
         for f1, f2 in self._cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
 
@@ -447,7 +450,7 @@ class cib(fgmodel):
             return 0.
 
 
-#thermal SZ (one spectrum for all freqs)
+#thermal SZ
 class tsz(fgmodel):
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
@@ -464,8 +467,14 @@ class tsz(fgmodel):
         dl_sz = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0)
+
+        #rescale by l**alpha_tsz
+        ell = np.arange( 2, self.lmax+1)
+        dlfg = self.dlfg.copy()
+        dlfg[ell] = dlfg[ell] * (ell/self.lnorm)**(pars.get('alpha_tsz',0.))
+
         for f1, f2 in self._cross_frequencies:
-            dl_sz.append( self.dlfg * sed[f1] * sed[f2] )
+            dl_sz.append( dlfg * sed[f1] * sed[f2] )
 
         if self.mode == "TT":
             return pars["Atsz"] * np.array(dl_sz)
@@ -473,7 +482,7 @@ class tsz(fgmodel):
             return 0.
 
 
-#kinetic SZ (one spectrum for all freqs)
+#kinetic SZ
 class ksz(fgmodel):
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
@@ -496,7 +505,7 @@ class ksz(fgmodel):
 
 
 
-# SZxCIB model (one spectrum for all freqs)
+# SZxCIB model
 class szxcib(fgmodel):
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
@@ -517,7 +526,7 @@ class szxcib(fgmodel):
         self.sed_tsz.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         self.sed_cib.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         tsz = self.sed_tsz( self._freqs, nu0=self.nu0)
-        cib = self.sed_cib( self._freqs, nu0=self.nu0, beta=pars['beta_cib'], T=pars.get('T_cib',25))
+        cib = self.sed_cib( self._freqs, nu0=self.nu0, beta=pars['beta_cib'], T=pars.get('T_cib',Tcib))
         for f1, f2 in self._cross_frequencies:
             dl_szxcib.append( self.dlfg * np.sqrt(pars["Acib"]*pars["Atsz"]) * ( tsz[f2]*cib[f1] + tsz[f1]*cib[f2] ) )
 
