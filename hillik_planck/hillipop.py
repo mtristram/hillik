@@ -19,19 +19,6 @@ from cobaya.log import LoggedError
 import hillik_foregrounds as fg
 from . import bins
 
-#list of available foreground models
-fg_list = {
-    "cib": fg.cib,
-    "poisson": fg.ps,
-    "radio_poisson": fg.ps_radio,
-    "cib_poisson": fg.ps_dusty,
-    "dust": fg.dust,
-    "dust_amplitude": fg.dust_amplitude,
-    "synchroton": fg.sync,
-    "tsz": fg.tsz,
-    "ksz": fg.ksz,
-    "szxcib": fg.szxcib,
-    }
 
 #bintab for Hillipop lite
 lite_lmins = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10))
@@ -110,7 +97,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         self.lmax = np.max([l.max() for l in self._lmaxs.values()])
         
         #Bin strategy
-        if self._is_mode['TT']: 
+        if self._is_mode['TT']:
             self.wf = bins.Bins( lite_lmins, lite_lmaxs)
         else:
             self.wf = bins.Bins.fromdeltal( 2, self.lmax+1, 1)
@@ -131,53 +118,25 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._invkll = self._invkll.astype('float32')   #speed-up X@C@X
         
         # Foregrounds
-        self.fgs = {}  # list of foregrounds per mode [TT,EE,TE,ET]
-        # Init foregrounds TT
-        fgsTT = []
-        if self._is_mode["TT"]:
-            for name in self.foregrounds["TT"].keys():
-                if name not in fg_list.keys():
+        self.fgs = {tag:[] for tag,v in self._is_mode.items() if v}  # list of foregrounds per mode [TT,EE,TE,ET]
+        if 'TE' in self.foregrounds: self.foregrounds['ET'] = self.foregrounds['TE']
+        for tag,fgs in self.fgs.items():
+            for name in self.foregrounds[tag].keys():
+                if not hasattr( fg, name):
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
-                self.log.debug("Adding '{}' foreground for TT".format(name))
-                kwargs = dict(lmax=self.lmax, cross=list(combinations(self.frequencies, 2)), mode="TT", survey=self.survey, feff=feff)
-                if isinstance(self.foregrounds["TT"][name], str):
-                    kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+                self.log.debug("Adding '{}' foreground for {}".format(name,tag))
+                kwargs = dict(lmax=self.lmax, cross=list(combinations(self.frequencies, 2)), mode=tag, survey=self.survey, feff=feff)
+                if isinstance(self.foregrounds[tag][name], str):
+                    kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag][name])
                 elif name == "szxcib":
-                    filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
-                    filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                    filename_tsz = self.foregrounds[tag]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["tsz"])
+                    filename_cib = self.foregrounds[tag]["cib"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["cib"])
                     kwargs["filenames"] = (filename_tsz,filename_cib)
-                fgsTT.append(fg_list[name](**kwargs))
-        self.fgs['TT'] = fgsTT
-        
-        # Init foregrounds EE
-        fgsEE = []
-        if self._is_mode["EE"]:
-            for name in self.foregrounds["EE"].keys():
-                if name not in fg_list.keys():
-                    raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-                
-                self.log.debug("Adding '{}' foreground for EE".format(name))
-                kwargs = dict(lmax=self.lmax, cross=list(combinations(self.frequencies, 2)), mode="EE", survey=self.survey, feff=feff)
-                fgsEE.append(fg_list[name](**kwargs))
-        self.fgs['EE'] = fgsEE
-        
-        # Init foregrounds TE
-        fgsTE = []
-        fgsET = []
-        if self._is_mode["TE"]:
-            for name in self.foregrounds["TE"].keys():
-                if name not in fg_list.keys():
-                    raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-                
-                self.log.debug("Adding '{}' foreground for TE".format(name))
-                kwargs = dict(lmax=self.lmax, cross=list(combinations(self.frequencies, 2)), survey=self.survey, feff=feff)
-                fgsTE.append(fg_list[name](mode="TE", **kwargs))
-                fgsET.append(fg_list[name](mode="ET", **kwargs))
-        self.fgs['TE'] = fgsTE
-        self.fgs['ET'] = fgsET
+                fgs.append(getattr(fg,name)(**kwargs))
         
         self.log.info("Initialized!")
+
 
     def _xspec2xfreq(self):
         list_fqs = []
