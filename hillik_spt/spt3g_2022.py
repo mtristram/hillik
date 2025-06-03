@@ -55,6 +55,7 @@ class SPT3GPrototype(InstallableLikelihood):
         "download_url": "https://pole.uchicago.edu/public/data/balkenhol22/SPT3G_2018_TTTEEE_public_likelihood.zip",
         "data_path": "spt3g_2018",
     }
+    type = "CMB"
 
     bibtex_file = "spt3g_2022.bibtex"
 

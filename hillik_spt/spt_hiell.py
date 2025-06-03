@@ -21,6 +21,7 @@ class SPTHiellLikelihood(InstallableLikelihood):
         "download_url": "https://lambda.gsfc.nasa.gov/data/suborbital/SPT/reichardt_2020/likelihood.tar.gz",
         "data_path": "spt_hiell_2020",
     }
+    type = "CMB"
 
     cal_cov = [
         [1.1105131e-05, 3.5551351e-06, 1.1602891e-06],
