@@ -10,75 +10,55 @@ packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
 
 cosmo_params = {
     "cosmomc_theta": 0.01040,
-    "As": 2.16185225e-09,
-    "ombh2": 0.02241,
-    "omch2": 0.1188,
-    "ns": 0.9686,
+    "As": 2.1178e-09,
+    "ombh2": 0.022591,
+    "omch2": 0.1238,
+    "ns": 0.9666,
     "Alens": 1.0,
-    "tau": 0.060,
+    "tau": 0.056,
 }
 
-calib_params = {
+ACTmaps = ["dr6_pa4_f220","dr6_pa5_f090","dr6_pa5_f150","dr6_pa6_f090","dr6_pa6_f150"]
+
+syste_params = {
     "ACT_cal": 1.0,
-    "ACT_pe_98": 1.0,
-    "ACT_pe_150": 1.0,
-    "ACT_cal_98": 1.0,
-    "ACT_cal_150": 1.0,
-    "ACT_leak_98": 1.0,
-    "ACT_leak_150": 1.0,
+    **{f"ACT_cal_{m}": 1.0 for m in ACTmaps},
+    **{f"ACT_pe_{m}": 1.0 for m in ACTmaps},
+    **{f"ACT_band_shift_{m}": 0. for m in ACTmaps}
 }
 
 extgal_params = {
-    "Acib": 1.1,
-    "Atsz": 5.5,
-    "Aksz": 3.,
-    "xi": 0.4,
-    "beta_cib": 1.5,
+    "Acib": 3.69,
+    "Atsz": 3.35,
+    "Aksz": 1.48,
+    "xi": 0.088,
+    "beta_cib": 1.87,
+    "beta_radio": -0.78,
+    "beta_dusty": 1.87,
+    "ACT_cib_ps": 7.65,
+    "ACT_radio_TT": 2.86
 }
 
-fg_ps_params = {
-    "wide.TT": dict(
-        ACTw_radio_ps=21.5,
-        ACTw_cib_ps=8.4,
-        ),
-    "deep.TT": dict(
-        ACTd_radio_ps=3.2,
-        ACTd_cib_ps=6.6,
-        ),
+fg_params = {
+    'TT':{'ACT_AdustTT': 7.97, 'ACT_beta_dustTT':1.5, 'ACT_alpha_dustTT':-2.6},
+    'TE':{'ACT_AdustTE': 0.42, 'ACT_beta_dustTE':1.5, 'ACT_alpha_dustTE':-2.4},
+    'EE':{'ACT_AdustEE': 0.17, 'ACT_beta_dustEE':1.5, 'ACT_alpha_dustEE':-2.4},
 }
 
-fg_dust_params = {
-    "wide.TT": dict(
-        ACTw_AdustT = 45.,
-        ),
-    "wide.EE": dict(
-        ACTw_AdustP = 7.5,
-        ),
-    "deep.TT": dict(
-        ACTd_AdustT = 31.,
-        ),
-    "deep.EE": dict(
-        ACTd_AdustP = 8.,
-        ),
-}
 
 nuisance_params = {
-    "wide.TT": {**fg_dust_params['wide.TT'],**extgal_params,**fg_ps_params['wide.TT']},
-    "wide.EE": {**fg_dust_params['wide.EE']},
-    "wide.TE": {**fg_dust_params['wide.TT'],**fg_dust_params['wide.EE']},
-    "wide.TTTEEE": {**fg_dust_params['wide.TT'],**extgal_params,**fg_ps_params['wide.TT'],**fg_dust_params['wide.EE']},
-    "deep.TT": {**fg_dust_params['deep.TT'],**extgal_params,**fg_ps_params['deep.TT']},
-    "deep.EE": {**fg_dust_params['deep.EE']},
-    "deep.TE": {**fg_dust_params['deep.TT'],**fg_dust_params['deep.EE']},
-    "deep.TTTEEE": {**fg_dust_params['deep.TT'],**extgal_params,**fg_ps_params['deep.TT'],**fg_dust_params['deep.EE']},
+    "TT": {**fg_params['TT'],**extgal_params},
+    "EE": {**fg_params['EE']},
+    "TE": {**fg_params['TE']},
+    "TTTEEE": {**fg_params['TT'],**extgal_params,**fg_params['TE'],**fg_params['EE']},
     }
 
 
 chi2s = {
-    "wide.TT": 150.3, "deep.TT": 164.5,
-    "wide.EE": 231.4, "deep.EE": 160.33,
-    "wide.TE": 222.7, "deep.TE": 205.5,
-    "wide.TTTEEE": 599.4, "deep.TTTEEE": 573.12
+    "TT": 3254.41,
+    "EE":  979.42,
+    "TE": 1925.22,
+    "TTTEEE": 6133.82,
     }
 
 class ACTLikeTest(unittest.TestCase):
@@ -88,22 +68,21 @@ class ACTLikeTest(unittest.TestCase):
         for mode in chi2s.keys():
             install({"likelihood": {f"hillik_act.{mode}": None}}, path=packages_path)
 
-#    def test_camb(self):
-#        import camb
-        import hillik_act.wide, hillik_act.deep
-#        
-#        camb_cosmo = cosmo_params.copy()
-#        camb_cosmo.update({"lmax": 6000, "lens_potential_accuracy": 1})
-#        pars = camb.set_params(**camb_cosmo)
-#        results = camb.get_results(pars)
-#        powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
-#        dl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
-#        
-#        for mode, chi2 in chi2s.items():
-#            if "wide" in mode: _act = getattr(hillik_act.wide, mode.split('.')[1])({"packages_path": packages_path})
-#            if "deep" in mode: _act = getattr(hillik_act.deep, mode.split('.')[1])({"packages_path": packages_path})
-#            loglike = _act.loglike(dl_dict, **{**calib_params,**nuisance_params[mode]})
-##            print( f"CAMB/{mode}: {-2*loglike}")
+##     def test_camb(self):
+##         import camb
+##         import hillik_act
+        
+##         camb_cosmo = cosmo_params.copy()
+##         camb_cosmo.update({"lmax": 9000, "lens_potential_accuracy": 1})
+##         pars = camb.set_params(**camb_cosmo)
+##         results = camb.get_results(pars)
+##         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
+##         dl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
+        
+##         for mode, chi2 in chi2s.items():
+##             _act = getattr(hillik_act, mode)({"packages_path": packages_path})
+##             loglike = _act.loglike(dl_dict, **{**syste_params,**nuisance_params[mode]})
+##             print( f"CAMB/{mode}: {-2*loglike}")
 #            self.assertAlmostEqual(-2 * loglike, chi2, 1)
 
     def test_cobaya(self):
@@ -114,11 +93,11 @@ class ACTLikeTest(unittest.TestCase):
                 "debug": True,
                 "likelihood": {f"hillik_act.{mode}": None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_params,**nuisance_params[mode],**calib_params},
+                "params": {**cosmo_params,**nuisance_params[mode],**syste_params},
                 "packages_path": packages_path,
             }
             model = get_model(info)
-#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
+            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
             self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
 
 
