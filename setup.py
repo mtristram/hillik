@@ -23,7 +23,7 @@ setup(
     ],
     packages=find_packages(),
     python_requires=">=3.5",
-    install_requires=["astropy", "cobaya>=3.0"],
+    install_requires=["astropy", "cobaya>=3.0", "sacc>=0.9.0"],
     package_data={"hillik_planck": ["Hillipop.yaml", "Hillipop.bibtex"],
                   "hillik_spt": ["spt_hiell_2020.yaml","spt_hiell_2020.bibtex"],
                   "hillik_act": ["actpol_full_dr4.yaml","actpol_full_dr4.bibtex"],
