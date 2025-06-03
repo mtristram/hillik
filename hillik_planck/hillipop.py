@@ -43,6 +43,8 @@ data_url = "https://portal.nersc.gov/cfs/cmb/planck2020/likelihoods"
 
 
 class _HillipopLikelihood(InstallableLikelihood):
+    type = "CMB"
+
     fgds_folder: Optional[str] = "foregrounds"
     data_folder: Optional[str] = "planck_2020/hillipop"
     multipoles_range_file: Optional[str]
