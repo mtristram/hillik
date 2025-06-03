@@ -56,7 +56,6 @@ params:
 
 
   #foregrounds ACT
-  #foregrounds
   a_tSZ:
     prior:
       min: 0.0
