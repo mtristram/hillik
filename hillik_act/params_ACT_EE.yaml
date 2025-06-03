@@ -1,3 +1,4 @@
+  #Dust
   ACT_AdustEE:
     prior:
       dist: norm
@@ -14,3 +15,13 @@
   ACT_alpha_dustEE:
     value: -2.4
     latex: \alpha_\mathrm{dustEE}^{ACT}
+
+  #radio sources
+  ACT_radio_EE:
+    value: 0.
+#    prior:
+#      min: 0.
+#      max: 1.
+#    ref: 0.
+#    proposal: 0.01
+    latex: A_\mathrm{radioEE}^\mathrm{ACT}

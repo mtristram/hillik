@@ -66,4 +66,4 @@ data:
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_ACT_systematics,params_extragal,params_ACT_dust_EE,params_ACT_ps]
+params: !defaults [params_ACT_systematics,params_ACT_EE]
