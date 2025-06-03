@@ -31,9 +31,16 @@ calib_params = {
         "SPT3G_cal_T90": 1.0,
         "SPT3G_cal_T150": 1.0,
         "SPT3G_cal_T220": 1.0,
+        "SPT3G_cal_E90": 1.0,
+        "SPT3G_cal_E150": 1.0,
+        "SPT3G_cal_E220": 1.0,
         "kappa": 0.0
         },
     "EE": {
+        "SPT3G_cal": 1.0,
+        "SPT3G_cal_T90": 1.0,
+        "SPT3G_cal_T150": 1.0,
+        "SPT3G_cal_T220": 1.0,
         "SPT3G_cal": 1.0,
         "SPT3G_cal_E90": 1.0,
         "SPT3G_cal_E150": 1.0,
@@ -69,9 +76,10 @@ fg_params = {
         Aksz=1.5,
         xi=0.1,
         beta_cib=1.5,
-        SPT_radio_ps=1.,
-        SPT_cib_ps=6.,
-        SPT_AdustT=60.,
+        beta_radio=-0.8,
+        SPT_radio_TT=1.,
+        SPT_cib_ps=8.6,
+        SPT_AdustTT=5.46,
         ),
     "TT": dict(
         Acib=1.5,
@@ -79,31 +87,37 @@ fg_params = {
         Aksz=1.5,
         xi=0.1,
         beta_cib=1.5,
-        SPT3G_radio_ps=10.,
+        beta_radio=-0.8,
+        SPT3G_radio_TT=10.,
         SPT3G_cib_ps=7.,
-        SPT3G_AdustT=60.,
+        SPT3G_AdustTT=1.15,
         ),
     "TE": dict(
-        SPT3G_AdustT=60.,
-        SPT3G_AdustP=6.,
+        SPT3G_AdustTE=0.073,
+        SPT3G_radio_TE=1.,
         ),
     "EE": dict(
-        SPT3G_AdustP=6.,
+        SPT3G_AdustEE=0.031,
+        SPT3G_radio_EE=1.,
         ),
     "TTTEEE": dict(
-        SPT3G_AdustT=60.,
-        SPT3G_AdustP=6.,
+        SPT3G_AdustTT=1.15,
+        SPT3G_AdustTE=0.073,
+        SPT3G_AdustEE=0.031,
         Acib=1.5,
         Atsz=4.5,
         Aksz=1.5,
         xi=0.1,
         beta_cib=1.5,
-        SPT3G_radio_ps=10.,
+        beta_radio=-0.8,
         SPT3G_cib_ps=7.,
+        SPT3G_radio_TT=10.,
+        SPT3G_radio_TE=1.,
+        SPT3G_radio_EE=1.,
         )
     }
 
-chi2s = {"TThighl":601.03, "TT":1017.05, "EE":432.58, "TE":677.91, "TTTEEE":2124.51}
+chi2s = {"TThighl":889.096, "TT":1482.95, "EE":431.69, "TE":683.33, "TTTEEE":2607.78}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -140,7 +154,7 @@ class SPTLikeTest(unittest.TestCase):
 
         for mode, chi2 in chi2s.items():
             info = {
-                "debug": True,
+                "debug": False,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
                 "params": {**cosmo_params, **calib_params[mode], **fg_params[mode]},
@@ -148,7 +162,7 @@ class SPTLikeTest(unittest.TestCase):
             }
             
             model = get_model(info)
-            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
+#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
             self.assertLess( abs(-2*model.loglikes({})[0][0] - chi2), 1)
 
 
