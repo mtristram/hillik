@@ -5,17 +5,12 @@
       max: 150.
     ref: 60.
     proposal: 1.
-    latex: A_\mathrm{radio}^\mathrm{PS}
-  beta_radio:
-    value: -0.8
-    latex: \beta_\mathrm{radio}^\mathrm{PS}
+    latex: A_\mathrm{radioTT}^\mathrm{PLK}
+
   PLK_cib_ps:
     prior:
       min: 0.
       max: 100.
     ref: 6.
     proposal: 1.
-    latex: A_\mathrm{IR}^\mathrm{PS}
-  beta_dusty:
-    value: "lambda beta_cib: beta_cib"
-    latex: \beta_\mathrm{IR}^\mathrm{PS}
+    latex: A_\mathrm{IR}^\mathrm{PLK}
