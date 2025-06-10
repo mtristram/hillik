@@ -274,3 +274,8 @@ class TTTEEE(ACTDR6Likelihood):
     CMB likelihood with ACTpol DR6 full dataset
     """
 
+class TTTEEE_lmin(ACTDR6Likelihood):
+    """
+    CMB likelihood with ACTpol DR6 full dataset
+    """
+
