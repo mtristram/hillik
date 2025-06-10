@@ -42,12 +42,22 @@ params:
       max: 0.15
     proposal: 0.03
 
-  SPT_cal: 1
-  SPT3G_cal: 1
-
   #derived
   theta_s_100:
   sigma8:
+
+  #calibration
+  SPT_cal: 1
+  SPT3G_cal: 1
+
+  #CIB prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
 
 theory:
   cosmopower:

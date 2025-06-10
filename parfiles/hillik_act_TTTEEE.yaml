@@ -61,6 +61,15 @@ params:
       scale: 0.003
     proposal: 0.0015
 
+  #CIB prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+
 theory:
   cosmopower:
     stop_at_error: False

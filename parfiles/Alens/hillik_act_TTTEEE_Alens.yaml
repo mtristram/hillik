@@ -1,8 +1,7 @@
 debug: false
 
 likelihood:
-  hillik_act.deep.TTTEEE: null
-  hillik_act.wide.TTTEEE: null
+  hillik_act.TTTEEE: null
 
 params:
   # Cosmo

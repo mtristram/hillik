@@ -51,6 +51,17 @@ params:
   theta_s_100:
   sigma8:
 
+  #CIB prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+
+
+
 theory:
   cosmopower:
     stop_at_error: False
