@@ -42,16 +42,14 @@
 #    proposal: 6
 #    latex: A^\mathrm{PS}(220x220)
 
-  SPT_radio_ps:
+  SPT_radio_TT:
     prior:
       min: 0.
       max: 150.
     ref: 1.
     proposal: 1.
-    latex: A_\mathrm{radio}^\mathrm{SPT}
-  beta_radio:
-    value: -0.8
-    latex: \beta_\mathrm{radio}^\mathrm{PS}
+    latex: A_\mathrm{radioTT}^\mathrm{SPT}
+
   SPT_cib_ps:
     prior:
       min: 0.
@@ -59,6 +57,3 @@
     ref: 8.6
     proposal: 1.
     latex: A_\mathrm{IR}^\mathrm{SPT}
-  beta_dusty:
-    value: "lambda beta_cib: beta_cib"
-    latex: \beta_\mathrm{IR}^\mathrm{PS}

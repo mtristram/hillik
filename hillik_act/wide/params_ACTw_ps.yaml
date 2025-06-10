@@ -30,12 +30,15 @@
     value: -0.8
     latex: \beta_\mathrm{radio}^\mathrm{PS}
   ACTw_cib_ps:
+    value: "lambda ACT_cib_ps: ACT_cib_ps"
+    latex: A_\mathrm{IR}^\mathrm{ACTw}
+  ACT_cib_ps:
     prior:
       min: 0.
       max: 100.
-    ref: 6.8
+    ref: 6.6
     proposal: 1.
-    latex: A_\mathrm{IR}^\mathrm{ACTw}
+    latex: A_\mathrm{IR}^\mathrm{ACT}
   beta_dusty:
     value: "lambda beta_cib: beta_cib"
     latex: \beta_\mathrm{IR}^\mathrm{PS}

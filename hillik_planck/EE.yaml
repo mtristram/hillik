@@ -5,4 +5,4 @@ covariance_matrix_file: data/invfll_PR4_v4.2_EE.fits
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_PLK_calib,params_PLK_dust_P]
+params: !defaults [params_PLK_calib,params_PLK_dust_EE]

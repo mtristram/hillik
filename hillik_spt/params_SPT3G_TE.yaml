@@ -1,0 +1,25 @@
+
+  #Dust
+  SPT3G_AdustTE:
+    prior:
+      dist: norm
+      loc: 0.073
+      scale: 0.031
+    ref: 0.073
+    proposal: 0.01
+    latex: A_\mathrm{dustTE}^{SPT3G}
+  SPT3G_beta_dustTE:
+    value: 1.51
+    latex: \beta_\mathrm{dustTE}^{SPT3G}
+  SPT3G_alpha_dustTE:
+    value: -2.42
+    latex: \alpha_\mathrm{dustTE}^{SPT3G}
+
+  #PS
+  SPT3G_radio_TE:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.
+    proposal: 1.
+    latex: A_\mathrm{radioTE}^\mathrm{SPT3G}

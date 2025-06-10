@@ -33,5 +33,5 @@ spectra_to_fit:
 foregrounds: !defaults [foregrounds]
 
 #Parameters
-params: !defaults [params_SPT3G_TP,params_SPT3G_calib]
+params: !defaults [params_SPT3G_TE,params_SPT3G_calib]
 

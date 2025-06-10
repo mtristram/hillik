@@ -5,4 +5,4 @@ covariance_matrix_file: data/invfll_PR4_v4.2_TTTEEE_lite.fits
 
 foregrounds: !defaults [foregrounds]
 
-params: !defaults [params_PLK_calib,params_PLK_dust_T,params_PLK_dust_P,params_PLK_ps,params_extragal]
+params: !defaults [params_PLK_calib,params_PLK_dust_TT,params_PLK_dust_TE,params_PLK_dust_EE,params_PLK_ps,params_extragal]

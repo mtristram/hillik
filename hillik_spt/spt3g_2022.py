@@ -19,16 +19,6 @@ from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
 import hillik_foregrounds as fg
-fg_list = {
-    "cib": fg.cib,
-    "radio_poisson": fg.ps_radio,
-    "cib_poisson": fg.ps_dusty,
-    "poisson": fg.ps,
-    "dust": fg.dust,
-    "tsz": fg.tsz,
-    "ksz": fg.ksz,
-    "szxcib": fg.szxcib,
-    }
 
 default_spectra_list = [
     "90_Tx90_T",
@@ -51,12 +41,21 @@ default_spectra_list = [
     "220_Ex220_E",
 ]
 
+feff = {
+    "tsz":   {90:96.48, 150:148.95, 220:219.58}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "dust":  {90:96.67, 150:149.90, 220:222.0}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "cib":   {90:96.67, 150:149.90, 220:222.0}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "radio": {90:94.40, 150:146.00, 220:212.7}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+    "sync":  {90:94.40, 150:146.00, 220:212.7}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
+}
+
 
 class SPT3GPrototype(InstallableLikelihood):
     install_options = {
         "download_url": "https://pole.uchicago.edu/public/data/balkenhol22/SPT3G_2018_TTTEEE_public_likelihood.zip",
         "data_path": "spt3g_2018",
     }
+    type = "CMB"
 
     bibtex_file = "spt3g_2022.bibtex"
 
@@ -251,19 +250,20 @@ class SPT3GPrototype(InstallableLikelihood):
         self.fgs = {"TT":[],"TE":[],"EE":[]}
         for tag in self.fgs.keys():
             if tag in self.cross_spectra:
+                cross = [tuple(int(x) for x in xfq) for xfq,cs in zip(self.cross_frequencies,self.cross_spectra) if cs == tag]
                 for name in self.foregrounds[tag.upper()].keys():
-                    if name not in fg_list.keys():
+                    if not hasattr(fg,name):
                         raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
 
                     self.log.debug("Adding '{}' foreground for {}".format(name,tag))
-                    kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode=tag, auto=True, survey=self.survey)
+                    kwargs = dict(lmax=self.lmax, cross=cross, mode=tag, survey=self.survey, feff=feff)
                     if isinstance(self.foregrounds[tag.upper()][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag.upper()][name])
                     elif name == "szxcib":
                         filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
                         filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                         kwargs["filenames"] = (filename_tsz,filename_cib)
-                    self.fgs[tag].append(fg_list[name](**kwargs))
+                    self.fgs[tag].append(getattr(fg,name)(**kwargs))
 
         self.log.info(f"SPT-3G 2022: Likelihood successfully initialised!")
 
