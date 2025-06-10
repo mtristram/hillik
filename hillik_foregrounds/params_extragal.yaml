@@ -31,9 +31,11 @@
 
   beta_cib:
     prior:
-      dist: norm
-      loc: 1.75
-      scale: 0.06
+      min: 1.0
+      max: 3.0
+#      dist: norm
+#      loc: 1.75
+#      scale: 0.06
     ref: 1.75
     proposal: 0.05
     latex: \beta_\mathrm{CIB}
