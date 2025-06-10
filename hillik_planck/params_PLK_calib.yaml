@@ -51,21 +51,44 @@
 
   #Polar efficiency
   PLK_pe_100A:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
     latex: \eta^{PLK}_\mathrm{100A}
   PLK_pe_100B:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
     latex: \eta^{PLK}_\mathrm{100B}
   PLK_pe_143A:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
     latex: \eta^{PLK}_\mathrm{143A}
   PLK_pe_143B:
-    value: 1.0
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
     latex: \eta^{PLK}_\mathrm{143B}
   PLK_pe_217A:
-    value: 0.975
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
     latex: \eta^{PLK}_\mathrm{217A}
   PLK_pe_217B:
-    value: 0.975
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
     latex: \eta^{PLK}_\mathrm{217B}
-
