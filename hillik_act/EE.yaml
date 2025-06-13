@@ -1,0 +1,69 @@
+# A cobaya likelihood for ACT DR6 data
+# see https://github.com/simonsobs/LAT_MFLike/blob/master/mflike/MFLike.yaml
+# for more details regarding section
+
+data_folder: ACTDR6MFLike/v1.0
+
+input_file: dr6_data.fits
+
+requested_cls: ["ee"]
+
+# Specify default set of spectra and scale cuts
+# to be used
+defaults:
+  symmetrize: false
+  polarizations: [EE]
+  polarizations_auto: &polarizations_auto [EE]
+  lmax: &lmax 8500
+  scales:
+    EE: [2, *lmax]
+
+data:
+  experiments:
+    - dr6_pa5_f090
+    - dr6_pa5_f150
+    - dr6_pa6_f090
+    - dr6_pa6_f150
+
+  spectra:
+    - experiments: [dr6_pa5_f090, dr6_pa5_f090]
+      polarizations: *polarizations_auto
+      scales:
+        EE: [1000, *lmax]
+    - experiments: [dr6_pa5_f090, dr6_pa5_f150]
+      scales:
+        EE: [1000, *lmax]
+    - experiments: [dr6_pa5_f090, dr6_pa6_f090]
+      scales:
+        EE: [1000, *lmax]
+    - experiments: [dr6_pa5_f090, dr6_pa6_f150]
+      scales:
+        EE: [1000, *lmax]
+
+    - experiments: [dr6_pa5_f150, dr6_pa5_f150]
+      polarizations: *polarizations_auto
+      scales:
+        EE: [800, *lmax]
+    - experiments: [dr6_pa5_f150, dr6_pa6_f090]
+      scales:
+        EE: [1000, *lmax]
+    - experiments: [dr6_pa5_f150, dr6_pa6_f150]
+      scales:
+        EE: [800, *lmax]
+
+    - experiments: [dr6_pa6_f090, dr6_pa6_f090]
+      polarizations: *polarizations_auto
+      scales:
+        EE: [1000, *lmax]
+    - experiments: [dr6_pa6_f090, dr6_pa6_f150]
+      scales:
+        EE: [1000, *lmax]
+
+    - experiments: [dr6_pa6_f150, dr6_pa6_f150]
+      polarizations: *polarizations_auto
+      scales:
+        EE: [600, *lmax]
+
+foregrounds: !defaults [foregrounds]
+
+params: !defaults [params_ACT_systematics,params_ACT_EE]

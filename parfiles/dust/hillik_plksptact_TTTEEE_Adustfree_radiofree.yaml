@@ -1,0 +1,185 @@
+debug: false
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
+  hillik_spt.TThighl: null
+  hillik_spt.TTTEEE:
+    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
+    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
+  hillik_act.deep.TTTEEE:
+    bminTT: 33
+    bminTE: 23
+    bminEE: 13
+  hillik_act.wide.TTTEEE:
+    bminTT: 33
+    bminTE: 23
+    bminEE: 13
+
+params:
+  # Cosmo
+  H0:
+    prior:
+      min: 60
+      max: 80
+    proposal: 1.
+    ref: 67.4
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    proposal: 0.05
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_\mathrm{s}
+  ns:
+    prior:
+      min: 0.9
+      max: 1.1
+    proposal: 0.016
+  omegabh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    proposal: 0.0003
+    latex: \Omega_\mathrm{b}h^2
+  omegach2:
+    prior:
+      min: 0.09
+      max: 0.15
+    proposal: 0.004
+  tau:
+    prior:
+      min: 0.01
+      max: 0.15
+    proposal: 0.03
+
+  #derived
+  theta_s_100:
+  sigma8:
+
+  #Dust
+  PLK_AdustTT: 0.
+  PLK_Adust100:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_Adust100TT:
+    value: "lambda PLK_Adust100: PLK_Adust100*15700"
+  PLK_Adust143:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_Adust143TT:
+    value: "lambda PLK_Adust143: PLK_Adust143*8690"
+  PLK_Adust217:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_Adust217TT:
+    value: "lambda PLK_Adust217: PLK_Adust217*5900"
+  PLK_AdustTE:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_AdustEE:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+
+  #SPT dust
+  SPT_AdustTT:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 5.46
+    proposal: 0.5
+  SPT3G_AdustTT:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 1.15
+    proposal: 0.5
+  SPT3G_AdustTE:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.073
+    proposal: 0.01
+  SPT3G_AdustEE:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.031
+    proposal: 0.01
+
+  #ACT dust
+  ACTd_AdustTT:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 4.87
+    proposal: 0.5
+  ACTd_AdustTE:
+    prior:
+      min: 0.
+      max: 5.
+    ref: 0.20
+    proposal: 0.05
+  ACTd_AdustEE:
+    prior:
+      min: 0.
+      max: 5.
+    ref: 0.07
+    proposal: 0.05
+  ACTw_AdustTT:
+    prior:
+      min: 10.
+      max: 20.
+    ref: 15.24
+    proposal: 0.5
+  ACTw_AdustTE:
+    prior:
+      min: 0.
+      max: 5.
+    ref: 0.62
+    proposal: 0.05
+  ACTw_AdustEE:
+    prior:
+      min: 0.
+      max: 5.
+    ref: 0.23
+    proposal: 0.05
+
+
+  #Radio
+  beta_radio:
+    prior:
+      min: -1.2
+      max: -0.2
+    ref: -0.8
+    proposal: 0.05
+
+
+theory:
+  cosmopower:
+    stop_at_error: False
+    path_to_trained_models: data/cosmopower/lcdm
+    TT_emulator: TTTEEE/TT_v1
+    TE_emulator: TTTEEE/TE_v1
+    EE_emulator: TTTEEE/EE_v1
+    DER_emulator: derived-parameters/DER_v1
+
+sampler:
+  mcmc:

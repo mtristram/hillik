@@ -1,0 +1,120 @@
+debug: false
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
+
+params:
+  # Cosmo
+  H0:
+    prior:
+      min: 60
+      max: 80
+    proposal: 1.
+    ref: 67.6
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    ref: 3.040
+    proposal: 0.05
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_\mathrm{s}
+  ns:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 0.968
+    proposal: 0.016
+  omegabh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    ref: 0.0222
+    proposal: 0.0003
+    latex: \Omega_\mathrm{b}h^2
+  omegach2:
+    prior:
+      min: 0.09
+      max: 0.15
+    ref: 0.119
+    proposal: 0.004
+  tau:
+    prior:
+      min: 0.01
+      max: 0.15
+    ref: 0.058
+    proposal: 0.03
+
+  #derived
+  theta_s_100:
+  sigma8:
+
+  #Dust amp
+  PLK_AdustTT:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_AdustTE:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+  PLK_AdustEE:
+    prior:
+      min: 0.
+      max: 3.
+    ref: 1.0
+    proposal: 0.05
+
+  beta_cib: 1.87
+  T_cib: 9.6
+
+  PLK_Adust100TT:
+    value: "lambda PLK_AdustTT: PLK_AdustTT*13500"
+  PLK_Adust143TT:
+    value: "lambda PLK_AdustTT: PLK_AdustTT*7500"
+  PLK_Adust217TT:
+    value: "lambda PLK_AdustTT: PLK_AdustTT*4500"
+  PLK_Adust100TE:
+    value: "lambda PLK_AdustTE: PLK_AdustTE*710"
+  PLK_Adust143TE:
+    value: "lambda PLK_AdustTE: PLK_AdustTE*450"
+  PLK_Adust217TE:
+    value: "lambda PLK_AdustTE: PLK_AdustTE*280"
+  PLK_Adust100EE:
+    value: "lambda PLK_AdustEE: PLK_AdustEE*285"
+  PLK_Adust143EE:
+    value: "lambda PLK_AdustEE: PLK_AdustEE*170"
+  PLK_Adust217EE:
+    value: "lambda PLK_AdustEE: PLK_AdustEE*100"
+
+  #Dust alpha
+  PLK_alpha_dust100TT: -2.6
+  PLK_alpha_dust143TT: -2.6
+  PLK_alpha_dust217TT: -2.6
+  PLK_alpha_dust100TE: -2.4
+  PLK_alpha_dust143TE: -2.4
+  PLK_alpha_dust217TE: -2.4
+  PLK_alpha_dust100EE: -2.4
+  PLK_alpha_dust143EE: -2.4
+  PLK_alpha_dust217EE: -2.4
+
+
+theory:
+  cosmopower:
+    stop_at_error: False
+    path_to_trained_models: data/cosmopower/lcdm
+    TT_emulator: TTTEEE/TT_v1
+    TE_emulator: TTTEEE/TE_v1
+    EE_emulator: TTTEEE/EE_v1
+    DER_emulator: derived-parameters/DER_v1
+
+sampler:
+  mcmc:
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/dust/hillik_plk_TTTEEE_AdustTT/mcmc.covmat

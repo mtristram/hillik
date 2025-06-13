@@ -1,0 +1,27 @@
+  #Dust
+  ACT_AdustTE:
+    prior:
+      dist: norm
+      loc: 0.423
+      scale: 0.03
+    ref: 0.423
+    proposal: 0.01
+    latex: A_\mathrm{dustTE}^{ACT}
+
+  ACT_beta_dustTE:
+    value: 1.5
+    latex: \beta_\mathrm{dustTE}^{ACT}
+
+  ACT_alpha_dustTE:
+    value: -2.4
+    latex: \alpha_\mathrm{dustTE}^{ACT}
+
+  # radio sources
+  ACT_radio_TE:
+    value: 0.
+#    prior:
+#      min: -1.0
+#      max:  1.0
+#    ref: 0.
+#    proposal: 0.01
+    latex: A_\mathrm{radioTE}^\mathrm{ACT}

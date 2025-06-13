@@ -3,40 +3,48 @@ import astropy.io.fits as fits
 import numpy as np
 import itertools
 from cobaya.log import HasLogger, LoggedError
+from scipy import constants
 import h5py
 
-t_cmb = 2.72548
-k_b = 1.3806503e-23
-h_pl = 6.626068e-34
+T_CMB = 2.72548
+k_b = constants.k #1.3806503e-23
+h_pl = constants.h #6.626068e-34
 
 
-#equivalent frequencies (experiment dependant)
-fsz = {
-    "PLK": {100:100.2, 143: 143, 217: 222},
-    "SPT": {95:96.55, 150:152.26, 220:220.1}, #col5 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
-    "SPT3G": {90:96.481, 150:148.949, 220:219.578}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
-    "ACTw": {98: 98.4, 150: 149.9},
-    "ACTd": {98: 98.4, 150: 150.1},
-    }
+#Temp Antenna conversion
+def dBdT( f):
+    """
+    Computes the conversion factor :math:`\frac{\partial B_{\nu}}{\partial T}`
+    from CMB thermodynamic units to differential source intensity.
 
-fdust = {
-    "PLK": {100:105.2, 143:148.5, 217:228.1, 353:370.5}, #alpha=4 from [Planck 2013 IX]
-    "SPT": {95:96.89, 150:153.37, 220:221.6, 353:353}, #col1 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
-    "SPT3G": {90:96.67, 150:149.9, 220:222.0, 353:353}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
-    "ACTw": {98: 98.6, 150: 150.8, 353:353},
-    "ACTd": {98: 98.6, 150: 151.1, 353:353},
-    }
+    :param f: frequency in  GHz
+    """
+    nu  = f*1e9
+    x   = h_pl*nu /(k_b*T_CMB)
+    return nu**4 * np.exp(x) / np.expm1(x)**2.
 
-fradio = {
-    "PLK": {100:100.4,143:140.5,217:218.6},
-    "SPT": {95:93.5, 150:149.46, 220:215.8}, #col3 in spt_hiell_2020.info (dusty_clustered, dusty_poisson, radio, ksz, tsz)
-    "SPT3G": {90:94.4, 150:146.0, 220:212.7}, #SPT3G_2018_TTTEEE_effective_band_centres.dat
-    "ACTw": {98: 95.8, 150: 147.2},
-    "ACTd": {98: 95.8, 150: 147.1},
-    }
+def f_Planck( f, T):
+    """
+    Computes Planck spectrum
 
-fcib = fdust
-fsync = fradio
+    :param f: frequency in GHz
+    :param T: Temperature in K
+    """
+    nu = f*1e9
+    x  = h_pl*nu /(k_b*T)
+    return nu**3 / np.expm1(x)
+
+def f_tsz( f):
+    """
+    Thermal Sunyaev-Zel'dovich in K_CMB
+
+    :param f: frequency in GHz
+    """
+    nu = f*1e9
+    x = h_pl*nu/(k_b*T_CMB)
+    return x/np.tanh(x/2.) - 4
+
+
 
 # MJy.sr-1 -> Kcmb for Planck bandpasses
 gnu = {
@@ -55,127 +63,69 @@ cc = {
 }
 
 
-#Parameter names
-#{survey}_A{fg}_{freq(xfreq)}
 
 # ------------------------------------------------------------------------------------------------
 # Foreground class
 # ------------------------------------------------------------------------------------------------
 class fgmodel(HasLogger):
     """
-    Class of foreground model for the Hillik likelihood
+    Class of foreground model in spectra domain
     Units: Dl in muK^2
-    Should return the model in Dl for a foreground emission given the parameters for all correlation of frequencies
+    Return the foreground model in Dl for all required cross-correlations
     """
 
     #frequency reference for fg amplitudes
     # ACT: 150 dust, 150 tSZ
     # SPT: 220 dust, 143 tSZ
     # SPT3G: 150 dust, 143 tSZ
-#    feff = 150
-    feff = 143
+    nu0 = 150.
+    lnorm = 3000
 
-    def _f_tsz( self, freq):
-        # Freq in GHz
-        nu = freq*1e9
-        xx=h_pl*nu/(k_b*t_cmb)
-        return xx*( 1/np.tanh(xx/2.) ) - 4
-
-    def _f_Planck( self, f, T):
-        # Freq in GHz
-        nu = f*1e9
-        xx  = h_pl*nu /(k_b*T)
-        return (nu**3.)/(np.exp(xx)-1.)
-
-    #Temp Antenna conversion
-    def _dBdT(self, f):
-        # Freq in GHz
-        nu  = f*1e9
-        xx  = h_pl*nu /(k_b*t_cmb)
-        return (nu)**4 * np.exp(xx) / (np.exp(xx)-1.)**2.
-
-    def _tszRatio( self, f, f0):
-        return self._f_tsz(f)/self._f_tsz(f0)
-
-    def _cibRatio( self, f, f0, beta=1.75, T=25): #T=9.7 ?!?
-        return (f/f0)**beta * (self._f_Planck(f,T)/self._f_Planck(f0,T)) / ( self._dBdT(f)/self._dBdT(f0) )
-    
-    def _dustRatio( self, f, f0, beta=1.5, T=19.6):
-        return (f/f0)**beta * (self._f_Planck(f,T)/self._f_Planck(f0,T)) / ( self._dBdT(f)/self._dBdT(f0) )
-    
-    def _radioRatio( self, f, f0, beta=-0.7):
-        return (f/f0)**beta / ( self._dBdT(f)/self._dBdT(f0) )
-
-    def _syncRatio( self, f, f0, beta=-0.7):
-        return (f/f0)**beta / ( self._dBdT(f)/self._dBdT(f0) )
-
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, **kwargs):
+    def __init__(self, lmax, cross_freq, mode="TT", survey="", **kwargs):
         """
         Create model for foreground
+
+        Input:
+            lmax: maxmimu multipole
+            cross_freq: list of cross-frequencies
+            mode: 'TT','TE', or 'EE'
+            survey: name of the survey (avail. 'PLK','ACT','SPT','SPT3G')
+        Options:
+            filename: template for spectrum
+            filenames: list of two template (or SZxCIB)
         """
         self.mode = mode
         self.lmax = lmax
-        self.name = None
         self.survey = survey
-        self.lnorm = lnorm
 
-        #effecftive frequencies
-        if self.survey not in fdust.keys():
-            raise ValueError( f"Missing DUST effective frequency for {self.survey}")
-        if self.survey not in fsz.keys():
-            raise ValueError( f"Missing SZ effective frequency for {self.survey}")
-        if self.survey not in fradio.keys():
-            raise ValueError( f"Missing RADIO effective frequency for {self.survey}")
-        if self.survey not in fcib.keys():
-            raise ValueError( f"Missing CIB effective frequency for {self.survey}")
-        if self.survey not in fsync.keys():
-            raise ValueError( f"Missing SYNC effective frequency for {self.survey}")
-        self.fdust  = fdust[survey]
-        self.fsz    = fsz[survey]
-        self.fradio = fradio[survey]
-        self.fcib   = fcib[survey]
-        self.fsync  = fsync[survey]
+        #depend on the model
+        self.name = None
+        self.dlfg = None
+        self.sed  = None
 
-        # Build the list of cross frequencies
-        if survey == "PLK":
-            #Remove auto-spectra and use separate TE and ET (e.g. Planck)
-            self._cross_frequencies = list(itertools.combinations(freqs, 2))
-            self.combine_TE_and_ET = False
-        elif "ACT" in survey:
-            #Use auto spectra with separated TE and ET (ACT)
-            if mode == "TE":
-                self._cross_frequencies = list(itertools.product(freqs, repeat=2))
-            else:
-                self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
-            self.combine_TE_and_ET = False
-        elif "SPT" in survey:
-            #Use auto spectra with combined TE and ET (SPT)
-            self._cross_frequencies = list(itertools.combinations_with_replacement(freqs, 2))
-            self.combine_TE_and_ET = True
-        else:
-            raise ValueError( f"Survey {survey} not supported")
-
+        self._cross_frequencies = cross_freq
+        self.ncross = len(cross_freq)
+        self._freqs = np.unique(list(itertools.chain(*cross_freq)))
+        
         self.set_logger()
-        pass
 
-    def _gen_dl_powerlaw( self, alpha, lnorm=3000):
+    def _gen_dl_powerlaw( self, alpha):
         """
         Generate power-law Dl template
         Input: alpha in Cl
         """
-        lmax = self.lmax if lnorm is None else max(self.lmax,lnorm)
+        lmax = max(self.lmax,self.lnorm)
         ell = np.arange( 2, lmax+1)
 
         template = np.zeros( lmax+1)
         template[np.array(ell,int)] = ell*(ell+1)/2/np.pi * ell**(alpha)
 
-        #normalize l=3000
-        if lnorm is not None:
-            template = template / template[lnorm]
+        #normalize Dl
+        template = template / template[self.lnorm]
 
         return template[:self.lmax+1]
 
-    def _read_dl_template( self, filename, lnorm=3000):
+    def _read_dl_template( self, filename):
         """
         Read FG template (in Dl, muK^2)
         WARNING: need to check file before reading...
@@ -190,9 +140,11 @@ class fgmodel(HasLogger):
         template = np.zeros( max(self.lmax,int(max(l))) + 1)
         template[np.array(l,int)] = data
 
-        #normalize l=3000
-        if lnorm is not None:
-            template = template / template[lnorm]
+        #normalize Dl
+        if self.lnorm < max(l):
+            template = template / template[self.lnorm]
+        else:
+            raise ValueError( f"WARNING: template {filename} cannot be normalized (l0={self.lnorm}")
         
         return template[:self.lmax+1]
 
@@ -202,6 +154,140 @@ class fgmodel(HasLogger):
         """
         pass
 
+    def get_sed( self):
+        """
+        Return frequency model
+        """
+        return self.sed
+
+    def get_dlfg( self):
+        """
+        Return spectra shape
+        """
+        return self.dlfg
+
+        
+
+
+class SED(HasLogger):
+    """
+    Class for computing SED of foreground components in muK_CMB
+    It takes into account instrumental effects by either use effective frequencies,
+    integrate over the bandpass, or include beam chromaticity (see ACT-DR6)
+    """
+    name = ""
+    
+    def __init__(self, **kwargs):
+        """
+        Init SED for foregrounds
+        Can be of three types:
+            - integrate beam chromaticity over the bandpass (fg_Ratio,beams=dict(freq={nu,beam,bandpass}))
+            - bandpass integration (fg_Ratio,bandpass=dict(freq={nu,transmission}))
+            - effective frequency (fg_Ratio,nu_eff=dict(freq=feff))
+        """
+
+        amp = {}
+        self._bp_shifts = {}
+
+        if 'beams' in kwargs:
+            self._beams = kwargs['beams']
+            self._sed = self._beam_chromaticity
+            
+        elif 'bandpass' in kwargs:
+            self._bandpass = kwargs['bandpass']
+            self._sed = self._bandpass_integration
+
+        elif 'feff' in kwargs:
+            self._feff = kwargs['feff'][self.name]
+            self._sed = self._nu_eff
+
+        else:
+            self._sed = self._nu_default
+
+    #DEFINE SED FOR THE SKY COMPONENT
+    def fgRatio( nu, nu0, **kwargs):
+        pass
+
+    def set_bandpass_shifts( self, bp_shifts):
+        for k,v in bp_shifts.items():
+            self._bp_shifts[k] = v
+    
+    def __call__(self, *args, **kwargs):
+        return self.eval(*args, **kwargs)
+
+    def eval( self, exps, **kwargs):
+        return self._sed( exps, **kwargs)
+
+    def _beam_chromaticity( self, exps, **kwargs):
+        amp = {}
+        for f in exps:
+            bpl = self._beams[f]
+
+            nu = bpl['nu'] + self._bp_shifts[f]
+            rl = bpl['bandpass']*dBdT(nu)*bpl['beam']
+            rl /= np.trapz(rl,nu)[...,np.newaxis]
+            
+            fl = rl*self.fgRatio(nu, **kwargs)
+            amp[f] = np.trapz(fl,nu)
+
+        return amp
+
+    def _bandpass_integration( self, exps, **kwargs):
+        amp = {}
+        for f in exps:
+            bp = self._bandpass[f]
+            nu = bp['nu'] + self._bp_shifts[f]
+            U = np.trapz(bp['transmission']*dBdT(nu)*self.fgRatio(bp['nu'],**kwargs), nu)
+            D = np.trapz(bp['transmission']*dBdT(nu), nu)
+            amp[f] = U/D
+        return amp
+
+    def _nu_eff( self, exps, **kwargs):
+        amp = {}
+        for f in exps:
+            amp[f] = self.fgRatio(self._feff[f],**kwargs)
+        return amp
+
+    def _nu_default( self, exps, **kwargs):
+        amp = {}
+        for f in exps:
+            amp[f] = self.fgRatio( f,**kwargs)
+        return amp
+        
+
+
+#frequency reference for fg amplitudes
+# ACT: 150 dust, 150 tSZ
+# SPT: 220 dust, 143 tSZ
+# SPT3G: 150 dust, 143 tSZ
+Tcib = 25.  #T=9.7 ?!?
+
+class TSZ(SED):
+    name = "tsz"
+    def fgRatio( self, nu, nu0=150):
+        return f_tsz(nu)/f_tsz(nu0)
+
+class CIB(SED):
+    name = "cib"
+    def fgRatio( self, nu, nu0=150, beta=1.75, T=25):
+        return (nu/nu0)**beta * (f_Planck(nu,T)/f_Planck(nu0,T)) / ( dBdT(nu)/dBdT(nu0) )
+    
+class DUST(SED):
+    name = "dust"
+    def fgRatio( self, nu, nu0=150, beta=1.5, T=19.6):
+        return (nu/nu0)**beta * (f_Planck(nu,T)/f_Planck(nu0,T)) / ( dBdT(nu)/dBdT(nu0) )
+    
+class RADIO(SED):
+    name = "radio"
+    def fgRatio( self, nu, nu0=150, beta=-0.7):
+        return (nu/nu0)**beta / ( dBdT(nu)/dBdT(nu0) )
+
+class SYNC(SED):
+    name = "sync"
+    def fgRatio( self, nu, nu0=150, beta=-0.7):
+        return (nu/nu0)**beta / ( dBdT(nu)/dBdT(nu0) )
+
+
 
 # ------------------------------------------------------------------------------------------------
 
@@ -210,16 +296,16 @@ class fgmodel(HasLogger):
 
 # Point Sources (for TT)
 class ps(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey=""):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "PS"
-        self.dltemp = self._gen_dl_powerlaw(0.,lnorm=lnorm)
+        self.dlfg = self._gen_dl_powerlaw(0.)
 
     def compute_dl(self, pars, **kwargs):
         if self.mode == "TT":
             dl_ps = []
             for f1, f2 in self._cross_frequencies:
-                dl_ps.append( pars[f"{self.survey}_ps_{f1}x{f2}"] * self.dltemp)
+                dl_ps.append( pars[f"{self.survey}_ps_{f1}x{f2}"] * self.dlfg)
             return np.array(dl_ps)
         else:
             return 0.
@@ -227,47 +313,44 @@ class ps(fgmodel):
 
 # Radio Point Sources (v**alpha)
 class ps_radio(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "PS radio"
-        self.ll2pi = self._gen_dl_powerlaw(0.,lnorm=lnorm)
+        self.dlfg = self._gen_dl_powerlaw(0.)
+        self.sed = RADIO( **kwargs)
 
     def compute_dl(self, pars, **kwargs):
         dl = []
+        self.sed.set_bandpass_shifts( {f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_radio'])
         for f1, f2 in self._cross_frequencies:
-            dl.append(
-                self.ll2pi
-                * self._radioRatio( self.fradio[f1], self.feff, beta=pars['beta_radio'])
-                * self._radioRatio( self.fradio[f2], self.feff, beta=pars['beta_radio'])
-            )
+            dl.append( self.dlfg * sed[f1] * sed[f2] )
 
-        if self.mode == "TT":
-            return pars[f"{self.survey}_radio_ps"] * np.array(dl)
-        else:
-            return 0.
+        return pars[f"{self.survey}_radio_{self.mode}"] * np.array(dl)
 
+radio_poisson = ps_radio
 
 # Infrared Point Sources
 class ps_dusty(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "PS dusty"
-        self.ll2pi = self._gen_dl_powerlaw(0.,lnorm=lnorm)
+        self.dlfg = self._gen_dl_powerlaw(0.)
+        self.sed  = CIB( **kwargs)
 
     def compute_dl(self, pars, **kwargs):
         dl = []
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_dusty'], T=pars.get('T_cib',Tcib))
         for f1, f2 in self._cross_frequencies:
-            dl.append(
-                self.ll2pi
-                * self._cibRatio( self.fcib[f1], self.feff, beta=pars['beta_dusty'])
-                * self._cibRatio( self.fcib[f2], self.feff, beta=pars['beta_dusty'])
-            )
+            dl.append( self.dlfg * sed[f1] * sed[f2] )
 
         if self.mode == "TT":
             return pars[f"{self.survey}_cib_ps"] * np.array(dl)
         else:
             return 0.
 
+cib_poisson = ps_dusty
 
 
 #Galactic Dust model
@@ -276,64 +359,49 @@ class ps_dusty(fgmodel):
 #Dl SPT3G: -0.53 for TT, -0.42 for TE, -0.42 for EE (fit with strong prior)
 #Dl Planck: -0.63 for TT, -0.4 for TE
 class dust(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=80):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "Dust"
-
-        if filename is None:
-            alpha_dust = -2.5 if mode == "TT" else -2.4
-            self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
-        else:
-            self.dlg = self._read_dl_template( filename)
+        self.lnorm = kwargs.get('lnorm',200)
+        self.sed = DUST( **kwargs)
         
-    def compute_dl(self, pars, **kwargs):
-        if   self.mode == "TT": beta1,beta2 = pars[f"{self.survey}_beta_dustT"],pars[f"{self.survey}_beta_dustT"]
-        elif self.mode == "TE": beta1,beta2 = pars[f"{self.survey}_beta_dustT"],pars[f"{self.survey}_beta_dustP"]
-        elif self.mode == "ET": beta1,beta2 = pars[f"{self.survey}_beta_dustP"],pars[f"{self.survey}_beta_dustT"]
-        elif self.mode == "EE": beta1,beta2 = pars[f"{self.survey}_beta_dustP"],pars[f"{self.survey}_beta_dustP"]
-
-        if   self.mode == "TT": ad1,ad2 = pars[f'{self.survey}_AdustT'],pars[f'{self.survey}_AdustT']
-        elif self.mode == "TE": ad1,ad2 = pars[f'{self.survey}_AdustT'],pars[f'{self.survey}_AdustP']
-        elif self.mode == "ET": ad1,ad2 = pars[f'{self.survey}_AdustP'],pars[f'{self.survey}_AdustT']
-        elif self.mode == "EE": ad1,ad2 = pars[f'{self.survey}_AdustP'],pars[f'{self.survey}_AdustP']
-
-        #PLK amplitude of Dl(l=10) at 353GHz
-        PLK_dl353 = {'TT':{100:108125,143:31700,217:14700},
-                     'EE':{100:995,143:610,217:380},
-                     'TE':{100:2400,143:1540,217:1000},
-                     'ET':{100:2400,143:1540,217:1000}}
-        PLK_alpha = {'TT':{100:-2.6,143:-2.4,217:-2.3},
-                     'EE':{f:-2.4 for f in [100,143,217]},
-                     'TE':{f:-2.4 for f in [100,143,217]},
-                     'ET':{f:-2.4 for f in [100,143,217]}}
-
+    def compute_dl(self, pars):
         dl = []
-        for xf, (f1, f2) in enumerate(self._cross_frequencies):
-            #rescale PLK for each combination of mask
-            if self.survey == "PLK":
-                dlg = self._gen_dl_powerlaw( PLK_alpha[self.mode][max(f1,f2)],lnorm=self.lnorm)
-                ad = PLK_dl353[self.mode][max(f1,f2)]/dlg[10]
-            else:
-                ad = 1.
-                dlg = self.dlg
 
-            dl.append( ad * ad1 * ad2 * dlg
-                       * self._dustRatio( self.fdust[f1], self.fdust[353], beta=beta1)
-                       * self._dustRatio( self.fdust[f2], self.fdust[353], beta=beta2)
-                       )
+#        nu0 = 353 if self.survey == "PLK" else 150
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars[f'{self.survey}_beta_dust{self.mode}'], T=pars.get('T_dust',19.6))
+
+        for xf, (f1, f2) in enumerate(self._cross_frequencies):
+
+            if self.survey == "PLK":
+                #rescale PLK for each combination of mask
+                alpha = pars[f'{self.survey}_alpha_dust{max(f1,f2)}{self.mode}']
+                ad    = pars[f'{self.survey}_Adust{max(f1,f2)}{self.mode}']
+            else:
+                alpha = pars[f'{self.survey}_alpha_dust{self.mode}']
+                ad    = pars[f'{self.survey}_Adust{self.mode}']
+            dlg = self._gen_dl_powerlaw( alpha)
+
+#            ell = np.arange( 2,self.lmax+1)
+#            dlg = np.zeros( self.lmax+1)
+#            dlg[ell] = (ell/self.lnorm)**(2+alpha)
+            
+            dl.append( ad * dlg * sed[f1] * sed[f2] )
+
         return np.array(dl)
 
 
 #Dust amplitudes
 class dust_amplitude(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
-        self.name = "Dust Amplitudes"        
-        self.dlg = np.zeros( lmax+1)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
+        self.name = "Dust Amplitudes"
+        self.lnorm = 200
+        self.dlfg = np.zeros( lmax+1)
 
-        ell = np.arange( 2, lmax+1)
         alpha_dust = -2.5 if mode == "TT" else -2.4
-        self.dlg = self._gen_dl_powerlaw( alpha_dust,lnorm=lnorm)
+        self.dlfg = self._gen_dl_powerlaw( alpha_dust)
     
     def compute_dl(self, pars, **kwargs):
         if   self.mode == "TT": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustT'
@@ -343,33 +411,29 @@ class dust_amplitude(fgmodel):
 
         dl = []
         for f1, f2 in self._cross_frequencies:
-            dl.append( pars[ad1+f"_{f1}"] * pars[ad2+f"_{f2}"] * self.dlg)
+            dl.append( pars[ad1+f"_{f1}"] * pars[ad2+f"_{f2}"] * self.dlfg)
 
         return np.array(dl)
 
 
 # Synchrotron model
 class sync(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=200):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "Synchrotron"
-
-        #check effective freqs
-        for f in freqs:
-            if f not in self.fsyn:
-                raise ValueError( f"Missing SYNC effective frequency for {f}")
+        self.lnorm = 200
 
         alpha_syn = -2.5  #Cl template power-law TBC
-        self.dl_syn = self._gen_dl_powerlaw( alpha_syn, lnorm=100)
-        self.beta_syn = -0.7
+        self.dlfg = self._gen_dl_powerlaw( alpha_syn)
+        self.sed = SYNC( **kwargs)
 
     def compute_dl(self, pars, **kwargs):
         dl = []
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=beta_syn)
         for f1, f2 in self._cross_frequencies:
-            dl.append( self.dl_syn
-                       * self._syncRatio( self.fsyn[f1], self.feff, beta=self.beta_syn)
-                       * self._syncRatio( self.fsyn[f2], self.feff, beta=self.beta_syn)
-                       )
+            dl.append( self.dlfg * sed[f1] * sed[f2] )
+    
         if self.mode == "TT":
             return pars[f"{self.survey}_AsyncT"] * np.array(dl)
         elif self.mode == "EE":
@@ -378,75 +442,77 @@ class sync(fgmodel):
             return 0.
 
 
-# CIB clustered (one spectrum for all freqs)
+# CIB clustered
 class cib(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "clustered CIB"
 
-        #check effective freqs
-        for f in freqs:
-            if f not in self.fcib.keys():
-                raise ValueError( f"Missing CIB effective frequency for {f}")
-
-        if filename is None:
-            alpha_cib = -1.3
-            self.dl_cib = self._gen_dl_powerlaw( alpha_cib, lnorm=lnorm)
+        if 'filename' in kwargs:
+            self.dlfg = self._read_dl_template( kwargs['filename'])
         else:
-            self.dl_cib = self._read_dl_template( filename, lnorm=lnorm)
+            alpha_cib = -1.3
+            self.dlfg = self._gen_dl_powerlaw( alpha_cib)
+        self.sed = CIB( **kwargs)
 
     def compute_dl(self, pars, **kwargs):
         dl = []
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_cib'],T=pars.get('T_cib',Tcib))
         for f1, f2 in self._cross_frequencies:
-            dl.append( self.dl_cib
-                       * self._cibRatio(self.fcib[f1],self.feff,pars['beta_cib'],pars.get('T_cib',25.))
-                       * self._cibRatio(self.fcib[f2],self.feff,pars['beta_cib'],pars.get('T_cib',25.))
-                       )
+            dl.append( self.dlfg * sed[f1] * sed[f2] )
+
         if self.mode == "TT":
             return pars["Acib"] * np.array(dl)
         else:
             return 0.
 
 
-#thermal SZ (one spectrum for all freqs)
+#thermal SZ
 class tsz(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "tSZ"
 
-        #check effective freqs
-        for f in freqs:
-            if f not in self.fsz.keys():
-                raise ValueError( f"Missing SZ effective frequency for {f}")
+        if 'filename' not in kwargs:
+            raise ValueError( f"Missing SZ Cl shape")
+            
+        self.dlfg = self._read_dl_template( kwargs['filename'])
+        self.sed  = TSZ( **kwargs)
 
-        self.dl_sz = []
-        sz_tmpl = self._read_dl_template( filename, lnorm=lnorm)
-        
-        self.dl_sz = []
+    def compute_dl(self, pars):
+
+        dl_sz = []
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0)
+
+        #rescale by l**alpha_tsz
+        ell = np.arange( 2, self.lmax+1)
+        dlfg = self.dlfg.copy()
+        dlfg[ell] = dlfg[ell] * (ell/self.lnorm)**(pars.get('alpha_tsz',0.))
+
         for f1, f2 in self._cross_frequencies:
-            self.dl_sz.append( sz_tmpl
-                               * self._tszRatio(self.fsz[f1],self.feff)
-                               * self._tszRatio(self.fsz[f2],self.feff)
-                               )
-        self.dl_sz = np.array(self.dl_sz)
+            dl_sz.append( dlfg * sed[f1] * sed[f2] )
 
-    def compute_dl(self, pars, **kwargs):
         if self.mode == "TT":
-            return pars["Atsz"] * self.dl_sz
+            return pars["Atsz"] * np.array(dl_sz)
         else:
             return 0.
 
 
-#kinetic SZ (one spectrum for all freqs)
+#kinetic SZ
 class ksz(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "kSZ"
 
+        if 'filename' not in kwargs:
+            raise ValueError( f"Missing SZ Cl shape")
+            
+        self.dlfg = self._read_dl_template( kwargs['filename'])
         self.dl_ksz = []
-        ksz_tmpl = self._read_dl_template( filename, lnorm=lnorm)
         for f1, f2 in self._cross_frequencies:
-            self.dl_ksz.append(ksz_tmpl)
+            self.dl_ksz.append(self.dlfg)
         self.dl_ksz = np.array(self.dl_ksz)
 
     def compute_dl(self, pars, **kwargs):
@@ -457,38 +523,30 @@ class ksz(fgmodel):
 
 
 
-# SZxCIB model (one spectrum for all freqs)
+# SZxCIB model
 class szxcib(fgmodel):
-    def __init__(self, lmax, freqs, mode="TT", auto=False, survey="", filename=None, lnorm=3000, **kwargs):
-        super().__init__(lmax, freqs, mode=mode, auto=auto, survey=survey, lnorm=lnorm)
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "SZxCIB"
 
-        #check effective freqs for SZ
-        for f in freqs:
-            if f not in self.fsz.keys():
-                raise ValueError( f"Missing SZ effective frequency for {f}")
-
-        #check effective freqs for cib
-        for f in freqs:
-            if f not in self.fcib.keys():
-                raise ValueError( f"Missing Dust effective frequency for {f}")
-
-        self._is_template = filename
-        if self._is_template:
-            self.x_tmpl = self._read_dl_template(filename, lnorm=lnorm)
+        if 'filename' in kwargs:
+            self.dlfg = self._read_dl_template(kwargs['filename'])
         elif "filenames" in kwargs:
-            self.x_tmpl = self._read_dl_template(kwargs["filenames"][0], lnorm=lnorm)*self._read_dl_template(kwargs["filenames"][1], lnorm=lnorm)
+            self.dlfg = self._read_dl_template(kwargs["filenames"][0])*self._read_dl_template(kwargs["filenames"][1])
         else:
             raise ValueError( f"Missing template for SZxCIB  for {self.survey}")
-            
-    def compute_dl(self, pars, **kwargs):
+
+        self.sed_tsz = TSZ( **kwargs)
+        self.sed_cib = CIB( **kwargs)
+
+    def compute_dl(self, pars):
         dl_szxcib = []
+        self.sed_tsz.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        self.sed_cib.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        tsz = self.sed_tsz( self._freqs, nu0=self.nu0)
+        cib = self.sed_cib( self._freqs, nu0=self.nu0, beta=pars['beta_cib'], T=pars.get('T_cib',Tcib))
         for f1, f2 in self._cross_frequencies:
-            dl_szxcib.append( self.x_tmpl * np.sqrt(pars["Acib"]*pars["Atsz"]) * (
-                self._tszRatio(self.fsz[f2],self.feff) * self._cibRatio(self.fcib[f1], self.feff, pars['beta_cib']) +
-                self._tszRatio(self.fsz[f1],self.feff) * self._cibRatio(self.fcib[f2], self.feff, pars['beta_cib'])
-                )
-            )
+            dl_szxcib.append( self.dlfg * np.sqrt(pars["Acib"]*pars["Atsz"]) * ( tsz[f2]*cib[f1] + tsz[f1]*cib[f2] ) )
 
         if self.mode == "TT":
             return -1. * pars["xi"] * np.array(dl_szxcib)

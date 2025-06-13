@@ -19,25 +19,20 @@ from cobaya.log import LoggedError
 import hillik_foregrounds as fg
 from . import bins
 
-#list of available foreground models
-fg_list = {
-    "cib": fg.cib,
-    "poisson": fg.ps,
-    "radio_poisson": fg.ps_radio,
-    "cib_poisson": fg.ps_dusty,
-    "dust": fg.dust,
-    "dust_amplitude": fg.dust_amplitude,
-    "synchroton": fg.sync,
-    "tsz": fg.tsz,
-    "ksz": fg.ksz,
-    "szxcib": fg.szxcib,
-    "halo_model": fg.halo_model,
-    }
 
 #bintab for Hillipop lite
 lite_lmins = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10))
 lite_lmaxs = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10)+9)
 
+#effective frequencies
+maps = ["100A", "100B", "143A", "143B", "217A", "217B"]
+feff = {
+    "tsz":   {100:100.2, 143:143.0, 217:222.0},
+    "dust":  {100:105.2, 143:148.5, 217:228.1}, #alpha=4 from [Planck 2013 IX]
+    "cib":   {100:105.2, 143:148.5, 217:228.1}, #alpha=4 from [Planck 2013 IX]
+    "radio": {100:100.4, 143:140.5, 217:218.6},
+    "sync":  {100:100.4, 143:140.5, 217:218.6},
+    }
 
 
 # ------------------------------------------------------------------------------------------------
@@ -48,6 +43,8 @@ data_url = "https://portal.nersc.gov/cfs/cmb/planck2020/likelihoods"
 
 
 class _HillipopLikelihood(InstallableLikelihood):
+    type = "CMB"
+
     fgds_folder: Optional[str] = "foregrounds"
     data_folder: Optional[str] = "planck_2020/hillipop"
     multipoles_range_file: Optional[str]
@@ -102,7 +99,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         self.lmax = np.max([l.max() for l in self._lmaxs.values()])
         
         #Bin strategy
-        if self._is_mode['TT']: 
+        if self._is_mode['TT']:
             self.wf = bins.Bins( lite_lmins, lite_lmaxs)
         else:
             self.wf = bins.Bins.fromdeltal( 2, self.lmax+1, 1)
@@ -122,55 +119,27 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._invkll = self._invkll.astype('float32')   #speed-up X@C@X
         
         # Foregrounds
-        self.fgs = {}  # list of foregrounds per mode [TT,EE,TE,ET]
-        # Init foregrounds TT
-        fgsTT = []
-        if self._is_mode["TT"]:
-            for name in self.foregrounds["TT"].keys():
-                if name not in fg_list.keys():
+        self.fgs = {tag:[] for tag,v in self._is_mode.items() if v}  # list of foregrounds per mode [TT,EE,TE,ET]
+        if 'TE' in self.foregrounds: self.foregrounds['ET'] = self.foregrounds['TE']
+        for tag,fgs in self.fgs.items():
+            for name in self.foregrounds[tag].keys():
+                if not hasattr( fg, name):
                     raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-                
-                self.log.debug("Adding '{}' foreground for TT".format(name))
-                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="TT", auto=False, survey=self.survey)
-                if isinstance(self.foregrounds["TT"][name], str):
-                    kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds["TT"][name])
+
+                self.log.debug("Adding '{}' foreground for {}".format(name,tag))
+                kwargs = dict(lmax=self.lmax, cross=list(combinations(self.frequencies, 2)), mode=tag, survey=self.survey, feff=feff)
+                if isinstance(self.foregrounds[tag][name], str):
+                    kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag][name])
                 elif name == "szxcib":
-                    filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
-                    filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
+                    filename_tsz = self.foregrounds[tag]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["tsz"])
+                    filename_cib = self.foregrounds[tag]["cib"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["cib"])
                     kwargs["filenames"] = (filename_tsz,filename_cib)
-                if name == "halo_model":
+                elif name == "halo_model":
                     self.use_halo_model = True
-                fgsTT.append(fg_list[name](**kwargs))
-        self.fgs['TT'] = fgsTT
-        
-        # Init foregrounds EE
-        fgsEE = []
-        if self._is_mode["EE"]:
-            for name in self.foregrounds["EE"].keys():
-                if name not in fg_list.keys():
-                    raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-                
-                self.log.debug("Adding '{}' foreground for EE".format(name))
-                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, mode="EE", auto=False, survey=self.survey)
-                fgsEE.append(fg_list[name](**kwargs))
-        self.fgs['EE'] = fgsEE
-        
-        # Init foregrounds TE
-        fgsTE = []
-        fgsET = []
-        if self._is_mode["TE"]:
-            for name in self.foregrounds["TE"].keys():
-                if name not in fg_list.keys():
-                    raise LoggedError(self.log, "Unkown foreground model '%s'!", name)
-                
-                self.log.debug("Adding '{}' foreground for TE".format(name))
-                kwargs = dict(lmax=self.lmax, freqs=self.frequencies, auto=False, survey=self.survey)
-                fgsTE.append(fg_list[name](mode="TE", **kwargs))
-                fgsET.append(fg_list[name](mode="ET", **kwargs))
-        self.fgs['TE'] = fgsTE
-        self.fgs['ET'] = fgsET
+                fgs.append(getattr(fg,name)(**kwargs))
         
         self.log.info("Initialized!")
+
 
     def _xspec2xfreq(self):
         list_fqs = []
@@ -333,12 +302,8 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         # Model
         dlmodel = [dlth[mode]] * self._nxspec
-#        dlfg = []
         for fg in self.fgs[mode]:
             dlmodel += fg.compute_dl(pars, theory=self.provider)
-#            dlfg.append( fg.compute_dl(pars))
-#        print( "write fgs templates")
-#        np.save( "hillik_plk_fgs", np.array(dlfg))
 
         # Compute Rl = Dl - Dlth
         Rspec = np.array([dldata[xs] - cal[xs] * dlmodel[xs] for xs in range(self._nxspec)])
@@ -398,22 +363,23 @@ class _HillipopLikelihood(InstallableLikelihood):
             # select multipole range
             Xl += self._select_spectra(Rl / Wl, 'TE')
 
-        self.delta_cl = np.asarray(Xl).astype('float32')
-#        chi2 = self.delta_cl @ self._invkll @ self.delta_cl
-        chi2 = self._invkll.dot(self.delta_cl).dot(self.delta_cl)
+        self.delta_dl = np.asarray(Xl).astype('float32')
+#        chi2 = self.delta_dl @ self._invkll @ self.delta_dl
+#        chi2 = self._invkll.dot(self.delta_dl).dot(self.delta_dl)
+        chi2 = self._fast_chi_squared(self._invkll, self.delta_dl)
 
         #protect against cast float32
         alpha = 8. - np.ceil(np.log10(chi2))
         chi2 = np.float64(np.round(chi2*10**alpha))*10**(-alpha)
 
-        self.log.debug(f"chi2/ndof = {chi2}/{len(self.delta_cl)}")
+        self.log.debug(f"chi2/ndof = {chi2}/{len(self.delta_dl)}")
         return chi2
 
     def dof( self):
         return len( self._invkll)
         
     def reduction_matrix(self, mode=0):
-        X = np.zeros( (len(self.delta_cl),self.lmax+1) )
+        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
         x0 = 0
         for xf in range(self._nxfreq):
             lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]

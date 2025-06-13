@@ -33,21 +33,28 @@ calib_params = {
 
 nuisance_params = {
     "TT": {
-        "PLK_AdustT": 1.1,
+        "PLK_Adust100TT": 20.,
+        "PLK_Adust143TT": 10.,
+        "PLK_Adust217TT":  6.,
         "Acib": 1.03,
         "Atsz": 6.,
         "Aksz": 1.,
         "xi": 0.1,
         "beta_cib": 1.75,
-        "PLK_radio_ps": 60.,
+        "beta_radio": -0.8,
+        "PLK_radio_TT": 60.,
         "PLK_cib_ps": 6.,
+        "PLK_alpha_dustTT": -2.6
         },
     "EE": {
-        "PLK_AdustP": 1.,
+        "PLK_Adust100EE": 0.4,
+        "PLK_Adust143EE": 0.2,
+        "PLK_Adust217EE": 0.1,
         },
     "TE": {
-        "PLK_AdustT": 1.,
-        "PLK_AdustP": 1.,
+        "PLK_Adust100TE": 1.,
+        "PLK_Adust143TE": 0.6,
+        "PLK_Adust217TE": 0.06,
         },
 }
 nuisance_params["TTTEEE"] = {
@@ -56,7 +63,8 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["EE"],
 }
 
-chi2s = {"TT": 2041.72, "EE": 9509.14, "TE": 10103.21}
+#chi2s = {"TT": 9231.9894, "EE": 9509.2059, "TE": 10214.672, "TTTEEE": 13138.09}
+chi2s = {"TT": 9231.9894, "EE": 9509.2059, "TE": 10214.672}
 
 
 class HillikPlkTest(unittest.TestCase):
@@ -93,7 +101,7 @@ class HillikPlkTest(unittest.TestCase):
 
         for mode, chi2 in chi2s.items():
             info = {
-                "debug": True,
+                "debug": False,
                 "likelihood": {"hillik_planck.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
                 "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
