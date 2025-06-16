@@ -379,13 +379,16 @@ class _HillipopLikelihood(InstallableLikelihood):
         
     def reduction_matrix(self, mode=0):
         X = np.zeros( (len(self.delta_dl),self.lmax+1) )
+
         x0 = 0
         for xf in range(self._nxfreq):
             lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
             lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
-            for il,l in enumerate(range(lmin,lmax+1)):
-                X[x0+il,l] = 1
-            x0 += (lmax-lmin+1)
+            mywf = deepcopy( self.wf)
+            mywf.cut_binning( lmin, lmax)
+            for il,(bmin,bmax,dl) in enumerate(zip(mywf.lmins,mywf.lmaxs,mywf.dl)):
+                X[x0+il,bmin:bmax+1] = 1/dl
+            x0 += mywf.nbins
         
         return X
 
