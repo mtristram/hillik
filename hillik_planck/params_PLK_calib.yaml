@@ -1,3 +1,4 @@
+  #Absolute calibration
   A_planck:
     prior:
       dist: norm
@@ -10,19 +11,21 @@
     proposal: 0.0005
     latex: y_\mathrm{cal}
     renames: calPlanck
+
+  #Map calibrations
   PLK_cal_100A:
     prior:
       min: 0.9
       max: 1.1
     ref: 1.0
-    proposal: 0.007
+    proposal: 0.01
     latex: c^{PLK}_\mathrm{100A}
   PLK_cal_100B:
     prior:
       min: 0.9
       max: 1.1
     ref: 1.0
-    proposal: 0.007
+    proposal: 0.01
     latex: c^{PLK}_\mathrm{100B}
   PLK_cal_143A:
     value: 1.0
@@ -32,63 +35,63 @@
       min: 0.9
       max: 1.1
     ref: 1.0
-    proposal: 0.007
+    proposal: 0.01
     latex: c^{PLK}_\mathrm{143B}
   PLK_cal_217A:
     prior:
       min: 0.9
       max: 1.1
     ref: 1.0
-    proposal: 0.007
+    proposal: 0.01
     latex: c^{PLK}_\mathrm{217A}
   PLK_cal_217B:
     prior:
       min: 0.9
       max: 1.1
     ref: 1.0
-    proposal: 0.007
+    proposal: 0.01
     latex: c^{PLK}_\mathrm{217B}
 
-  #Polar efficiency
+  #Polar efficiencies
   PLK_pe_100A:
     prior:
-      min: 0.5
-      max: 1.5
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.1
+    proposal: 0.03
     latex: \eta^{PLK}_\mathrm{100A}
   PLK_pe_100B:
     prior:
-      min: 0.5
-      max: 1.5
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.1
+    proposal: 0.03
     latex: \eta^{PLK}_\mathrm{100B}
   PLK_pe_143A:
     prior:
-      min: 0.5
-      max: 1.5
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.1
+    proposal: 0.03
     latex: \eta^{PLK}_\mathrm{143A}
   PLK_pe_143B:
     prior:
-      min: 0.5
-      max: 1.5
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.1
+    proposal: 0.03
     latex: \eta^{PLK}_\mathrm{143B}
   PLK_pe_217A:
     prior:
-      min: 0.5
-      max: 1.5
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.1
+    proposal: 0.03
     latex: \eta^{PLK}_\mathrm{217A}
   PLK_pe_217B:
     prior:
-      min: 0.5
-      max: 1.5
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.1
+    proposal: 0.03
     latex: \eta^{PLK}_\mathrm{217B}
