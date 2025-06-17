@@ -18,8 +18,9 @@
   #PS
   SPT3G_radio_EE:
     prior:
-      min: 0.
-      max: 10.
-    ref: 1.
-    proposal: 1.
+      dist: norm
+      loc: 0.0
+      scale: 0.05
+    ref: 0.
+    proposal: 0.05
     latex: A_\mathrm{radioEE}^\mathrm{SPT3G}

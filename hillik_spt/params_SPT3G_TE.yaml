@@ -17,9 +17,5 @@
 
   #PS
   SPT3G_radio_TE:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 1.
-    proposal: 1.
+    value: 0.
     latex: A_\mathrm{radioTE}^\mathrm{SPT3G}

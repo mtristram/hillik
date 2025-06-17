@@ -18,10 +18,10 @@
 
   #radio sources
   ACT_radio_EE:
-    value: 0.
-#    prior:
-#      min: 0.
-#      max: 1.
-#    ref: 0.
-#    proposal: 0.01
+    prior:
+      dist: norm
+      loc: 0.2
+      scale: 0.05
+    ref: 0.
+    proposal: 0.02
     latex: A_\mathrm{radioEE}^\mathrm{ACT}
