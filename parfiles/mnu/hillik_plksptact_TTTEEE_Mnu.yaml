@@ -8,8 +8,7 @@ likelihood:
   hillik_spt.TTTEEE:
     spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
     spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-  hillik_act.TTTEEE:
-    lmin: 2000
+  hillik_act.TTTEEE_lmin: null
 
 params:
   # Cosmo
