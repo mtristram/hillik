@@ -94,11 +94,11 @@ fg_params = {
         ),
     "TE": dict(
         SPT3G_AdustTE=0.073,
-        SPT3G_radio_TE=1.,
+        SPT3G_radio_TE=0.,
         ),
     "EE": dict(
         SPT3G_AdustEE=0.031,
-        SPT3G_radio_EE=1.,
+        SPT3G_radio_EE=0.01,
         ),
     "TTTEEE": dict(
         SPT3G_AdustTT=1.15,
@@ -112,8 +112,8 @@ fg_params = {
         beta_radio=-0.8,
         SPT3G_cib_ps=7.,
         SPT3G_radio_TT=10.,
-        SPT3G_radio_TE=1.,
-        SPT3G_radio_EE=1.,
+        SPT3G_radio_TE=0.,
+        SPT3G_radio_EE=0.01,
         )
     }
 
@@ -154,7 +154,7 @@ class SPTLikeTest(unittest.TestCase):
 
         for mode, chi2 in chi2s.items():
             info = {
-                "debug": False,
+                "debug": True,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
                 "params": {**cosmo_params, **calib_params[mode], **fg_params[mode]},

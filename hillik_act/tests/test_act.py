@@ -36,13 +36,13 @@ extgal_params = {
     "beta_radio": -0.78,
     "beta_dusty": 1.87,
     "ACT_cib_ps": 7.65,
-    "ACT_radio_TT": 2.86
+    "ACT_radio_TT": 2.86,
 }
 
 fg_params = {
     'TT':{'ACT_AdustTT': 7.97, 'ACT_beta_dustTT':1.5, 'ACT_alpha_dustTT':-2.6},
     'TE':{'ACT_AdustTE': 0.42, 'ACT_beta_dustTE':1.5, 'ACT_alpha_dustTE':-2.4},
-    'EE':{'ACT_AdustEE': 0.17, 'ACT_beta_dustEE':1.5, 'ACT_alpha_dustEE':-2.4},
+    'EE':{'ACT_AdustEE': 0.17, 'ACT_beta_dustEE':1.5, 'ACT_alpha_dustEE':-2.4, 'ACT_radio_EE': 0.0},
 }
 
 
