@@ -10,7 +10,7 @@ Gaussian approximation for cross-correlation spectra from Planck, SPT and ACT.
 It is based on different public codes:
 - [Planck Hillipop](https://github.com/planck-npipe/hillipop)
 - [SPTlik](https://github.com/xgarrido/spt_likelihoods)
-- [ACTpol](https://github.com/mtristram/actpol_full_dr4)
+- [ACT-DR4](https://github.com/mtristram/actpol_full_dr4)
 
 The foreground model is coherent over the three datasets and includes several foregrounds residuals in spectra domain:
 - Galactic dust;
@@ -28,7 +28,7 @@ Likelihood versions
 Likelihoods available are:
 * ``hillik_planck``, Planck 2020 (PR4) [Planck Collaboration 2020](https://arxiv.org/abs/2007.04997)
 * ``hillik_spt``, SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197) et SPT3G [Balkenhol et al. 2022](https://arxiv.org/abs/2212.05642)
-* ``hillik_act``, ACT DR4 Baseline Multi-frquency Likelihood presented in [Choi et al. 2020](https://arxiv.org/abs/2007.07289)
+* ``hillik_act``, ACT DR6 Baseline Multi-frquency Likelihood presented in [Louis et al. 2025](https://arxiv.org/abs/2503.14452)
 
 Install
 -------
