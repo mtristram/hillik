@@ -1,49 +1,23 @@
 path: null
 
 # Bandpower file
-bandpower_filename: SPT3G_2018_TTTEEE_bandpowers.dat
+bandpower_filename: SPT3G_D1_TnE_bdp.txt
 
 # Covariance file
-covariance_filename: SPT3G_2018_TTTEEE_covariance.dat
+covariance_filename: SPT3G_D1_TnE_cov.dat
 
-# Fiducial Covariance file
-fiducial_covariance_filename: SPT3G_2018_TTTEEE_fiducial_covariance.dat
+# Beam eigemodes
+beam_eigenmodes_filename: beams_templates/cov_eigenmodes_300_4100.npz
 
-# Beam covariance file
-beam_covariance_filename: SPT3G_2018_TTTEEE_beam_covariance.dat
-
-# Calibration (mapT, mapP) covariance
-cal_covariance_filename: SPT3G_2018_TTTEEE_cal_covariance.dat
-
-# effective frequency
-nu_eff_filename: SPT3G_2018_TTTEEE_effective_band_centres.dat
+# Main Beam
+beam_main_filename: beams_templates/B_ell_300_4100_main_rc4.npz
 
 # Windows directory
 window_folder: windows
 
-# Spectra to use (order does not matter)
-spectra_to_fit:
-  - 90_Tx90_T
-  - 90_Tx90_E
-  - 90_Ex90_E
-  - 90_Tx150_T
-  - 90_Tx150_E
-  - 90_Ex150_E
-  - 90_Tx220_T
-  - 90_Tx220_E
-  - 90_Ex220_E
-  - 150_Tx150_T
-  - 150_Tx150_E
-  - 150_Ex150_E
-  - 150_Tx220_T
-  - 150_Tx220_E
-  - 150_Ex220_E
-  - 220_Tx220_T
-  - 220_Tx220_E
-  - 220_Ex220_E
 
 foregrounds: !defaults [foregrounds]
 
 #Parameters
-params: !defaults [params_SPT3G_TT,params_SPT3G_TE,params_SPT3G_EE,params_SPT3G_calib,params_extragal]
+params: !defaults [params_SPT3G_TT,params_SPT3G_TE,params_SPT3G_EE,params_SPT3G_calib,params_SPT3G_nuisance,params_extragal]
 

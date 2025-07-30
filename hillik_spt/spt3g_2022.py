@@ -297,7 +297,7 @@ class SPT3GPrototype(InstallableLikelihood):
             dl_model += self.ApplyAberrationCorrection(self.aberration_coefficient, dl_model)
             
             # Add foregrounds
-            dl_model += dlfg[cross_spectrum][fg._cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
+            dl_model += dlfg[cross_spectrum][fg.cross_frequencies.index(tuple(map(int,cross_frequency)))][ells]
             
             # Apply calibration
             cal = params.get("SPT3G_cal") * self.ApplyCalibration(

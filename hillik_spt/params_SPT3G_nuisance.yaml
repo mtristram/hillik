@@ -1,0 +1,114 @@
+  #Beam eigenmodes
+  SPT3G_beta_1:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_1^{SPT3G}
+  SPT3G_beta_2:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_2^{SPT3G}
+  SPT3G_beta_3:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_3^{SPT3G}
+  SPT3G_beta_4:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_4^{SPT3G}
+  SPT3G_beta_5:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_5^{SPT3G}
+  SPT3G_beta_6:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_6^{SPT3G}
+  SPT3G_beta_7:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_7^{SPT3G}
+  SPT3G_beta_8:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_8^{SPT3G}
+  SPT3G_beta_9:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.5
+    latex: \beta_9^{SPT3G}
+
+  #Beam sidelobe polarization
+  SPT3G_beta_pol_90:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.1
+    latex: \gamma_{90}^{SPT3G}
+  SPT3G_beta_pol_150:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.1
+    latex: \gamma_{150}^{SPT3G}
+  SPT3G_beta_pol_220:
+    prior:
+      min: 0.0
+      max: 1.0
+    ref: 1.00
+    proposal: 0.1
+    latex: \gamma_{220}^{SPT3G}
+
+  #T-to-P leakage
+  SPT3G_T2P2_90:
+    prior:
+      dist: norm
+      loc: -0.0065
+      scale: 0.0011
+    ref: 0.0
+    proposal: 0.0005
+    latex: \epsilon_{90}^{SPT3G}
+  SPT3G_T2P2_150:
+    prior:
+      dist: norm
+      loc: -0.012
+      scale: 0.0021
+    ref: 0.0
+    proposal: 0.001
+    latex: \epsilon_{150}^{SPT3G}
+  SPT3G_T2P2_220:
+    prior:
+      dist: norm
+      loc: -0.023
+      scale: 0.0066
+    ref: 0.0
+    proposal: 0.003
+    latex: \epsilon_{220}^{SPT3G}
+

@@ -8,7 +8,7 @@
 
 
   #super sample lensing
-  kappa:
+  SPT3G_kappa:
     prior:
       dist: norm
       loc: 0.0
@@ -19,50 +19,46 @@
 
 
   #Calib T
-  SPT3G_cal_T90:
+  SPT3G_cal_90:
     prior:
-      min: 0.85
-      max: 1.15
+      min: 0.8
+      max: 1.2
     ref: 1.0
-    proposal: 0.01
+    proposal: 0.0003
     latex: c^\mathrm{SPT3G}_{90}
 
-  SPT3G_cal_T150:
-    prior:
-      min: 0.85
-      max: 1.15
-    ref: 0.9975
-    proposal: 0.01
+  SPT3G_cal_150:
+    value: 1.
     latex: c^\mathrm{SPT3G}_{150}
 
-  SPT3G_cal_T220:
+  SPT3G_cal_220:
     prior:
-      min: 0.85
-      max: 1.15
-    ref: 0.9930
-    proposal: 0.01
+      min: 0.8
+      max: 1.2
+    ref: 1.00
+    proposal: 0.001
     latex: c^\mathrm{SPT3G}_{220}
 
-  #calib E
-  SPT3G_cal_E90:
+  #polar efficiency
+  SPT3G_pe_90:
     prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.0009
-    proposal: 0.01
-    latex: c^\mathrm{SPT3G}_{E90}
-  SPT3G_cal_E150:
+      min: 0.8
+      max: 1.2
+    ref: 1.00
+    proposal: 0.001
+    latex: \rho^\mathrm{SPT3G}_{90}
+  SPT3G_pe_150:
     prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.0020
-    proposal: 0.01
-    latex: c^\mathrm{SPT3G}_{E150}
-  SPT3G_cal_E220:
+      min: 0.8
+      max: 1.2
+    ref: 1.00
+    proposal: 0.005
+    latex: \rho^\mathrm{SPT3G}_{150}
+  SPT3G_pe_220:
     prior:
-      min: 0.85
-      max: 1.15
-    ref: 1.019
-    proposal: 0.01
-    latex: c^\mathrm{SPT3G}_{E220}
+      min: 0.8
+      max: 1.2
+    ref: 1.00
+    proposal: 0.003
+    latex: \rho^\mathrm{SPT3G}_{220}
 

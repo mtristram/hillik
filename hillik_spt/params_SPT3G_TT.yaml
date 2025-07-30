@@ -32,3 +32,13 @@
     ref: 5.
     proposal: 1.
     latex: A_\mathrm{IR}^\mathrm{SPT3G}
+
+
+  #Poisson
+  SPT3G_ps_90x90: 0.
+  SPT3G_ps_90x150: 0.
+  SPT3G_ps_90x220: 0.
+  SPT3G_ps_150x150: 0.
+  SPT3G_ps_150x220: 0.
+  SPT3G_ps_220x220: 0.
+  
