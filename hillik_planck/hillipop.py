@@ -132,9 +132,8 @@ class _HillipopLikelihood(InstallableLikelihood):
                 if isinstance(self.foregrounds[tag][name], str):
                     kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[tag][name])
                 elif name == "szxcib":
-                    filename_tsz = self.foregrounds[tag]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["tsz"])
-                    filename_cib = self.foregrounds[tag]["cib"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["cib"])
-                    kwargs["filenames"] = (filename_tsz,filename_cib)
+                    kwargs["filename_tsz"] = self.foregrounds[tag]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["tsz"])
+                    kwargs["filename_cib"] = self.foregrounds[tag]["cib"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["cib"])
                 fgs.append(getattr(fg,name)(**kwargs))
         
         self.log.info("Initialized!")
