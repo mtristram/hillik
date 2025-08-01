@@ -60,9 +60,10 @@ feff = {
 
 class SPT3G_D1_Lik(InstallableLikelihood):
     install_options = {
-        "download_url": "https://github.com/SouthPoleTelescope/spt_candl_data/archive/refs/heads/main.zip",
-        "data_path": "spt3g_2025",
-    }
+        "github_repository": "SouthPoleTelescope/spt_candl_data",
+#        "directory": "spt_candl_data-main/spt_candl_data/SPT3G_D1_TnE_v0",
+#        "data_path": "spt3g_2025/SPT3G_D1_TnE_v0",
+        }
     type = "CMB"
 
     bibtex_file = "spt3g_2025.bibtex"
@@ -75,7 +76,7 @@ class SPT3G_D1_Lik(InstallableLikelihood):
     spec_bin_max: Optional[Sequence[int]] = default_bin_max
 
     fgds_folder: Optional[str] = "foregrounds"
-    data_folder: Optional[str] = "spt3g_2025/SPT3G_D1_TnE"
+    data_folder: Optional[str] = "spt_candl_data/spt_candl_data/SPT3G_D1_TnE_v0"
     # fmt: on
 
     bandpower_filename: Optional[str] = "SPT3G_D1_TnE_bdp.txt"

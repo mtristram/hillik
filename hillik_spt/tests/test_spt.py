@@ -8,7 +8,7 @@ packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
     tempfile.gettempdir(), "SPT_packages"
 )
 
-cosmo_params = {
+cosmo_pars = {
     "cosmomc_theta": 0.01040,
     "As": 2.16185225e-09,
     "ombh2": 0.02241,
@@ -18,106 +18,27 @@ cosmo_params = {
     "tau": 0.060,
 }
 
-calib_params = {
-    "TThighl": {
-        "SPT_cal": 1.0,
-        "SPT_cal_95": 1.0,
-        "SPT_cal_150": 1.0,
-        "SPT_cal_220": 1.0,
-        "FTS_calibration_error": 1.0,
-        },
-    "TT": {
-        "SPT3G_cal": 1.0,
-        "SPT3G_cal_T90": 1.0,
-        "SPT3G_cal_T150": 1.0,
-        "SPT3G_cal_T220": 1.0,
-        "SPT3G_cal_E90": 1.0,
-        "SPT3G_cal_E150": 1.0,
-        "SPT3G_cal_E220": 1.0,
-        "kappa": 0.0
-        },
-    "EE": {
-        "SPT3G_cal": 1.0,
-        "SPT3G_cal_T90": 1.0,
-        "SPT3G_cal_T150": 1.0,
-        "SPT3G_cal_T220": 1.0,
-        "SPT3G_cal": 1.0,
-        "SPT3G_cal_E90": 1.0,
-        "SPT3G_cal_E150": 1.0,
-        "SPT3G_cal_E220": 1.0,
-        "kappa": 0.0
-        },
-    "TE": {
-        "SPT3G_cal": 1.0,
-        "SPT3G_cal_T90": 1.0,
-        "SPT3G_cal_T150": 1.0,
-        "SPT3G_cal_T220": 1.0,
-        "SPT3G_cal_E90": 1.0,
-        "SPT3G_cal_E150": 1.0,
-        "SPT3G_cal_E220": 1.0,
-        "kappa": 0.0
-        },
-    "TTTEEE": {
-        "SPT3G_cal": 1.0,
-        "SPT3G_cal_T90": 1.0,
-        "SPT3G_cal_T150": 1.0,
-        "SPT3G_cal_T220": 1.0,
-        "SPT3G_cal_E90": 1.0,
-        "SPT3G_cal_E150": 1.0,
-        "SPT3G_cal_E220": 1.0,
-        "kappa": 0.0
-        },
-}
+freqs = [90,150,220]
 
-fg_params = {
-    "TThighl": dict(
-        Acib=1.5,
-        Atsz=4.5,
-        Aksz=1.5,
-        xi=0.1,
-        beta_cib=1.5,
-        beta_radio=-0.8,
-        SPT_radio_TT=1.,
-        SPT_cib_ps=8.6,
-        SPT_AdustTT=5.46,
-        ),
-    "TT": dict(
-        Acib=1.5,
-        Atsz=4.5,
-        Aksz=1.5,
-        xi=0.1,
-        beta_cib=1.5,
-        beta_radio=-0.8,
-        SPT3G_radio_TT=10.,
-        SPT3G_cib_ps=7.,
-        SPT3G_AdustTT=1.15,
-        ),
-    "TE": dict(
-        SPT3G_AdustTE=0.073,
-        SPT3G_radio_TE=0.,
-        ),
-    "EE": dict(
-        SPT3G_AdustEE=0.031,
-        SPT3G_radio_EE=0.01,
-        ),
-    "TTTEEE": dict(
-        SPT3G_AdustTT=1.15,
-        SPT3G_AdustTE=0.073,
-        SPT3G_AdustEE=0.031,
-        Acib=1.5,
-        Atsz=4.5,
-        Aksz=1.5,
-        xi=0.1,
-        beta_cib=1.5,
-        beta_radio=-0.8,
-        SPT3G_cib_ps=7.,
-        SPT3G_radio_TT=10.,
-        SPT3G_radio_TE=0.,
-        SPT3G_radio_EE=0.01,
-        )
-    }
+nui_pars = { "SPT3G_cal": 1.00,
+             "SPT3G_kappa": 5e-6,
+             **{f"SPT3G_cal_{m}":1.00 for m in freqs},
+             **{f"SPT3G_pe_{m}":1.00 for m in freqs},
+             **{f'SPT3G_T2P2_{fq}':0. for fq in freqs},
+             **{f'SPT3G_beta_{i+1}':-0.5 for i in range(9)},
+             **{f'SPT3G_beta_pol_{fq}':0.5 for fq in freqs}}
 
-chi2s = {"TThighl":889.096, "TT":1482.95, "EE":431.69, "TE":683.33, "TTTEEE":2607.78}
+fgs_pars = {'xi':0.26, 'Atsz':0.94, 'Acib':3.0, 'Aksz':2.3,
+           'SPT3G_AdustTT': 1.98, 'SPT3G_alpha_dustTT':-2.53, 'SPT3G_beta_dustTT':1.5, 
+           'SPT3G_AdustTE': 0.10, 'SPT3G_alpha_dustTE':-2.40, 'SPT3G_beta_dustTE':1.5,
+           'SPT3G_AdustEE': 0.05, 'SPT3G_alpha_dustEE':-2.40, 'SPT3G_beta_dustEE':1.5, 
+           'beta_cib':1.80, 'beta_dusty': 1.80, 'beta_radio': -0.8, 'T_cib':25.,
+#           'SPT3G_ps_90x90':  10.7, 'SPT3G_ps_90x150':  8.6, 'SPT3G_ps_90x220': 16.6,
+#           'SPT3G_ps_150x150':11.9, 'SPT3G_ps_150x220':32.0, 'SPT3G_ps_220x220':95.0,
+           'SPT3G_radio_TT': 1., 'SPT3G_radio_EE': 0., 'SPT3G_cib_ps': 8.
+           }
+
+chi2s = {"TTTEEE":2300.714}
 
 
 class SPTLikeTest(unittest.TestCase):
@@ -157,7 +78,7 @@ class SPTLikeTest(unittest.TestCase):
                 "debug": True,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_params, **calib_params[mode], **fg_params[mode]},
+                "params": {**cosmo_pars, **nui_pars, **fgs_pars},
                 "packages_path": packages_path,
             }
             
