@@ -178,9 +178,8 @@ class ACTDR6Likelihood(InstallableLikelihood):
                     if isinstance(self.foregrounds[pol][name], str):
                         kwargs["filename"] = os.path.join(self.fgds_folder, self.foregrounds[pol][name])
                     elif name == "szxcib":
-                        filename_tsz = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
-                        filename_cib = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
-                        kwargs["filenames"] = (filename_tsz,filename_cib)
+                        kwargs["filename_tsz"] = self.foregrounds["TT"]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["tsz"])
+                        kwargs["filename_cib"] = self.foregrounds["TT"]["cib"] and os.path.join(self.fgds_folder, self.foregrounds["TT"]["cib"])
                     fgs.append(getattr(hfg,name)(**kwargs))
         
         self.log.info("Initialized!")
@@ -195,7 +194,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
         dl_fg = {pol:self._compute_all_fg( fgs, params) for pol,fgs in self.fgs.items()}
 
         # Get residual
-        delta_dl = []
+        self.delta_dl = []
         for ispec,spec in enumerate(self.spectra):
             exp1,exp2 = spec["experiments"]
             for pol in spec["polarizations"]:
@@ -208,14 +207,30 @@ class ACTDR6Likelihood(InstallableLikelihood):
                 X_model  /= self._calibration(params,pol,exp1,exp2)
                 
                 # compute residual
-                delta_dl += list(spec[pol]["dl"] - X_model)
+                self.delta_dl += list(spec[pol]["dl"] - X_model)
 
         #chi2
-        chi2 = self._fast_chi_squared(self.inv_cov, delta_dl)
+        chi2 = self._fast_chi_squared(self.inv_cov, self.delta_dl)
 
-        self.log.debug(f"Χ² = {chi2} / {len(delta_dl)}")
+        self.log.debug(f"Χ² = {chi2} / {len(self.delta_dl)}")
 
         return chi2
+
+
+    def reduction_matrix(self, pol='TT'):
+        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
+
+        x0 = 0
+        for ispec,spec in enumerate(self.spectra):
+            exp1,exp2 = spec["experiments"]
+            for pol in spec["polarizations"]:
+                bpw = spec[pol]["bpw"]
+
+            X[x0+il,bmin:nmax+1] = bpw.weight.T
+            x0 += len(bpw.weight)                
+        
+        return X
+
 
     def get_requirements(self):
         requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","et","ee"]})
