@@ -200,11 +200,11 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         #-----------------------------------------------
         # Beams
         #-----------------------------------------------
-        # beam main temperature normalized at l=800
+        # Temperature Main beam for all multipoles normalized at l=800
         data = np.load(os.path.join(self.data_folder, self.beam_main_filename))
         self.beam_main_temperature = {fq:data[fq] for fq in ['90','150','220']}
 
-        # the eigenmodes are ordered 090GHz, then 150GHz, then 220GHz
+        # Beam eigenmodes ordered as freq (90,150,220) and given for all multipoles
         data = np.load(os.path.join(self.data_folder, self.beam_eigenmodes_filename))
         self.beam_eigenmodes = {}
         for ifq,freq in enumerate(['90','150','220']):
@@ -250,9 +250,15 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         return cross_spectrum, (freq1,freq2)
 
     def compute_sky_model( self, dl_cmb, **params):
+        """
+        Compute the angular power spectrum of the sky model
+
+        Result on Dl [muK2]
+        """
+
         ells = np.arange(self.lmin, self.lmax+1)
 
-        # Foregrounds
+        # Foregrounds (for all multipoles)
         dlfg = {}
         for mode in self.use_cl:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
@@ -280,45 +286,48 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         return sky_model
 
+
     def apply_spt_corrections( self, sky_model, **params):
 
-        db_model = {}
+#        dl_model = sky_model.copy()
+        dl_model = {}
         for spec in self.spectra_to_fit:
             cross_spectrum, cross_frequency = self._get_spec_info(spec)
-            dl_model = sky_model[spec]
-
+            dl_model[spec] = np.copy(sky_model[spec])
+            
             # T2P leakage
             sigmas = {'90':0.000274,'150':0.000192,'220':0.000169}
             dls = {tag:sky_model[tag+' '+"x".join(sorted(cross_frequency,key=int))] for tag in ['TT','TE','EE']}
             dls['ET'] = sky_model['TE'+' '+"x".join(sorted(cross_frequency,key=int)[::-1])]
-            dl_model += self.GetLeakage( [sigmas[fq] for fq in cross_frequency],
-                                         [params.get(f"SPT3G_T2P2_{fq}") for fq in cross_frequency],
-                                         dls)[cross_spectrum]
-
+            dl_model[spec] += self.T2PLeakage( [sigmas[fq] for fq in cross_frequency],
+                                               [params.get(f"SPT3G_T2P2_{fq}") for fq in cross_frequency],
+                                               dls)[cross_spectrum]
+            
             # Beam eigenmodes
-            dl_model = self.ApplyBeamEigenModes( cross_frequency,
-                                                 [params.get(f"SPT3G_beta_{n+1}") for n in range(9)],
-                                                 dl_model)
+#            dl_model[spec] *= self.BeamEigenModes( cross_frequency,
+#                                                   [params.get(f"SPT3G_beta_{n+1}") for n in range(9)])
             
             # Beam polar
-            dl_model = self.ApplyPolarizedBeam( cross_spectrum,
-                                                cross_frequency,
-                                                [params.get(f"SPT3G_beta_pol_{fq}") for fq in cross_frequency],
-                                                dl_model)
+#            dl_model[spec] *= self.PolarizedBeam( cross_spectrum,
+#                                                  cross_frequency,
+#                                                  [params.get(f"SPT3G_beta_pol_{fq}") for fq in cross_frequency])
 
+            #Beam corrections
+            dl_model[spec] *= self.ModesAndPolarizedBeam( cross_spectrum,
+                                                          cross_frequency,
+                                                          [params.get(f"SPT3G_beta_pol_{fq}") for fq in cross_frequency],
+                                                          [params.get(f"SPT3G_beta_{n+1}") for n in range(9)])
+            
             # Apply calibration
-            dl_model /= (
+            dl_model[spec] /= (
                 params.get(f"SPT3G_cal") *
-                self.InternalCalibration( cross_spectrum, 
+                self.InternalCalibration( cross_spectrum,
                                           [params.get(f"SPT3G_cal_{fq}") for fq in cross_frequency],
                                           [params.get(f"SPT3G_pe_{fq}") for fq in cross_frequency]
                                           )
                 )
-            
-            # Binning via window and concatenate
-            db_model[spec] = self.windows[spec] @ dl_model
         
-        return db_model
+        return dl_model
 
 
     def compute_chi2(self, dl_cmb, **params):
@@ -342,7 +351,10 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         sky_model = self.compute_sky_model( dl_cmb, **params)
 
         # Apply SPT intrumental effects
-        db_model = self.apply_spt_corrections( sky_model, **params)
+        dl_model = self.apply_spt_corrections( sky_model, **params)
+
+        # Binning via window and concatenate
+        db_model = {spec:self.windows[spec] @ dl_model[spec] for spec in self.spectra_to_fit}
 
         # Select bins and calculate difference of theory and data
         print( "Compute residuals")
@@ -361,104 +373,6 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
         return chi2
         
-
-    def compute_chi2_old(self, dl_cmb, **params):
-        """
-        From Eq. (40) in Camphuis et al 2025 (https://arxiv.org/abs/2506.20707)
-
-        Cl^model = Acal . Ecal . Q . B_P(beta_pol) . B_T(beta_i) . L(epsilon) . [ A . S(kappa) . Cl^CMB + Cl^fg ]
-
-        with corrections:
-            Acal: calibration
-            Ecal: polarisation efficiency
-            Q: Bandpower window functions
-            B_P: polarized beam correction (beta_pol for each freq)
-            B_T: beam error modes (one beta for each of the 9 eigenmodes)
-            L: quadrupolar beam leakage
-            A: Aberration
-            S: super-sample lensing correction (kappa)
-        """
-
-        ells = np.arange(self.lmin, self.lmax+1)
-
-        # Foregrounds
-        dlfg = {}
-        for mode in self.use_cl:
-            dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
-            for fg in self.fgs[mode]: dlfg[mode] += fg.compute_dl( params)
-
-        # Sky Model
-        sky_model = {}
-        for spec in self.spectra_to_fit:
-            cross_spectrum, cross_frequency = self._get_spec_info(spec)
-
-            # Add CMB
-            dl_model = dl_cmb[cross_spectrum][ells]
-
-            # Add super sample lensing
-            dl_model += self.SuperSampleLensing(params.get("SPT3G_kappa"), dl_model)
-
-            # Add Aberration correction
-            dl_model += self.AberrationCorrection(self.aberration_coefficient, dl_model)
-            
-            # Add foregrounds
-            cross_list = [xfq for xfq,cs in zip(self.cross_frequencies,self.cross_spectra) if cs == cross_spectrum]
-            dl_model += dlfg[cross_spectrum][cross_list.index(cross_frequency)][ells]
-
-            sky_model[spec] = dl_model
-
-        db_model = {}
-        for spec in self.spectra_to_fit:
-            cross_spectrum, cross_frequency = self._get_spec_info(spec)
-            dl_model = sky_model[spec]
-
-            # T2P leakage
-            sigmas = {'90':0.000274,'150':0.000192,'220':0.000169}
-            dls = {tag:sky_model[tag+' '+"x".join(sorted(cross_frequency,key=int))] for tag in ['TT','TE','EE']}
-            dls['ET'] = sky_model['TE'+' '+"x".join(sorted(cross_frequency,key=int)[::-1])]
-            dl_model += self.GetLeakage( [sigmas[fq] for fq in cross_frequency],
-                                         [params.get(f"SPT3G_T2P2_{fq}") for fq in cross_frequency],
-                                         dls)[cross_spectrum]
-
-            # Beam eigenmodes
-            dl_model = self.ApplyBeamEigenModes( cross_frequency,
-                                                 [params.get(f"SPT3G_beta_{n+1}") for n in range(9)],
-                                                 dl_model)
-            
-            # Beam polar
-            dl_model = self.ApplyPolarizedBeam( cross_spectrum,
-                                                cross_frequency,
-                                                [params.get(f"SPT3G_beta_pol_{fq}") for fq in cross_frequency],
-                                                dl_model)
-
-            # Apply calibration
-            dl_model /= (
-                params.get(f"SPT3G_cal") *
-                self.InternalCalibration( cross_spectrum, 
-                                          [params.get(f"SPT3G_cal_{fq}") for fq in cross_frequency],
-                                          [params.get(f"SPT3G_pe_{fq}") for fq in cross_frequency]
-                                          )
-                )
-            
-            # Binning via window and concatenate
-            db_model[spec] = self.windows[spec] @ dl_model
-
-        # Select bins and calculate difference of theory and data
-        print( "Compute residuals")
-        self.log.debug("Compute residuals")
-        delta_data_model = np.concatenate(
-            [
-                (self.bandpowers[spec] - db_model[spec])[self.spec_bin_min[i]-1:self.spec_bin_max[i]]
-                for i,spec in enumerate(self.spectra_to_fit)
-            ]
-        )
-
-        # Compute chisq
-        self.log.debug("Compute chi2")
-        chi2 = delta_data_model @ self._inv_bpcov @ delta_data_model
-
-        self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
-        return chi2
 
     def loglike(self, dl_cmb, **params):
         chi2 = self.compute_chi2( dl_cmb, **params)
@@ -479,11 +393,11 @@ class SPT3G_D1_Lik(InstallableLikelihood):
     # Applies correction to the spectrum and returns the correction slotted into the fg array
     def SuperSampleLensing(self, kappa, Dl_theory):
 
-        # Grab ells helper (1-3200)
+        # Grab ells
         ells = np.arange(self.lmin, self.lmax + 1)
 
         # Grab Cl derivative
-        Cl_derivative = self._GetClDerivative(Dl_theory)
+        Cl_derivative = np.gradient( Dl_theory * 2 * np.pi / (ells * (ells + 1)))
 
         # Calculate super sample lensing correction
         # (In Cl space) SSL = -k/l^2 d/dln(l) (l^2Cl) = -k(l*dCl/dl + 2Cl)
@@ -502,11 +416,11 @@ class SPT3G_D1_Lik(InstallableLikelihood):
     def AberrationCorrection(self, ab_coeff, Dl_theory):
         # AC = beta*l(l+1)dCl/dln(l)/(2pi)
 
-        # Grab ells helper (1-3200)
+        # Grab ells
         ells = np.arange(self.lmin, self.lmax + 1)
 
         # Grab Cl derivative
-        Cl_derivative = self._GetClDerivative(Dl_theory)
+        Cl_derivative = np.gradient( Dl_theory * 2 * np.pi / (ells * (ells + 1)))
 
         # Calculate aberration correction
         # (In Cl space) AC = -coeff*dCl/dln(l) = -coeff*l*dCl/dl
@@ -518,28 +432,6 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         return aberration_correction
 
-    # Helper to get the derivative of the spectrum
-    # Takes Dl in, but returns Cl derivative#
-    # Handles end points approximately
-    # Smoothes any spike at the ell_max
-    def _GetClDerivative(self, Dl_theory):
-
-        # Grab ells helper (1-3200)
-        ells = np.arange(self.lmin, self.lmax + 1)
-
-        # Calculate derivative
-        Cl_derivative = Dl_theory * 2 * np.pi / (ells * (ells + 1))  # Convert to Cl
-        Cl_derivative[1:-1] = 0.5 * (Cl_derivative[2:] - Cl_derivative[:-2])  # Find gradient
-        Cl_derivative[0] = Cl_derivative[1]  # Handle start approximately
-        Cl_derivative[-1] = Cl_derivative[-2]  # Handle end approximately
-
-        # Smooth over spike at lmax
-        # Transition point between Boltzmann solver Cl and where the spectrum comes from a lookup table/interpolation can cause a spike in derivative
-        #  if (CosmoSettings%lmax_computed_cl .LT. lmax-1) then
-        #    Cl_derivative(CosmoSettings%lmax_computed_cl) = 0.75*Cl_derivative(CosmoSettings%lmax_computed_cl-1) + 0.25*Cl_derivative(CosmoSettings%lmax_computed_cl+2)
-        #    Cl_derivative(CosmoSettings%lmax_computed_cl+1) = 0.75*Cl_derivative(CosmoSettings%lmax_computed_cl+2) + 0.25*Cl_derivative(CosmoSettings%lmax_computed_cl-1)
-
-        return Cl_derivative
 
     # Calibration
     # Theory is scaled by the inverse
@@ -555,40 +447,37 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         return cal
 
     # Leakage
-    # Apply Temperature-to-Polarisation leakage according to Eq.14 in Camphuis et al. 2025
-    def GetLeakage(self, sigmas, epsilons, Dl):
+    # Get Temperature-to-Polarisation leakage according to Eq.14 in Camphuis et al. 2025
+    def T2PLeakage(self, sigmas, epsilons, Dl_sky):
         ells = np.arange(self.lmin, self.lmax+1)
-        ell2 = ells*ells
 
         leak = {'TT':[],'TE':[],'EE':[]}
         sig1,sig2 = sigmas
         eps1,eps2 = epsilons
 
-        leak['TT'] = 0.*Dl['TT']
-        leak['TE'] = eps2 * sig2 * ell2 * Dl['TT']
-        leak['EE'] = eps1 * sig1 * ell2 * Dl['TE'] + \
-                     eps2 * sig2 * ell2 * Dl['ET'] + \
-                     eps1 * eps2 * sig1 * sig2 * ell2 * ell2 * Dl['TT']
+        leak['TT'] = 0.*Dl_sky['TT']
+        leak['TE'] = eps2 * sig2**2 * ells**2 * Dl_sky['TT']
+        leak['EE'] = eps1 * sig1**2 * ells**2 * Dl_sky['TE'] + \
+                     eps2 * sig2**2 * ells**2 * Dl_sky['ET'] + \
+                     eps1 * eps2 * sig1**2 * sig2**2 * ells**4 * Dl_sky['TT']
 
         return leak
 
     # Beam eigenmodes
-    # Apply beam error modes correction to propagate the error on the effective beam measurement
-    def ApplyBeamEigenModes(self, freqs, betas, Dl):
+    # Beam error modes correction to propagate the error on the effective beam measurement
+    def BeamEigenModes(self, freqs, betas):
         ells = np.arange(self.lmin, self.lmax+1)
         Nmodes = len(betas)
 
-        BDl = (
+        BeamModesCorrection = (
             (1 + betas @ self.beam_eigenmodes[freqs[0]][:Nmodes,ells]) *
-            (1 + betas @ self.beam_eigenmodes[freqs[1]][:Nmodes,ells]) *
-            Dl
-        )
+            (1 + betas @ self.beam_eigenmodes[freqs[1]][:Nmodes,ells])
+            )
 
-        return BDl
+        return BeamModesCorrection
 
-    # Beam eigenmodes
-    # Apply beam error modes correction to propagate the error on the effective beam measurement
-    def ApplyPolarizedBeam(self, mode, freqs, betas, Dl):
+    # Beam error modes correction to propagate the error on the effective beam measurement
+    def PolarizedBeam(self, mode, freqs, betas):
         ells = np.arange(self.lmin, self.lmax+1)
 
         #compute polar beam
@@ -601,17 +490,42 @@ class SPT3G_D1_Lik(InstallableLikelihood):
             beam_pol[freq] /= beam_pol[freq][800]
 
         if mode == 'TT':
-            BDl = Dl
+            PolBeamCorrection = 1.
         elif mode == 'TE':
-            BDl = beam_pol[freqs[0]][ells] * Dl
+            PolBeamCorrection = beam_pol[freqs[1]][ells]
         elif mode == 'EE':
-            BDl = beam_pol[freqs[0]][ells] * \
-                  beam_pol[freqs[1]][ells] * \
-                  Dl
+            PolBeamCorrection = beam_pol[freqs[0]][ells] * \
+                                beam_pol[freqs[1]][ells]
         else:
             raise LoggedError( self.log, f"Wrong cross-spectrum for Polarized beam ({mode})")
 
-        return BDl
+        return PolBeamCorrection
+
+    # Beam eigenmodes
+    # Beam error modes correction to propagate the error on the effective beam measurement
+    def ModesAndPolarizedBeam(self, mode, freqs, beta_pol, beta_modes):
+        ells = np.arange(self.lmin, self.lmax+1)
+
+        #compute modes correction
+        Nmodes = len(beta_modes)
+        BeamModesCorrection = {fq: 1 + beta_modes @ self.beam_eigenmodes[fq][:Nmodes] for fq in freqs}
+
+        #compute polar beam
+        BeamPolCorrection = {fq:
+                             self.beam_main_temperature[fq] + beta*(BeamModesCorrection[fq] - self.beam_main_temperature[fq]) /
+                             (self.beam_main_temperature[fq][800] + beta*(1 - self.beam_main_temperature[fq][800]))
+                             for fq,beta in zip(freqs,beta_pol)}
+
+        if mode == 'TT':
+            BeamCorrection = BeamModesCorrection[freqs[0]][ells] * BeamModesCorrection[freqs[1]][ells]
+        elif mode == 'TE':
+            BeamCorrection = BeamModesCorrection[freqs[0]][ells] * BeamPolCorrection[freqs[1]][ells]
+        elif mode == 'EE':
+            BeamCorrection = BeamPolCorrection[freqs[0]][ells] * BeamPolCorrection[freqs[1]][ells]
+        else:
+            raise LoggedError( self.log, f"Wrong cross-spectrum for Polarized beam ({mode})")
+
+        return BeamCorrection
 
 
 class TTTEEE(SPT3G_D1_Lik):

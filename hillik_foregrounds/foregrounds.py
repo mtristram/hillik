@@ -10,6 +10,9 @@ T_CMB = 2.72548
 k_b = constants.k #1.3806503e-23
 h_pl = constants.h #6.626068e-34
 
+#SPT
+k_b  = 1.3806488e-23
+h_pl = 6.62606957e-34
 
 #Temp Antenna conversion
 def dBdT( f):
@@ -59,7 +62,7 @@ class fgmodel(HasLogger):
     #frequency reference for fg amplitudes
     # ACT: 150 dust, 150 tSZ
     # SPT: 220 dust, 143 tSZ
-    # SPT3G: 150 dust, 143 tSZ
+    # SPT3G: 150 dust, 150 tSZ
     nu0 = 150.
     lnorm = 3000
 
@@ -85,7 +88,7 @@ class fgmodel(HasLogger):
         self.dlfg = None
         self.sed  = None
 
-        self._cross_frequencies = cross_freq
+        self.cross_frequencies = cross_freq
         self.ncross = len(cross_freq)
         self._freqs = np.unique(list(itertools.chain(*cross_freq)))
         
@@ -187,8 +190,11 @@ class SED(HasLogger):
             self._sed = self._nu_default
 
     #DEFINE SED FOR THE SKY COMPONENT
-    def fgRatio( nu, nu0, **kwargs):
+    def frequency_scaling( self, nu, **kwargs):
         pass
+    
+    def fgRatio( self, nu, nu0=150, **kwargs):
+        return self.frequency_scaling(nu, **kwargs)/self.frequency_scaling(nu0, **kwargs)
 
     def set_bandpass_shifts( self, bp_shifts):
         for k,v in bp_shifts.items():
@@ -241,33 +247,33 @@ class SED(HasLogger):
 #frequency reference for fg amplitudes
 # ACT: 150 dust, 150 tSZ
 # SPT: 220 dust, 143 tSZ
-# SPT3G: 150 dust, 143 tSZ
+# SPT3G: 150 dust, 150 tSZ
 Tcib = 25.  #T=9.7 ?!?
 
 class TSZ(SED):
     name = "tsz"
-    def fgRatio( self, nu, nu0=150):
-        return f_tsz(nu)/f_tsz(nu0)
+    def frequency_scaling( self, nu):
+        return f_tsz(nu)
 
 class CIB(SED):
     name = "cib"
-    def fgRatio( self, nu, nu0=150, beta=1.75, T=25):
-        return (nu/nu0)**beta * (f_Planck(nu,T)/f_Planck(nu0,T)) / ( dBdT(nu)/dBdT(nu0) )
+    def frequency_scaling( self, nu, beta=1.75, T=25):
+        return (nu)**beta * (f_Planck(nu,T) / dBdT(nu) )
     
 class DUST(SED):
     name = "dust"
-    def fgRatio( self, nu, nu0=150, beta=1.5, T=19.6):
-        return (nu/nu0)**beta * (f_Planck(nu,T)/f_Planck(nu0,T)) / ( dBdT(nu)/dBdT(nu0) )
+    def frequency_scaling( self, nu, beta=1.5, T=19.6):
+        return (nu)**beta * (f_Planck(nu,T) / dBdT(nu) )
     
 class RADIO(SED):
     name = "radio"
-    def fgRatio( self, nu, nu0=150, beta=-0.7):
-        return (nu/nu0)**beta / ( dBdT(nu)/dBdT(nu0) )
+    def frequency_scaling( self, nu, beta=-0.7):
+        return (nu)**beta / dBdT(nu)
 
 class SYNC(SED):
     name = "sync"
-    def fgRatio( self, nu, nu0=150, beta=-0.7):
-        return (nu/nu0)**beta / ( dBdT(nu)/dBdT(nu0) )
+    def frequency_scaling( self, nu, beta=-0.7):
+        return (nu)**beta / dBdT(nu)
 
 
 
@@ -276,28 +282,52 @@ class SYNC(SED):
 
 
 
+
+
 # Point Sources (for TT)
-class ps(fgmodel):
-    def __init__(self, lmax, cross, mode="TT", survey=""):
+class poisson(fgmodel):
+    """
+    Individual Poisson terms to a series of spectra.
+
+    .. math::
+        C_\\ell = A(\\nu_1, \\nu_2)
+
+    where:
+
+    * :math:`A(\\nu_1, \\nu_2)` is the amplitude per cross-spectrum
+    """
+
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
-        self.name = "PS"
+        self.name = "Poisson"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
         self.dlfg = self._gen_dl_powerlaw(0.)
 
     def compute_dl(self, pars):
-        if self.mode == "TT":
-            dl_ps = []
-            for f1, f2 in self._cross_frequencies:
-                dl_ps.append( pars[f"{self.survey}_ps_{f1}x{f2}"] * self.dlfg)
-            return np.array(dl_ps)
-        else:
-            return 0.
+        dl_ps = []
+        for f1, f2 in self.cross_frequencies:
+            dl_ps.append( pars[f"{self.survey}_ps_{f1}x{f2}"] * self.dlfg)
+        return np.array(dl_ps)
 
 
 # Radio Point Sources (v**alpha)
 class ps_radio(fgmodel):
+    """
+    Radio Poisson power with a powerlaw SED.
+
+    .. math::
+        C_\\ell = A * a(\\nu_1, \\beta) * a(\\nu_2, \\beta)
+
+    where:
+
+    * :math:`A` is the amplitude
+    * :math:`\\beta` is the frequency scaling parameter
+    * :math:`a(\\nu_1,\\beta)` is the frequency scaling for a power-law
+    """
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "PS radio"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
         self.dlfg = self._gen_dl_powerlaw(0.)
         self.sed = RADIO( **kwargs)
 
@@ -305,7 +335,7 @@ class ps_radio(fgmodel):
         dl = []
         self.sed.set_bandpass_shifts( {f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_radio'])
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
 
         return pars[f"{self.survey}_radio_{self.mode}"] * np.array(dl)
@@ -314,9 +344,23 @@ radio_poisson = ps_radio
 
 # Infrared Point Sources
 class ps_dusty(fgmodel):
+    """
+    Dust Star Forming Galaxies Poisson power with a modified black-body SED.
+
+    .. math::
+        C_\\ell = A * a(\\nu_1, \\beta, T) * a(\\nu_2, \\beta, T)
+
+    where:
+
+    * :math:`A` is the amplitude
+    * :math:`\\beta` is the frequency scaling parameter
+    * :math:`T` is the temperature of the black-body
+    * :math:`a(\\nu_1,\\beta,T)` is the frequency scaling for a modified black-body
+    """
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "PS dusty"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
         self.dlfg = self._gen_dl_powerlaw(0.)
         self.sed  = CIB( **kwargs)
 
@@ -324,7 +368,7 @@ class ps_dusty(fgmodel):
         dl = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_dusty'], T=pars.get('T_cib',Tcib))
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
 
         if self.mode == "TT":
@@ -341,11 +385,29 @@ cib_poisson = ps_dusty
 #Dl SPT3G: -0.53 for TT, -0.42 for TE, -0.42 for EE (fit with strong prior)
 #Dl Planck: -0.63 for TT, -0.4 for TE
 class dust(fgmodel):
+    """
+    Galactic dust power using a power law.
+
+    .. math::
+        C_\\ell = A * a(\\nu_1, \\beta, T) * a(\\nu_2, \\beta, T) * \\left( \\ell / \\ell_{ref} \\right)^{\\alpha}
+
+    where:
+
+    * :math:`A` is the amplitude
+    * :math:`\\ell_{ref}` is the reference ell
+    * :math:`\\alpha` is the power law index
+    * :math:`\\beta` is the frequency scaling parameter
+    * :math:`T` is the temperature of the grey-body
+    * :math:`a(\\nu, \\beta)` is the frequency scaling for a grey body
+
+    """
+
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "Dust"
         self.lnorm = kwargs.get('lnorm',200)
         self.sed = DUST( **kwargs)
+        self.nu0 = kwargs.get('nu0',self.nu0)
         
     def compute_dl(self, pars):
         dl = []
@@ -354,7 +416,7 @@ class dust(fgmodel):
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0, beta=pars[f'{self.survey}_beta_dust{self.mode}'], T=pars.get('T_dust',19.6))
 
-        for xf, (f1, f2) in enumerate(self._cross_frequencies):
+        for xf, (f1, f2) in enumerate(self.cross_frequencies):
 
             if self.survey == "PLK":
                 #rescale PLK for each combination of mask
@@ -365,21 +427,60 @@ class dust(fgmodel):
                 ad    = pars[f'{self.survey}_Adust{self.mode}']
             dlg = self._gen_dl_powerlaw( alpha)
 
-#            ell = np.arange( 2,self.lmax+1)
-#            dlg = np.zeros( self.lmax+1)
-#            dlg[ell] = (ell/self.lnorm)**(2+alpha)
-            
             dl.append( ad * dlg * sed[f1] * sed[f2] )
 
         return np.array(dl)
 
 
+class dust_spt3g(dust):
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
+        self.name = "Dust"
+        self.lnorm = 80
+        self.sed = DUST( **kwargs)
+        self.nu0 = 150
+        
+    def compute_dl(self, pars):
+        dl = []
+
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars[f'{self.survey}_beta_dust{self.mode}'], T=pars.get('T_dust',19.6))
+
+        for xf, (f1, f2) in enumerate(self.cross_frequencies):
+
+            alpha = pars[f'{self.survey}_alpha_dust{self.mode}']
+            ad    = pars[f'{self.survey}_Adust{self.mode}']
+
+            ell = np.arange( 2,self.lmax+1)
+            dlg = np.zeros( self.lmax+1)
+            dlg[ell] = (ell/self.lnorm)**(2+alpha)
+            
+#            print( self.mode, (self.sed._feff[f1],self.sed._feff[f2]), sed[f1], sed[f2])
+            dl.append( ad * dlg * sed[f1] * sed[f2] )
+
+        return np.array(dl)
+    
+
 #Dust amplitudes
 class dust_amplitude(fgmodel):
+    """
+    Adds galactic dust for each cross-spectrum using a power law.
+
+    .. math::
+        C_\\ell = A(\\nu_1, \\nu_2) * \\left( \\ell / \\ell_{ref} \\right)^{\\alpha}
+
+    where:
+
+    * :math:`A(\\nu_1,\\nu_2)` is the amplitude
+    * :math:`\\ell_{ref}` is the reference ell
+    * :math:`\\alpha` is the power law index
+
+    """
+
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "Dust Amplitudes"
-        self.lnorm = 200
+        self.lnorm = kwargs.get('lnorm',200)
         self.dlfg = np.zeros( lmax+1)
 
         alpha_dust = -2.5 if mode == "TT" else -2.4
@@ -392,7 +493,7 @@ class dust_amplitude(fgmodel):
         elif self.mode == "EE": ad1,ad2 = f'{self.survey}_dustP',f'{self.survey}_dustP'
 
         dl = []
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             dl.append( pars[ad1+f"_{f1}"] * pars[ad2+f"_{f2}"] * self.dlfg)
 
         return np.array(dl)
@@ -403,7 +504,8 @@ class sync(fgmodel):
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "Synchrotron"
-        self.lnorm = 200
+        self.lnorm = kwargs.get('lnorm',200)
+        self.nu0 = kwargs.get('nu0',self.nu0)
 
         alpha_syn = -2.5  #Cl template power-law TBC
         self.dlfg = self._gen_dl_powerlaw( alpha_syn)
@@ -413,7 +515,7 @@ class sync(fgmodel):
         dl = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0, beta=beta_syn)
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
     
         if self.mode == "TT":
@@ -426,14 +528,34 @@ class sync(fgmodel):
 
 # CIB clustered
 class cib(fgmodel):
+    """
+    CIB clustering power.
+
+    .. math::
+
+        C_\\ell(\\nu_1, \\nu_2) = A * a(\\nu_1, \\beta, T_{cib}) * a(\\nu_2, \\beta, T_{cib}) * C_\\ell^{CIB}
+
+    where:
+
+    * :math:`A` is the amplitude
+    * :math:`\\ell_{ref}` is the reference ell
+    * :math:`\\alpha` is the power law index
+    * :math:`\\beta` is the frequency scaling parameter
+    * :math: `T_{cib}` is the temperature of the modified black-body
+    * :math:`a(\\nu, \\beta, T_{cib})` is the frequency scaling for a modified black-body
+
+    """
+
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "clustered CIB"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
+        self.nu0 = kwargs.get('nu0',self.nu0)
 
-        if 'filename' in kwargs:
+        if kwargs.get('filename',None) is not None:
             self.dlfg = self._read_dl_template( kwargs['filename'])
         else:
-            alpha_cib = -1.3
+            alpha_cib = -1.2
             self.dlfg = self._gen_dl_powerlaw( alpha_cib)
         self.sed = CIB( **kwargs)
 
@@ -441,7 +563,33 @@ class cib(fgmodel):
         dl = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_cib'],T=pars.get('T_cib',Tcib))
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
+            dl.append( self.dlfg * sed[f1] * sed[f2] )
+
+        if self.mode == "TT":
+            return pars["Acib"] * np.array(dl)
+        else:
+            return 0.
+
+class cib_powerlaw(fgmodel):
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
+        self.name = "clustered CIB"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
+        self.nu0 = kwargs.get('nu0',self.nu0)
+        self.sed = CIB( **kwargs)
+
+        #powerlaw in Dl (as SPT and ACT)
+        alpha_cib = -1.2
+        ell = np.arange( 2, self.lmax+1)
+        self.dlfg = np.zeros( self.lmax+1)
+        self.dlfg[ell] = (ell/self.lnorm)**(2+alpha_cib)
+
+    def compute_dl(self, pars):
+        dl = []
+        self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_cib'],T=pars.get('T_cib',Tcib))
+        for f1, f2 in self.cross_frequencies:
             dl.append( self.dlfg * sed[f1] * sed[f2] )
 
         if self.mode == "TT":
@@ -450,11 +598,26 @@ class cib(fgmodel):
             return 0.
 
 
+
 #thermal SZ
 class tsz(fgmodel):
+    """
+    tSZ template with frequency scaling and one free amplitude parameter.
+
+    .. math::
+        C_\\ell = A * a(\\nu_1) * a(\\nu_2) * C_\\ell^{tSZ}
+
+    where:
+
+    * :math:`A` is the amplitude parameter
+    * :math:`a(\\nu)` is the tSZ frequency scaling
+
+    """
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "tSZ"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
+        self.nu0 = kwargs.get('nu0',self.nu0)
 
         if 'filename' not in kwargs:
             raise ValueError( f"Missing SZ Cl shape")
@@ -473,7 +636,7 @@ class tsz(fgmodel):
         dlfg = self.dlfg.copy()
         dlfg[ell] = dlfg[ell] * (ell/self.lnorm)**(pars.get('alpha_tsz',0.))
 
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             dl_sz.append( dlfg * sed[f1] * sed[f2] )
 
         if self.mode == "TT":
@@ -484,16 +647,28 @@ class tsz(fgmodel):
 
 #kinetic SZ
 class ksz(fgmodel):
+    """
+    kSZ emission.
+
+    .. math::
+        C_\\ell = A * C_\\ell^{kSZ}
+
+    where:
+
+    * :math:`A` is the amplitude parameter
+
+    """
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "kSZ"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
 
         if 'filename' not in kwargs:
             raise ValueError( f"Missing SZ Cl shape")
             
         self.dlfg = self._read_dl_template( kwargs['filename'])
         self.dl_ksz = []
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             self.dl_ksz.append(self.dlfg)
         self.dl_ksz = np.array(self.dl_ksz)
 
@@ -510,13 +685,16 @@ class szxcib(fgmodel):
     def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
         super().__init__(lmax, cross, mode=mode, survey=survey)
         self.name = "SZxCIB"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
+        self.nu0 = kwargs.get('nu0',self.nu0)
 
-        if 'filename' in kwargs:
+        if kwargs.get('filename',None) is not None:
             self.dlfg = self._read_dl_template(kwargs['filename'])
-        elif "filenames" in kwargs:
-            self.dlfg = self._read_dl_template(kwargs["filenames"][0])*self._read_dl_template(kwargs["filenames"][1])
         else:
-            raise ValueError( f"Missing template for SZxCIB  for {self.survey}")
+#            self.dlfg = self._read_dl_template(kwargs["filenames"][0])*self._read_dl_template(kwargs["filenames"][1])
+            model_cib = cib( lmax, cross, mode=mode, survey=survey, filename=kwargs.get("filename_cib",None), **kwargs)
+            model_tsz = tsz( lmax, cross, mode=mode, survey=survey, filename=kwargs.get("filename_tsz",None), **kwargs)
+            self.dlfg = np.sqrt( model_cib.dlfg * model_tsz.dlfg )
 
         self.sed_tsz = TSZ( **kwargs)
         self.sed_cib = CIB( **kwargs)
@@ -527,8 +705,57 @@ class szxcib(fgmodel):
         self.sed_cib.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         tsz = self.sed_tsz( self._freqs, nu0=self.nu0)
         cib = self.sed_cib( self._freqs, nu0=self.nu0, beta=pars['beta_cib'], T=pars.get('T_cib',Tcib))
-        for f1, f2 in self._cross_frequencies:
+        for f1, f2 in self.cross_frequencies:
             dl_szxcib.append( self.dlfg * np.sqrt(pars["Acib"]*pars["Atsz"]) * ( tsz[f2]*cib[f1] + tsz[f1]*cib[f2] ) )
+
+        if self.mode == "TT":
+            return -1. * pars["xi"] * np.array(dl_szxcib)
+        else:
+            return 0.
+
+
+class szxcib_spt3g(fgmodel):
+    def __init__(self, lmax, cross, mode="TT", survey="", **kwargs):
+        super().__init__(lmax, cross, mode=mode, survey=survey)
+        self.name = "SZxCIB"
+        self.lnorm = kwargs.get('lnorm',self.lnorm)
+        self.nu0 = kwargs.get('nu0',self.nu0)
+
+        self.model_cib = cib( lmax, cross, mode=mode, survey=survey, filename=kwargs.get("filename_cib",None), **kwargs)
+        self.model_tsz = tsz( lmax, cross, mode=mode, survey=survey, filename=kwargs.get("filename_tsz",None), **kwargs)
+        self.dlfg = np.sqrt( self.model_cib.dlfg * self.model_tsz.dlfg )
+
+        self.sed_tsz = TSZ( **kwargs)
+        self.sed_cib = CIB( **kwargs)
+
+    def compute_dl(self, pars):
+        dl_szxcib = []
+        self.sed_tsz.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        self.sed_cib.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
+        tsz = self.sed_tsz( self._freqs, nu0=self.nu0)
+        cib = self.sed_cib( self._freqs, nu0=self.nu0, beta=pars['beta_cib'], T=pars.get('T_cib',Tcib))
+#        clcib = self.model_cib.compute_dl( pars)
+#        cltsz = self.model_tsz.compute_dl( pars)
+        for i, (f1, f2) in enumerate(self.cross_frequencies):
+#            print( (f1,f2), pars["Acib"], pars["Atsz"], tsz[f2],cib[f1],tsz[f1],cib[f2])
+            #FOR SPT (WRONG)
+            dl_szxcib.append( self.dlfg *
+                              (np.sqrt(pars["Acib"]*cib[f1]*cib[f1]*pars["Atsz"]*tsz[f2]*tsz[f2]) + np.sqrt(pars["Acib"]*cib[f2]*cib[f2]*pars["Atsz"]*tsz[f1]*tsz[f1])) )
+#            dl_szxcib.append( np.sqrt( clcib[[xfq==(f1,f1) for xfq in self.cross_frequencies]][0]*
+#                                       cltsz[[xfq==(f2,f2) for xfq in self.cross_frequencies]][0]) +
+#                              np.sqrt( clcib[[xfq==(f2,f2) for xfq in self.cross_frequencies]][0]*
+#                                       cltsz[[xfq==(f1,f1) for xfq in self.cross_frequencies]][0])
+#                              )
+
+#            print(
+#                (f1,f2),
+#                np.sqrt(pars["Acib"]*cib[f1]*cib[f1]*pars["Atsz"]*tsz[f2]*tsz[f2]) +
+#                np.sqrt(pars["Acib"]*cib[f2]*cib[f2]*pars["Atsz"]*tsz[f1]*tsz[f1]),
+#                pars["Acib"]*cib[f1]*cib[f1],
+#                pars["Acib"]*cib[f2]*cib[f2],
+#                pars["Atsz"]*tsz[f1]*tsz[f1],
+#                pars["Atsz"]*tsz[f2]*tsz[f2]
+#                )
 
         if self.mode == "TT":
             return -1. * pars["xi"] * np.array(dl_szxcib)
