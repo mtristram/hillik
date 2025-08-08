@@ -358,7 +358,6 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         db_model = {spec:self.windows[spec] @ dl_model[spec] for spec in self.spectra_to_fit}
 
         # Select bins and calculate difference of theory and data
-        print( "Compute residuals")
         self.log.debug("Compute residuals")
         delta_data_model = np.concatenate(
             [
@@ -396,20 +395,16 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         # Grab ells
         ells = np.arange(self.lmin, self.lmax + 1)
+        ll2pi = ells * (ells + 1) / (2 * np.pi)
 
         # Grab Cl derivative
-        Cl_derivative = np.gradient( Dl_theory * 2 * np.pi / (ells * (ells + 1)))
+        Cl_derivative = np.gradient( Dl_theory / ll2pi)
 
         # Calculate super sample lensing correction
         # (In Cl space) SSL = -k/l^2 d/dln(l) (l^2Cl) = -k(l*dCl/dl + 2Cl)
-        ssl_correction = ells * Cl_derivative  # l*dCl/dl
-        ssl_correction = (
-            ssl_correction * ells * (ells + 1) / (2 * np.pi)
-        )  # Convert this part to Dl space already
-        ssl_correction = ssl_correction + 2 * Dl_theory  # 2Cl - but already converted to Dl
-        ssl_correction = -kappa * ssl_correction  # -kappa
+        ssl_correction = (ells * Cl_derivative)*ll2pi + 2 * Dl_theory
 
-        return ssl_correction
+        return -kappa * ssl_correction
 
     # Aberration Correction
     # Based on Jeong et al. 2013 (https://arxiv.org/pdf/1309.2285.pdf) Eq. 23
@@ -419,19 +414,17 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         # Grab ells
         ells = np.arange(self.lmin, self.lmax + 1)
+        ll2pi = ells * (ells + 1) / (2 * np.pi)
 
         # Grab Cl derivative
-        Cl_derivative = np.gradient( Dl_theory * 2 * np.pi / (ells * (ells + 1)))
+        Cl_derivative = np.gradient( Dl_theory / ll2pi )
 
         # Calculate aberration correction
         # (In Cl space) AC = -coeff*dCl/dln(l) = -coeff*l*dCl/dl
         # where coeff contains the boost amplitude and direction (beta*<cos(theta)> in Jeong+ 13)
-        aberration_correction = -ab_coeff * Cl_derivative * ells
-        aberration_correction = (
-            aberration_correction * ells * (ells + 1) / (2 * np.pi)
-        )  # Convert to Dl
+        aberration_correction = (ells * Cl_derivative)*ll2pi
 
-        return aberration_correction
+        return -ab_coeff * aberration_correction
 
 
     # Calibration
