@@ -1,7 +1,11 @@
 debug: false
 
 likelihood:
-  hillik_act.TTTEEE: null
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE: null
+  hillik_spt.TTTEEE: null
+  hillik_act.TTTEEE_lmin: null
 
 params:
   # Cosmo
@@ -48,13 +52,12 @@ params:
     prior:
       min: 0.
       max: 2.
+    ref: 0.06
     proposal: 0.03
 
   #derived
   H0:
   sigma8:
-
-  ACT_cal: 1.
 
 theory:
   camb:
@@ -66,5 +69,5 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_act_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
 

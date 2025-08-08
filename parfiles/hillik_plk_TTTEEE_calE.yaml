@@ -4,12 +4,6 @@ likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: null
-  hillik_spt.TThighl: null
-  hillik_spt.TTTEEE:
-    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
-    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
-  hillik_act.TTTEEE:
-    lmin: 2000
 
 params:
   # Cosmo
@@ -53,6 +47,53 @@ params:
     ref: 0.058
     proposal: 0.03
 
+  #foregrounds
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+
+  #Systematics
+  PLK_pe_100A:
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
+  PLK_pe_100B:
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
+  PLK_pe_143A:
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
+  PLK_pe_143B:
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
+  PLK_pe_217A:
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
+  PLK_pe_217B:
+    prior:
+      min: 0.5
+      max: 1.5
+    ref: 1.0
+    proposal: 0.1
+
   #derived
   theta_s_100:
   sigma8:
@@ -68,5 +109,5 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plk_TTTEEE_calE.covmat
 

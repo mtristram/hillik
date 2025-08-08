@@ -57,6 +57,22 @@ params:
   H0:
   sigma8:
 
+  #CIB prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+  beta_radio:
+    prior:
+      dist: norm
+      loc: -0.8
+      scale: 0.1
+    ref: -0.8
+    proposal: 0.05
+
 theory:
   camb:
     stop_at_error: False

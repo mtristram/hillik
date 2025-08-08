@@ -13,8 +13,8 @@ params:
     proposal: 1.5e-6
   logA:
     prior:
-      min: 2.6
-      max: 3.5
+      min: 2.0
+      max: 4.0
     proposal: 0.0036
     ref: 3.044
     drop: True
@@ -41,15 +41,19 @@ params:
   tau:
     prior:
       min: 0.01
-      max: 0.15
+      max: 0.30
     ref: 0.055
-    proposal: 0.007
+    proposal: 0.03
   Alens:
     prior:
       min: 0.5
       max: 1.5
+    ref: 1.00
     proposal: 0.022
-    latex: A_\mathrm{L}
+
+  #derived
+  H0:
+  sigma8:
 
   SPT3G_cal:
     prior:
@@ -59,9 +63,21 @@ params:
     ref: 1.00
     proposal: 0.01
 
-  #derived
-  H0:
-  sigma8:
+  #CIB prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+  beta_radio:
+    prior:
+      dist: norm
+      loc: -0.8
+      scale: 0.1
+    ref: -0.8
+    proposal: 0.05
 
 theory:
   camb:

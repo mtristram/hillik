@@ -5,15 +5,10 @@ likelihood:
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: 
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
-  hillik_spt.TThighl:
-    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
   hillik_spt.TTTEEE:
-    spec_bin_min: [10,  1,  1, 10,  1,  1, 10,  1,  1, 10,  1,  1, 15,  1,  1, 15,  1,  1]
-    spec_bin_max: [34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44, 34, 44, 44]
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
-  hillik_act.TTTEEE: 
+  hillik_act.TTTEEE_lmin: 
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
-    lmin: 2000
 
 
 params:
