@@ -39,6 +39,9 @@
     ref: 1.75
     proposal: 0.05
     latex: \beta_\mathrm{CIB}
+  alpha_cib:
+    value: 1.2
+    latex: \alpha_\mathrm{CIB}
   T_cib:
     value: 25.
     latex: T_\mathrm{CIB}
@@ -47,6 +50,9 @@
     prior:
       min: -1.5
       max: 0.
+#      dist: norm
+#      loc: -0.8
+#      scale: 0.1
     ref: -0.8
     proposal: 0.1
     latex: \beta_\mathrm{radio}^\mathrm{PS}

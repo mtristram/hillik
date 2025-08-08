@@ -579,13 +579,14 @@ class cib_powerlaw(fgmodel):
         self.nu0 = kwargs.get('nu0',self.nu0)
         self.sed = CIB( **kwargs)
 
+    def compute_dl(self, pars):
         #powerlaw in Dl (as SPT and ACT)
-        alpha_cib = -1.2
+        #SPT: alpha_cib = -1.5  #(SPT: alpha+2 = 0.513 ± 0.092)
+        #ACT: alpha_cib = -1.2  #(ACT: alpha+2 = 0.8)
         ell = np.arange( 2, self.lmax+1)
         self.dlfg = np.zeros( self.lmax+1)
-        self.dlfg[ell] = (ell/self.lnorm)**(2+alpha_cib)
+        self.dlfg[ell] = (ell/self.lnorm)**(2+pars.get('alpha_cib',-1.2))
 
-    def compute_dl(self, pars):
         dl = []
         self.sed.set_bandpass_shifts({f:pars.get(f'{self.survey}_band_shift_{f}',0) for f in self._freqs})
         sed = self.sed( self._freqs, nu0=self.nu0, beta=pars['beta_cib'],T=pars.get('T_cib',Tcib))
