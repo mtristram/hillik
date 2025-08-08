@@ -1,65 +1,75 @@
+
   #Beam eigenmodes
   SPT3G_beta_1:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_1^{SPT3G}
   SPT3G_beta_2:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_2^{SPT3G}
   SPT3G_beta_3:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_3^{SPT3G}
   SPT3G_beta_4:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_4^{SPT3G}
   SPT3G_beta_5:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_5^{SPT3G}
   SPT3G_beta_6:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_6^{SPT3G}
   SPT3G_beta_7:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_7^{SPT3G}
   SPT3G_beta_8:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_8^{SPT3G}
   SPT3G_beta_9:
     prior:
-      min: 0.0
-      max: 1.0
-    ref: 1.00
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
     proposal: 0.5
     latex: \beta_9^{SPT3G}
 
