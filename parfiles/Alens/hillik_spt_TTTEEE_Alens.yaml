@@ -1,7 +1,6 @@
 debug: false
 
 likelihood:
-  hillik_spt.TThighl: null
   hillik_spt.TTTEEE: null
 
 params:
@@ -52,8 +51,13 @@ params:
     proposal: 0.022
     latex: A_\mathrm{L}
 
-  SPT_cal: 1
-  SPT3G_cal: 1
+  SPT3G_cal:
+    prior:
+      dist: norm
+      loc: 1.00
+      scale: 0.0036
+    ref: 1.00
+    proposal: 0.01
 
   #derived
   H0:

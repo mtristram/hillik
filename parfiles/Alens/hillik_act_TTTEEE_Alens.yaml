@@ -55,7 +55,13 @@ params:
   H0:
   sigma8:
 
-  ACT_cal: 1.
+  ACT_cal:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.003
+    ref: 1.0
+    proposal: 0.0015
 
 theory:
   camb:
