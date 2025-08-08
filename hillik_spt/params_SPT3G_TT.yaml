@@ -3,33 +3,34 @@
   SPT3G_AdustTT:
     prior:
       dist: norm
-      loc: 1.15
-      scale: 0.296
-    ref: 1.15
-    proposal: 0.1
+      loc: 1.88
+      scale: 0.96
+    ref: 2.00
+    proposal: 0.5
     latex: A_\mathrm{dustTT}^{SPT3G}
   SPT3G_beta_dustTT:
     value: 1.48
     latex: \beta_\mathrm{dustTT}^{SPT3G}
+    #N(1.48,0.02)
   SPT3G_alpha_dustTT:
     value: -2.53
     latex: \alpha_\mathrm{dustTT}^{SPT3G}
-
+    #N(-2.53,0.05)
 
   #Poisson
   SPT3G_radio_TT:
     prior:
       min: 0.
-      max: 150.
-    ref: 11.
+      max: 10.
+    ref: 2.
     proposal: 1.
     latex: A_\mathrm{radioTT}^\mathrm{SPT3G}
 
   SPT3G_cib_ps:
     prior:
       min: 0.
-      max: 100.
-    ref: 5.
+      max: 10.
+    ref: 7.
     proposal: 1.
     latex: A_\mathrm{IR}^\mathrm{SPT3G}
 

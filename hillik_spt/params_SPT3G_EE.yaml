@@ -3,24 +3,21 @@
   SPT3G_AdustEE:
     prior:
       dist: norm
-      loc: 0.031
-      scale: 0.014
-    ref: 0.031
+      loc: 0.05
+      scale: 0.022
+    ref: 0.057
     proposal: 0.01
     latex: A_\mathrm{dustEE}^{SPT3G}
   SPT3G_beta_dustEE:
     value: 1.51
     latex: \beta_\mathrm{dustEE}^{SPT3G}
+    #N(1.51,0.04))
   SPT3G_alpha_dustEE:
     value: -2.42
     latex: \alpha_\mathrm{dustEE}^{SPT3G}
+    #N(-2.42,0.04)
 
   #PS
   SPT3G_radio_EE:
-    prior:
-      dist: norm
-      loc: 0.0
-      scale: 0.05
-    ref: 0.
-    proposal: 0.05
+    value: 0.
     latex: A_\mathrm{radioEE}^\mathrm{SPT3G}
