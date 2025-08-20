@@ -217,20 +217,20 @@ class ACTDR6Likelihood(InstallableLikelihood):
         return chi2
 
 
-    def reduction_matrix(self, pol='TT'):
-        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
+    def reduction_matrix(self, mode='TT'):
+        X = np.zeros( (len(self.delta_dl),self.lmax) )
 
         x0 = 0
         for ispec,spec in enumerate(self.spectra):
             exp1,exp2 = spec["experiments"]
-            for pol in spec["polarizations"]:
-                bpw = spec[pol]["bpw"]
+            if mode in spec["polarizations"]:
+                bpw = spec[mode]["bpw"]
+                nbin = len(spec[mode]["leff"])
+                X[x0:x0+nbin,:] = bpw.weight.T
+                x0 += nbin
 
-            X[x0+il,bmin:nmax+1] = bpw.weight.T
-            x0 += len(bpw.weight)                
-        
         return X
-
+    
 
     def get_requirements(self):
         requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","et","ee"]})

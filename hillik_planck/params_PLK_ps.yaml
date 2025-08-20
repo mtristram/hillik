@@ -1,4 +1,4 @@
-  #Poisson Noise
+  #Poisson Model
   PLK_radio_TT:
     prior:
       min: 0.
@@ -14,3 +14,54 @@
     ref: 6.
     proposal: 1.
     latex: A_\mathrm{IR}^\mathrm{PLK}
+
+
+  #Poission Noise
+  PLK_ps_100x100:
+    value: 0.
+#    prior:
+#      min: 300
+#      max: 600
+#    ref: 428.
+#    proposal: 23.
+    latex: A^\mathrm{PS}(100x100)
+  PLK_ps_100x143:
+    value: 0.
+#    prior:
+#      min: 0
+#      max: 500
+#    ref: 211.
+#    proposal: 16.
+    latex: A^\mathrm{PS}(100x143)
+  PLK_ps_100x217:
+    value: 0.
+#    prior:
+#      min: 0
+#      max: 500
+#    ref: 200.
+#    proposal: 28.
+    latex: A^\mathrm{PS}(100x217)
+  PLK_ps_143x143:
+    value: 0.
+#    prior:
+#      min: 0
+#      max: 500
+#    ref: 130.
+#    proposal: 14.
+    latex: A^\mathrm{PS}(143x143)
+  PLK_ps_143x217:
+    value: 0.
+#    prior:
+#      min: 0
+#      max: 500
+#    ref: 128.
+#    proposal: 19.
+    latex: A^\mathrm{PS}(143x217)
+  PLK_ps_217x217:
+    value: 0.
+#    prior:
+#      min: 0
+#      max: 500
+#    ref: 151.
+#    proposal: 11.
+    latex: A^\mathrm{PS}(217x217)

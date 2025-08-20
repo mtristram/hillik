@@ -113,6 +113,7 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         # Get likelihood name and add the associated mode
         lkl_name = self.__class__.__name__.upper()
         self.use_cl = [lkl_name[i : i + 2] for i in range(0, len(lkl_name), 2)]
+        self.spectra_to_fit = [spec for spec in self.spectra_to_fit if spec[:2] in self.use_cl] #select polar modes
 
         # Check if a late crop is requested and read in the mask if necessary
         # MT: Not Implemented
@@ -168,14 +169,22 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         # Compute cov indices given spectra to fit
         #-----------------------------------------------
         vec_indices = np.array([default_spectra_list.index(spec) for spec in self.spectra_to_fit])
+        if len(self.spec_bin_min) != len(self.spectra_to_fit): self.spec_bin_min = np.array(default_bin_min)[vec_indices]
+        if len(self.spec_bin_max) != len(self.spectra_to_fit): self.spec_bin_max = np.array(default_bin_max)[vec_indices]
         cov_indices = np.concatenate(
             [
                 np.arange(
-                    ishift[i] + self.spec_bin_min[i] - 1,
-                    ishift[i] + self.spec_bin_max[i],
+                    ishift[v] + self.spec_bin_min[i] - 1,
+                    ishift[v] + self.spec_bin_max[i],
                     dtype=int,
                 )
-                for i in vec_indices
+                for i,v in enumerate(vec_indices)
+#                np.arange(
+#                    ishift[i] + self.spec_bin_min[i] - 1,
+#                    ishift[i] + self.spec_bin_max[i],
+#                    dtype=int,
+#                )
+#                for i in vec_indices
             ]
         )
         self.log.debug(f"Selected {len(vec_indices)} spectra: {[spec for spec in self.spectra_to_fit]}")
@@ -241,7 +250,8 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
     def get_requirements(self):
         # State requisites to the theory code
-        return {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
+        return {"Cl": {cl.lower(): self.lmax for cl in ['TT','TE','EE']}}
+#        return {"Cl": {cl.lower(): self.lmax for cl in self.use_cl}}
 
 
     def _get_spec_info( self, spec):
