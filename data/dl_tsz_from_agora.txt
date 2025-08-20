@@ -1,0 +1,1 @@
+/sps/planck/Users/tristram/Soft/Hillik/software/spt_candl_data/spt_candl_data/foreground_templates/dl_tsz_from_agora.txt
