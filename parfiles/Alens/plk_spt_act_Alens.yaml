@@ -26,42 +26,40 @@ params:
     prior:
       min: 2.6
       max: 3.5
-    proposal: 0.0036
-    ref: 3.044
-    drop: True
+    ref: 3.056
+    proposal: 0.05
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
   ns:
     prior:
       min: 0.9
       max: 1.1
-    ref: 0.9649
-    proposal: 0.0033
+    ref: 0.96
+    proposal: 0.016
   ombh2:
     prior:
       min: 0.017
       max: 0.027
-    ref: 0.02237
-    proposal: 6.5e-5
+    ref: 0.022
+    proposal: 0.0003
   omch2:
     prior:
       min: 0.09
       max: 0.15
-    ref: 0.1200
-    proposal: 0.0011
+    ref: 0.122
+    proposal: 0.004
   tau:
     prior:
       min: 0.01
-      max: 0.15
-    ref: 0.055
-    proposal: 0.007
+      max: 0.10
+    ref: 0.058
+    proposal: 0.03
   Alens:
     prior:
       min: 0.5
       max: 1.5
-    proposal: 0.022
+    proposal: 0.05
     ref: 1.0
-    latex: A_\mathrm{L}
 
   #derived
   H0:
@@ -546,7 +544,7 @@ params:
 
 #----------------------------------------------------------------------------------------------
 prior:
-  tau_prior: "lambda tau: stats.norm.logpdf(tau, loc=0.058, scale=0.006)"
+#  tau_prior: "lambda tau: stats.norm.logpdf(tau, loc=0.058, scale=0.006)"
   #ACT prior
 #  act_calib: in params_systematics
   TTdust_prior: "lambda a_gtt: stats.norm.logpdf(a_gtt, loc=7.95, scale=0.32)"
@@ -584,6 +582,8 @@ theory:
     stop_at_error: False
     extra_args:
       lens_potential_accuracy: 1
+      neutrino_hierarchy: degenerate
+      num_massive_neutrinos: 3
 
   mflike.BandpowerForeground:
     top_hat_band:
@@ -618,6 +618,6 @@ theory:
 sampler:
   mcmc:
     covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/plk_spt_act.covmat
-#    learn_proposal_Rminus1_max_early: 500.
+    learn_proposal_Rminus1_max_early: 500.
 
 debug: false
