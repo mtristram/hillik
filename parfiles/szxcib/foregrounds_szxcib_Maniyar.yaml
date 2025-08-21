@@ -2,8 +2,8 @@
         dust: null
         tsz: dl_tsz_planck_13500.dat
         ksz: dl_ksz_planck_2_13500.dat
-        cib: dl_cib_Maniyar.dat
-        szxcib: sz_x_cib_template_13500.dat
+        cib: cib_extra.dat
+        szxcib: dl_szxcib_Maniyar.dat
         radio_poisson: null
         cib_poisson: null
       EE:
