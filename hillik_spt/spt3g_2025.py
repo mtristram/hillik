@@ -115,13 +115,10 @@ class SPT3G_D1_Lik(InstallableLikelihood):
         self.use_cl = [lkl_name[i : i + 2] for i in range(0, len(lkl_name), 2)]
         self.spectra_to_fit = [spec for spec in self.spectra_to_fit if spec[:2] in self.use_cl] #select polar modes
 
-        # Check if a late crop is requested and read in the mask if necessary
-        # MT: Not Implemented
-
         # Compute cross-spectra frequencies and mode given the spectra name to fit
         r = re.compile("([A-Z]{2})\s(\d+)x(\d+)")
-        self.cross_frequencies = [r.search(spec).group(2, 3) for spec in self.spectra_to_fit]
-        self.cross_spectra = ["".join(r.search(spec).group(1)) for spec in self.spectra_to_fit]
+        self.cross_frequencies = [r.search(spec).group(2, 3) for spec in default_spectra_list]
+        self.cross_spectra = ["".join(r.search(spec).group(1)) for spec in default_spectra_list]
         self.frequencies = sorted(
             {int(freq) for freqs in self.cross_frequencies for freq in freqs}
         )
@@ -271,13 +268,13 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         # Foregrounds (for all multipoles)
         dlfg = {}
-        for mode in self.use_cl:
+        for mode in ['TT','TE','EE']:
             dlfg[mode] = np.zeros((sum([c == mode for c in self.cross_spectra]),self.lmax+1))
             for fg in self.fgs[mode]: dlfg[mode] += fg.compute_dl( params)
 
         # Sky Model
         sky_model = {}
-        for spec in self.spectra_to_fit:
+        for spec in default_spectra_list:
             cross_spectrum, cross_frequency = self._get_spec_info(spec)
 
             # Add CMB
@@ -331,7 +328,7 @@ class SPT3G_D1_Lik(InstallableLikelihood):
             
             # Apply calibration
             dl_model[spec] /= (
-                params.get(f"SPT3G_cal") *
+                params.get(f"SPT3G_cal")**2 * 
                 self.InternalCalibration( cross_spectrum,
                                           [params.get(f"SPT3G_cal_{fq}") for fq in cross_frequency],
                                           [params.get(f"SPT3G_pe_{fq}") for fq in cross_frequency]

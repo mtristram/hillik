@@ -15,12 +15,7 @@ beam_main_filename: beams_templates/B_ell_300_4100_main_rc4.npz
 # Windows directory
 window_folder: windows
 
-
 foregrounds: !defaults [foregrounds]
-
-#Parameters
-params: !defaults [params_SPT3G_TT,params_SPT3G_calib,params_SPT3G_nuisance,params_extragal]
-
 
 # Spectra to use (order does not matter)
 spectra_to_fit:
@@ -30,3 +25,264 @@ spectra_to_fit:
   - TT 150x150
   - TT 150x220
   - TT 220x220
+
+
+#Parameters
+params:
+  SPT3G_cal:
+    prior:
+      min: 0.7
+      max: 1.3
+    ref: 1.00
+    proposal: 0.01
+    latex: c^{SPT3G}
+
+  #super sample lensing
+  SPT3G_kappa:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 0.00045
+    ref: 0.0
+    proposal: 0.00045
+    latex: \kappa
+
+  #Calib T
+  SPT3G_cal_90:
+    prior:
+      min: 0.8
+      max: 1.2
+    ref: 1.0
+    proposal: 0.0003
+    latex: c^\mathrm{SPT3G}_{90}
+
+  SPT3G_cal_150:
+    value: 1.
+    latex: c^\mathrm{SPT3G}_{150}
+
+  SPT3G_cal_220:
+    prior:
+      min: 0.8
+      max: 1.2
+    ref: 1.00
+    proposal: 0.001
+    latex: c^\mathrm{SPT3G}_{220}
+
+  #polar efficiency
+  SPT3G_pe_90: 
+    value: 1.0
+    latex: \rho^\mathrm{SPT3G}_{90}
+  SPT3G_pe_150:
+    value: 1.0
+    latex: \rho^\mathrm{SPT3G}_{150}
+  SPT3G_pe_220:
+    value: 1.0
+    latex: \rho^\mathrm{SPT3G}_{220}
+
+  #extragal
+  xi:
+    prior:
+      min: -1.
+      max: 1.
+    ref: 0.1
+    proposal: 0.1
+    latex: \xi_\mathrm{SZxCIB}
+  Atsz:
+    prior:
+      min: 0.
+      max: 50.
+    ref: 3.0
+    proposal: 1
+    latex: A_\mathrm{tSZ}
+  Acib:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 4.0
+    proposal: 1
+    latex: A_\mathrm{CIB}
+  Aksz:
+    prior:
+      min: 0
+      max: 50
+    ref: 1.
+    proposal: 1
+    latex: A_\mathrm{kSZ}
+  beta_cib:
+    prior:
+      min: 1.0
+      max: 3.0
+    ref: 1.75
+    proposal: 0.05
+    latex: \beta_\mathrm{CIB}
+  alpha_cib:
+    value: 1.2
+    latex: \alpha_\mathrm{CIB}
+  T_cib:
+    value: 25.
+    latex: T_\mathrm{CIB}
+  beta_radio:
+    prior:
+      min: -1.5
+      max: 0.
+    ref: -0.8
+    proposal: 0.1
+    latex: \beta_\mathrm{radio}^\mathrm{PS}
+  beta_dusty:
+    value: "lambda beta_cib: beta_cib"
+    latex: \beta_\mathrm{IR}^\mathrm{PS}
+
+  #Dust
+  SPT3G_AdustTT:
+    prior:
+      dist: norm
+      loc: 1.88
+      scale: 0.96
+    ref: 2.00
+    proposal: 0.5
+    latex: A_\mathrm{dustTT}^{SPT3G}
+  SPT3G_beta_dustTT:
+    value: 1.48
+    latex: \beta_\mathrm{dustTT}^{SPT3G}
+  SPT3G_alpha_dustTT:
+    value: -2.53
+    latex: \alpha_\mathrm{dustTT}^{SPT3G}
+  SPT3G_AdustTE:
+    value: 0.12
+    latex: A_\mathrm{dustTE}^{SPT3G}
+  SPT3G_beta_dustTE:
+    value: 1.51
+    latex: \beta_\mathrm{dustTE}^{SPT3G}
+  SPT3G_alpha_dustTE:
+    value: -2.42
+    latex: \alpha_\mathrm{dustTE}^{SPT3G}
+  SPT3G_AdustEE:
+    value: 0.05
+    latex: A_\mathrm{dustEE}^{SPT3G}
+  SPT3G_beta_dustEE:
+    value: 1.51
+    latex: \beta_\mathrm{dustEE}^{SPT3G}
+  SPT3G_alpha_dustEE:
+    value: -2.42
+    latex: \alpha_\mathrm{dustEE}^{SPT3G}
+
+  #PS
+  SPT3G_radio_TE:
+    value: 0.
+    latex: A_\mathrm{radioTE}^\mathrm{SPT3G}
+  SPT3G_radio_EE:
+    value: 0.
+    latex: A_\mathrm{radioEE}^\mathrm{SPT3G}
+
+  #Poisson
+  SPT3G_radio_TT:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 2.
+    proposal: 1.
+    latex: A_\mathrm{radioTT}^\mathrm{SPT3G}
+  SPT3G_cib_ps:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 7.
+    proposal: 1.
+    latex: A_\mathrm{IR}^\mathrm{SPT3G}
+
+  #Beam eigenmodes
+  SPT3G_beta_1:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_1^{SPT3G}
+  SPT3G_beta_2:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_2^{SPT3G}
+  SPT3G_beta_3:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_3^{SPT3G}
+  SPT3G_beta_4:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_4^{SPT3G}
+  SPT3G_beta_5:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_5^{SPT3G}
+  SPT3G_beta_6:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_6^{SPT3G}
+  SPT3G_beta_7:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_7^{SPT3G}
+  SPT3G_beta_8:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_8^{SPT3G}
+  SPT3G_beta_9:
+    prior:
+      dist: norm
+      loc: 0.0
+      scale: 1.0
+    ref: 0.00
+    proposal: 0.5
+    latex: \beta_9^{SPT3G}
+
+  #T-to-P leakage
+  SPT3G_T2P2_90:
+    value: -0.0065
+    latex: \epsilon_{90}^{SPT3G}
+  SPT3G_T2P2_150:
+    value: -0.012
+    latex: \epsilon_{150}^{SPT3G}
+  SPT3G_T2P2_220:
+    value: -0.023
+    latex: \epsilon_{220}^{SPT3G}
+
+  #Beam sidelobe polarization
+  SPT3G_beta_pol_90:
+    value: 1.0
+    latex: \gamma_{90}^{SPT3G}
+  SPT3G_beta_pol_150:
+    value: 1.00
+    latex: \gamma_{150}^{SPT3G}
+  SPT3G_beta_pol_220:
+    value: 1.00
+    latex: \gamma_{220}^{SPT3G}
+

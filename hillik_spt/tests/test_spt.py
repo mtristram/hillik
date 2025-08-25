@@ -48,7 +48,11 @@ fgs_pars = {
 fgs_pars['TTTEEE'] = {p:v for tag in ['TT','TE','EE']  for p,v in fgs_pars[tag].items()}
 
 chi2s = {"TTTEEE":2300.714}
+chi2s = {"TT":897.167}
+chi2s = {"EE":612.755}
+chi2s = {"TE":827.760}
 
+chi2s = {"TTTEEE":2300.714,"TT":897.167,"EE":612.755,"TE":827.760}
 
 class SPTLikeTest(unittest.TestCase):
     def setUp(self):
@@ -87,12 +91,12 @@ class SPTLikeTest(unittest.TestCase):
                 "debug": False,
                 "likelihood": {"hillik_spt.{}".format(mode): None},
                 "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_pars, **nui_pars, **fgs_pars[mode]},
+                "params": {**cosmo_pars, **nui_pars, **fgs_pars['TTTEEE']},
                 "packages_path": packages_path,
             }
             
             model = get_model(info)
-#            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
+            print( f"chi2({mode}): {-2*model.loglikes({})[0][0]} / {chi2}")
             self.assertLess( abs(-2*model.loglikes({})[0][0] - chi2), 1)
 
 
