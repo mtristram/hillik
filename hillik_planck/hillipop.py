@@ -276,24 +276,27 @@ class _HillipopLikelihood(InstallableLikelihood):
         else:
             return xcl, xw8
 
+    def _calibration( self, mode, map1, map2, pars):
+
+        if mode == 'TT':
+            cal1 = pars[f"{self.survey}_cal_{map1}"]
+            cal2 = pars[f"{self.survey}_cal_{map2}"]
+        elif mode == 'EE':
+            cal1 = pars[f"{self.survey}_cal_{map1}"]*pars[f"{self.survey}_pe_{map1}"]
+            cal2 = pars[f"{self.survey}_cal_{map2}"]*pars[f"{self.survey}_pe_{map2}"]
+        elif mode == 'TE':
+            cal1 = pars[f"{self.survey}_cal_{map1}"]
+            cal2 = pars[f"{self.survey}_cal_{map2}"]*pars[f"{self.survey}_pe_{map2}"]
+        elif mode == 'ET':
+            cal1 = pars[f"{self.survey}_cal_{map1}"]*pars[f"{self.survey}_pe_{map1}"]
+            cal2 = pars[f"{self.survey}_cal_{map2}"]
+
+        return cal1 * cal2 * pars["A_planck"] ** 2
+
     def _compute_residuals(self, pars, dlth, mode):
 
         # Nuisances
-        cal = []
-        for m1, m2 in combinations(range(self._nmap), 2):
-            if mode == 'TT':
-                cal1 = pars[f"{self.survey}_cal_{self._mapnames[m1]}"]
-                cal2 = pars[f"{self.survey}_cal_{self._mapnames[m2]}"]
-            elif mode == 'EE':
-                cal1 = pars[f"{self.survey}_cal_{self._mapnames[m1]}"]*pars[f"{self.survey}_pe_{self._mapnames[m1]}"]
-                cal2 = pars[f"{self.survey}_cal_{self._mapnames[m2]}"]*pars[f"{self.survey}_pe_{self._mapnames[m2]}"]
-            elif mode == 'TE':
-                cal1 = pars[f"{self.survey}_cal_{self._mapnames[m1]}"]
-                cal2 = pars[f"{self.survey}_cal_{self._mapnames[m2]}"]*pars[f"{self.survey}_pe_{self._mapnames[m2]}"]
-            elif mode == 'ET':
-                cal1 = pars[f"{self.survey}_cal_{self._mapnames[m1]}"]*pars[f"{self.survey}_pe_{self._mapnames[m1]}"]
-                cal2 = pars[f"{self.survey}_cal_{self._mapnames[m2]}"]
-            cal.append(cal1 * cal2 / pars["A_planck"] ** 2)
+        cal = [self._calibration( mode, m1, m2, pars) for m1, m2 in combinations(self._mapnames, 2)]
 
         # Data
         dldata = self._dldata[mode]
@@ -304,7 +307,7 @@ class _HillipopLikelihood(InstallableLikelihood):
             dlmodel += fg.compute_dl(pars)
 
         # Compute Rl = Dl - Dlth
-        Rspec = np.array([dldata[xs] - cal[xs] * dlmodel[xs] for xs in range(self._nxspec)])
+        Rspec = np.array([dldata[xs] - dlmodel[xs]/cal[xs] for xs in range(self._nxspec)])
 
         return Rspec
 

@@ -15,15 +15,17 @@
   #Map calibrations
   PLK_cal_100A:
     prior:
-      min: 0.9
-      max: 1.1
+      dist: norm
+      loc: 1.0
+      scale: 0.01
     ref: 1.0
     proposal: 0.01
     latex: c^{PLK}_\mathrm{100A}
   PLK_cal_100B:
     prior:
-      min: 0.9
-      max: 1.1
+      dist: norm
+      loc: 1.0
+      scale: 0.01
     ref: 1.0
     proposal: 0.01
     latex: c^{PLK}_\mathrm{100B}
@@ -32,22 +34,25 @@
     latex: c^{PLK}_\mathrm{143A}
   PLK_cal_143B:
     prior:
-      min: 0.9
-      max: 1.1
+      dist: norm
+      loc: 1.0
+      scale: 0.01
     ref: 1.0
     proposal: 0.01
     latex: c^{PLK}_\mathrm{143B}
   PLK_cal_217A:
     prior:
-      min: 0.9
-      max: 1.1
+      dist: norm
+      loc: 1.0
+      scale: 0.01
     ref: 1.0
     proposal: 0.01
     latex: c^{PLK}_\mathrm{217A}
   PLK_cal_217B:
     prior:
-      min: 0.9
-      max: 1.1
+      dist: norm
+      loc: 1.0
+      scale: 0.01
     ref: 1.0
     proposal: 0.01
     latex: c^{PLK}_\mathrm{217B}
