@@ -7,7 +7,7 @@ likelihood:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/szxcib/foregrounds_szxcib_Addison]
   hillik_spt.TTTEEE:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/szxcib/foregrounds_szxcib_Addison]
-  hillik_act.TTTEEE_lmin: 
+  hillik_act.TTTEEE_PACT: 
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/szxcib/foregrounds_szxcib_Addison]
 
 

@@ -7,7 +7,7 @@ likelihood:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
   hillik_spt.TTTEEE:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
-  hillik_act.TTTEEE_lmin: 
+  hillik_act.TTTEEE_PACT: 
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/tsz/foregrounds_tsz_Shaw10]
 
 

@@ -5,7 +5,7 @@ likelihood:
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: null
   hillik_spt.TTTEEE: null
-  hillik_act.TTTEEE_lmin: null
+  hillik_act.TTTEEE_PACT: null
 
 params:
   # Cosmo
