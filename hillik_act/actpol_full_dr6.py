@@ -87,6 +87,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
         self._is_mode = {mode: mode in self.defaults["polarizations"] for mode in ["TT", "TE", "ET", "EE"]}
         self.log.debug("mode = {}".format(self._is_mode))
 
+
         #-----------------------------------------------
         #load spectrum
         #-----------------------------------------------
@@ -204,7 +205,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
                 X_model = bpw.weight.T@(dl_cmb[pol][bpw.values]+dl_fg[pol][ispec,bpw.values])
                 
                 # apply calibration
-                X_model  /= self._calibration(params,pol,exp1,exp2)
+                X_model /= self._calibration(params,pol,exp1,exp2)
                 
                 # compute residual
                 self.delta_dl += list(spec[pol]["dl"] - X_model)
@@ -271,17 +272,17 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
 class TT(ACTDR6Likelihood):
     """
-    CMB likelihood with ACTpol DR6 full dataset
+    CMB likelihood with ACTpol DR6 TT dataset
     """
 
 class TE(ACTDR6Likelihood):
     """
-    CMB likelihood with ACTpol DR6 full dataset
+    CMB likelihood with ACTpol DR6 TE dataset
     """
 
 class EE(ACTDR6Likelihood):
     """
-    CMB likelihood with ACTpol DR6 full dataset
+    CMB likelihood with ACTpol DR6 EE dataset
     """
 
 class TTTEEE(ACTDR6Likelihood):
@@ -289,8 +290,28 @@ class TTTEEE(ACTDR6Likelihood):
     CMB likelihood with ACTpol DR6 full dataset
     """
 
-class TTTEEE_lmin(ACTDR6Likelihood):
+
+class TTTEEE_PACT(ACTDR6Likelihood):
     """
     CMB likelihood with ACTpol DR6 full dataset
+    with lmin=2000 (TT), lmin=1500 (TE), lmin=1000 (EE)
+    """
+
+class TT_PACT(ACTDR6Likelihood):
+    """
+    CMB likelihood with ACTpol DR6 TT dataset
+    with lmin=2000
+    """
+
+class TE_PACT(ACTDR6Likelihood):
+    """
+    CMB likelihood with ACTpol DR6 TE dataset
+    with lmin=1500
+    """
+
+class EE_PACT(ACTDR6Likelihood):
+    """
+    CMB likelihood with ACTpol DR6 EE dataset
+    with lmin=1000
     """
 

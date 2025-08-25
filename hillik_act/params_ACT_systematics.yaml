@@ -17,6 +17,51 @@ ACT_cal:
 #  proposal: 0.0015
 #  latex: \mathrm{cal}_{\rm ACT}
 
+
+
+#Intercalibration
+ACT_cal_dr6_pa4_f220:
+  prior:
+    dist: norm
+    loc: 1.0
+    scale: 0.013
+  ref: 1.0
+  proposal: 1e-2
+  latex: \mathrm{c}_{\rm pa4}^{\rm f220}
+ACT_cal_dr6_pa5_f090:
+  prior:
+    dist: norm
+    loc: 1.0
+    scale: 0.0016
+  ref: 1.0
+  proposal: 1e-3
+  latex: \mathrm{c}_{\rm pa5}^{\rm f090}
+ACT_cal_dr6_pa5_f150:
+  value: 1.0
+#    dist: norm
+#    loc: 1.0
+#    scale: 0.0020
+  latex: \mathrm{c}_{\rm pa5}^{\rm f150}
+ACT_cal_dr6_pa6_f090:
+  prior:
+    dist: norm
+    loc: 1.0
+    scale: 0.0018
+  ref: 1.0
+  proposal: 1e-3
+  latex: \mathrm{c}_{\rm pa6}^{\rm f090}
+ACT_cal_dr6_pa6_f150:
+  prior:
+    dist: norm
+    loc: 1.0
+    scale: 0.0024
+  ref: 1.0
+  proposal: 1e-3
+  latex: \mathrm{c}_{\rm pa6}^{\rm f150}
+
+
+
+# Polarization efficiencies
 ACT_pe_dr6_pa4_f220:
   # We do not use the polarization channel of PA4, so we don't vary this parameter.
   value: 1.0
@@ -26,9 +71,6 @@ ACT_pe_dr6_pa5_f090:
     min: 0.9
     max: 1.1
   ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.02
   proposal: 0.01
   latex: \mathrm{p}_{\rm pa5}^{\rm f090}
 ACT_pe_dr6_pa5_f150:
@@ -36,9 +78,6 @@ ACT_pe_dr6_pa5_f150:
     min: 0.9
     max: 1.1
   ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.02
   proposal: 0.01
   latex: \mathrm{p}_{\rm pa5}^{\rm f150}
 ACT_pe_dr6_pa6_f090:
@@ -46,9 +85,6 @@ ACT_pe_dr6_pa6_f090:
     min: 0.9
     max: 1.1
   ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.02
   proposal: 0.01
   latex: \mathrm{p}_{\rm pa6}^{\rm f090}
 ACT_pe_dr6_pa6_f150:
@@ -56,78 +92,19 @@ ACT_pe_dr6_pa6_f150:
     min: 0.9
     max: 1.1
   ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.02
   proposal: 0.01
   latex: \mathrm{p}_{\rm pa6}^{\rm f150}
 
-ACT_cal_dr6_pa4_f220:
-  prior:
-    dist: norm
-    loc: 1.0
-    scale: 0.013
-  ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.01
-  proposal: 1e-2
-  latex: \mathrm{c}_{\rm pa4}^{\rm f220}
-ACT_cal_dr6_pa5_f090:
-  prior:
-    dist: norm
-    loc: 1.0
-    scale: 0.0016
-  ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.01
-  proposal: 1e-3
-  latex: \mathrm{c}_{\rm pa5}^{\rm f090}
-ACT_cal_dr6_pa5_f150:
-  prior:
-    dist: norm
-    loc: 1.0
-    scale: 0.0020
-  ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.01
-  proposal: 1e-3
-  latex: \mathrm{c}_{\rm pa5}^{\rm f150}
-ACT_cal_dr6_pa6_f090:
-  prior:
-    dist: norm
-    loc: 1.0
-    scale: 0.0018
-  ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.01
-  proposal: 1e-3
-  latex: \mathrm{c}_{\rm pa6}^{\rm f090}
-ACT_cal_dr6_pa6_f150:
-  prior:
-    dist: norm
-    loc: 1.0
-    scale: 0.0024
-  ref: 1.0
-#    dist: norm
-#    loc: 1.0
-#    scale: 0.01
-  proposal: 1e-3
-  latex: \mathrm{c}_{\rm pa6}^{\rm f150}
 
-# Systematics
+
+
+# Bandpass shift
 ACT_band_shift_dr6_pa4_f220:
   prior:
     dist: norm
     loc: 0.0
     scale: 3.6
   ref: 0.0
-#    dist: norm
-#    loc: 0.0
-#    scale: 3.6
   proposal: 1.8
   latex: \Delta_{\rm band, pa4}^{\rm f220}
 ACT_band_shift_dr6_pa5_f090:
@@ -136,9 +113,6 @@ ACT_band_shift_dr6_pa5_f090:
     loc: 0.0
     scale: 1.0
   ref: 0.0
-#    dist: norm
-#    loc: 0.0
-#    scale: 1.0
   proposal: 0.5
   latex: \Delta_{\rm band, pa5}^{\rm f090}
 ACT_band_shift_dr6_pa5_f150:
@@ -147,9 +121,6 @@ ACT_band_shift_dr6_pa5_f150:
     loc: 0.0
     scale: 1.3
   ref: 0.0
-#    dist: norm
-#    loc: 0.0
-#    scale: 1.3
   proposal: 0.65
   latex: \Delta_{\rm band, pa5}^{\rm f150}
 ACT_band_shift_dr6_pa6_f090:
@@ -158,9 +129,6 @@ ACT_band_shift_dr6_pa6_f090:
     loc: 0.0
     scale: 1.2
   ref: 0.0
-#    dist: norm
-#    loc: 0.0
-#    scale: 1.2
   proposal: 0.6
   latex: \Delta_{\rm band, pa6}^{\rm f090}
 ACT_band_shift_dr6_pa6_f150:
@@ -169,8 +137,5 @@ ACT_band_shift_dr6_pa6_f150:
     loc: 0.0
     scale: 1.1
   ref: 0.0
-#    dist: norm
-#    loc: 0.0
-#    scale: 1.1
   proposal: 0.55
   latex: \Delta_{\rm band, pa6}^{\rm f150}

@@ -28,7 +28,7 @@ data:
     - experiments: [dr6_pa4_f220, dr6_pa4_f220]
       polarizations: &pol_pa4_f220 [TT]
       scales: &scales_pa4
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa4_f220, dr6_pa5_f090]
       polarizations: *pol_pa4_f220
       scales: *scales_pa4
@@ -45,40 +45,40 @@ data:
     - experiments: [dr6_pa5_f090, dr6_pa5_f090]
       polarizations: *polarizations_auto
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa5_f090, dr6_pa5_f150]
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa5_f090, dr6_pa6_f090]
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa5_f090, dr6_pa6_f150]
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
 
     - experiments: [dr6_pa5_f150, dr6_pa5_f150]
       polarizations: *polarizations_auto
       scales:
-        TT: [800, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa5_f150, dr6_pa6_f090]
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa5_f150, dr6_pa6_f150]
       scales:
-        TT: [800, *lmax]
+        TT: [2000, *lmax]
 
     - experiments: [dr6_pa6_f090, dr6_pa6_f090]
       polarizations: *polarizations_auto
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
     - experiments: [dr6_pa6_f090, dr6_pa6_f150]
       scales:
-        TT: [1000, *lmax]
+        TT: [2000, *lmax]
 
     - experiments: [dr6_pa6_f150, dr6_pa6_f150]
       polarizations: *polarizations_auto
       scales:
-        TT: [600, *lmax]
+        TT: [2000, *lmax]
 
 foregrounds: !defaults [foregrounds]
 
