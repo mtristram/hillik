@@ -1,0 +1,215 @@
+debug: false
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE:
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/dust/foregrounds_freedust]
+  hillik_spt.TTTEEE:
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/dust/foregrounds_freedust]
+  hillik_act.TTTEEE_PACT:
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/dust/foregrounds_freedust]
+
+params:
+  # Cosmo
+  H0:
+    prior:
+      min: 60
+      max: 80
+    proposal: 1.
+    ref: 67.4
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    proposal: 0.05
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+    latex: A_\mathrm{s}
+  ns:
+    prior:
+      min: 0.9
+      max: 1.1
+    proposal: 0.016
+  omegabh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    proposal: 0.0003
+  omegach2:
+    prior:
+      min: 0.09
+      max: 0.15
+    proposal: 0.004
+  tau:
+    prior:
+      min: 0.01
+      max: 0.15
+    proposal: 0.03
+
+  #derived
+  theta_s_100:
+  sigma8:
+
+  #Dust amplitudes
+  PLK_Adust100TT: 0.
+  PLK_Adust143TT: 0.
+  PLK_Adust217TT: 0.
+  PLK_Adust100TE: 0.
+  PLK_Adust143TE: 0.
+  PLK_Adust217TE: 0.
+  PLK_Adust100EE: 0.
+  PLK_Adust143EE: 0.
+  PLK_Adust217EE: 0.
+  PLK_beta_dustTT: 0.
+  PLK_beta_dustTE: 0.
+  PLK_beta_dustEE: 0.
+  PLK_alpha_dustTT: -2.6
+  PLK_alpha_dustTE: -2.4
+  PLK_alpha_dustEE: -2.4
+  PLK_dustT_100:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 2.
+    proposal: 0.5
+  PLK_dustT_143:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 2.
+    proposal: 0.5
+  PLK_dustT_217:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 10.
+    proposal: 0.5
+  PLK_dustE_100:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 2.
+    proposal: 0.5
+  PLK_dustE_143:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 2.
+    proposal: 0.5
+  PLK_dustE_217:
+    prior:
+      min: 0.
+      max: 20.
+    ref: 10.
+    proposal: 0.5
+
+  ACT_AdustTT: 0.
+  ACT_AdustTE: 0.
+  ACT_AdustEE: 0.
+  ACT_beta_dustTT: 0.
+  ACT_beta_dustTE: 0.
+  ACT_beta_dustEE: 0.
+  ACT_alpha_dustTT: -2.6
+  ACT_alpha_dustTE: -2.4
+  ACT_alpha_dustEE: -2.4
+  ACT_dustT_90:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.4
+    proposal: 0.1
+  ACT_dustT_150:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.1
+    proposal: 0.1
+  ACT_dustT_220:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.
+    proposal: 0.1
+  ACT_dustE_90:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.01
+    proposal: 0.01
+  ACT_dustE_150:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.1
+    proposal: 0.05
+  ACT_dustE_220:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.
+    proposal: 0.1
+
+
+  SPT3G_AdustTT: 0.
+  SPT3G_AdustTE: 0.
+  SPT3G_AdustEE: 0.
+  SPT3G_beta_dustTT: 0.
+  SPT3G_beta_dustTE: 0.
+  SPT3G_beta_dustEE: 0.
+  SPT3G_alpha_dustTT: -2.6
+  SPT3G_alpha_dustTE: -2.4
+  SPT3G_alpha_dustEE: -2.4
+  SPT3G_dustT_90:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.4
+    proposal: 0.1
+  SPT3G_dustT_150:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.1
+    proposal: 0.1
+  SPT3G_dustT_220:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.
+    proposal: 0.1
+  SPT3G_dustE_90:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.01
+    proposal: 0.01
+  SPT3G_dustE_150:
+    prior:
+      min: 0.
+      max: 1.
+    ref: 0.1
+    proposal: 0.05
+  SPT3G_dustE_220:
+    prior:
+      min: 0.
+      max: 10.
+    ref: 1.
+    proposal: 0.1
+
+
+theory:
+  cosmopower:
+    stop_at_error: False
+    path_to_trained_models: data/cosmopower/lcdm
+    TT_emulator: TTTEEE/TT_v1
+    TE_emulator: TTTEEE/TE_v1
+    EE_emulator: TTTEEE/EE_v1
+    DER_emulator: derived-parameters/DER_v1
+
+sampler:
+  mcmc:
+    learn_proposal_Rminus1_max_early: 500.
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
+
+output: chains/mcmc

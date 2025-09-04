@@ -4,6 +4,8 @@ likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
   hillik_planck.TTTEEE: null
+  hillik_spt.TTTEEE: null
+  hillik_act.TTTEEE_PACT: null
 
 params:
   # Cosmo
@@ -51,28 +53,49 @@ params:
       min: 0.5
       max: 1.5
     proposal: 0.022
-    ref: 1.0
+    ref: 1.00
     latex: A_\mathrm{L}
 
   #derived
   H0:
   sigma8:
 
-  #CIB prior
-  beta_cib:
+  #Calibrations
+  PLK_cal_100A:
     prior:
       dist: norm
-      loc: 1.75
-      scale: 0.06
-    ref: 1.75
-    proposal: 0.05
-  beta_radio:
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.01
+  PLK_cal_100B:
     prior:
       dist: norm
-      loc: -0.8
-      scale: 0.1
-    ref: -0.8
-    proposal: 0.05
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.01
+  PLK_cal_143B:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.01
+  PLK_cal_217A:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.01
+  PLK_cal_217B:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.05
+    ref: 1.0
+    proposal: 0.01
 
 theory:
   camb:
@@ -82,4 +105,4 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plk_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat

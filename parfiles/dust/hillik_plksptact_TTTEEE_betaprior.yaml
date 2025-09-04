@@ -48,43 +48,48 @@ params:
   theta_s_100:
   sigma8:
 
-  #Dust
-  SPT3G_AdustTT:
+  #Dust beta
+  beta_dustTT:
     prior:
-      min: 0.
-      max: 20.
-    ref: 2.00
-    proposal: 1.
-  SPT3G_AdustTE:
-    prior:
-      min: 0.
-      max: 10.
-    ref: 0.104
+      dist: norm
+      loc: 1.51
+      scale: 0.01
+    ref: 1.51
     proposal: 0.1
-  SPT3G_AdustEE:
+  PLK_beta_dustTT:
+    value: 'lambda beta_dustTT: beta_dustTT'
+  ACT_beta_dustTT:
+    value: 'lambda beta_dustTT: beta_dustTT'
+  SPT3G_beta_dustTT:
+    value: 'lambda beta_dustTT: beta_dustTT'
+
+  beta_dustEE:
     prior:
-      min: 0.
-      max: 5.
-    ref: 0.057
+      dist: norm
+      loc: 1.59
+      scale: 0.02
+    ref: 1.59
     proposal: 0.1
-  ACT_AdustTT:
+  PLK_beta_dustEE:
+    value: 'lambda beta_dustEE: beta_dustEE'
+  ACT_beta_dustEE:
+    value: 'lambda beta_dustEE: beta_dustEE'
+  SPT3G_beta_dustEE:
+    value: 'lambda beta_dustEE: beta_dustEE'
+
+  beta_dustTE:
     prior:
-      min: 0.
-      max: 20.
-    ref: 7.95
-    proposal: 1.
-  ACT_AdustTE:
-    prior:
-      min: 0.
-      max: 5.
-    ref: 0.423
-    proposal: 0.5
-  ACT_AdustEE:
-    prior:
-      min: 0.
-      max: 5.
-    ref: 0.1681
-    proposal: 0.5
+      dist: norm
+      loc: 1.59
+      scale: 0.02
+    ref: 1.59
+    proposal: 0.1
+  PLK_beta_dustTE:
+    value: 'lambda beta_dustTE: beta_dustTE'
+  ACT_beta_dustTE:
+    value: 'lambda beta_dustTE: beta_dustTE'
+  SPT3G_beta_dustTE:
+    value: 'lambda beta_dustTE: beta_dustTE'
 
 
 theory:
@@ -98,5 +103,4 @@ theory:
 
 sampler:
   mcmc:
-    learn_proposal_Rminus1_max_early: 500.
     covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat

@@ -62,6 +62,33 @@ params:
   SPT3G_alpha_dustTT:
     value: 'lambda alpha_dustTT: alpha_dustTT'
 
+  alpha_dustTE:
+    prior:
+      min: -3.
+      max: -2.
+    ref: -2.4
+    proposal: 0.1
+  PLK_alpha_dustTE:
+    value: 'lambda alpha_dustTE: alpha_dustTE'
+  ACT_alpha_dustTE:
+    value: 'lambda alpha_dustTE: alpha_dustTE'
+  SPT3G_alpha_dustTE:
+    value: 'lambda alpha_dustTE: alpha_dustTE'
+
+  alpha_dustEE:
+    prior:
+      min: -3.
+      max: -2.
+    ref: -2.4
+    proposal: 0.1
+  PLK_alpha_dustEE:
+    value: 'lambda alpha_dustEE: alpha_dustEE'
+  ACT_alpha_dustEE:
+    value: 'lambda alpha_dustEE: alpha_dustEE'
+  SPT3G_alpha_dustEE:
+    value: 'lambda alpha_dustEE: alpha_dustEE'
+
+
 
 theory:
   cosmopower:
@@ -74,4 +101,5 @@ theory:
 
 sampler:
   mcmc:
+    learn_proposal_Rminus1_max_early: 200.
     covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
