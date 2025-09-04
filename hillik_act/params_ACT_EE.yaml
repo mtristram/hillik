@@ -25,3 +25,26 @@
     ref: 0.
     proposal: 0.02
     latex: A_\mathrm{radioEE}^\mathrm{ACT}
+
+
+  #Dust amplitudes
+  ACT_dustE_90:
+    value: 0.
+    latex: A_\mathrm{dust90E}^{ACT}
+  ACT_dustE_150:
+    value: 0.
+    latex: A_\mathrm{dust150E}^{ACT}
+  ACT_dustE_220:
+    value: 0.
+    latex: A_\mathrm{dust220E}^{ACT}
+
+  ACT_dustE_dr6_pa4_f220:
+    value: 'lambda ACT_dustE_220: ACT_dustE_220'
+  ACT_dustE_dr6_pa5_f090:
+    value: 'lambda ACT_dustE_90: ACT_dustE_90'
+  ACT_dustE_dr6_pa6_f090:
+    value: 'lambda ACT_dustE_90: ACT_dustE_90'
+  ACT_dustE_dr6_pa5_f150:
+    value: 'lambda ACT_dustE_150: ACT_dustE_150'
+  ACT_dustE_dr6_pa6_f150:
+    value: 'lambda ACT_dustE_150: ACT_dustE_150'

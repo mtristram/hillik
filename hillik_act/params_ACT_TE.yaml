@@ -25,3 +25,45 @@
 #    ref: 0.
 #    proposal: 0.01
     latex: A_\mathrm{radioTE}^\mathrm{ACT}
+
+
+  #Dust amplitudes
+  ACT_dustT_90:
+    value: 0.
+    latex: A_\mathrm{dust90T}^{ACT}
+  ACT_dustT_150:
+    value: 0.
+    latex: A_\mathrm{dust150T}^{ACT}
+  ACT_dustT_220:
+    value: 0.
+    latex: A_\mathrm{dust220T}^{ACT}
+  ACT_dustE_90:
+    value: 0.
+    latex: A_\mathrm{dust90E}^{ACT}
+  ACT_dustE_150:
+    value: 0.
+    latex: A_\mathrm{dust150E}^{ACT}
+  ACT_dustE_220:
+    value: 0.
+    latex: A_\mathrm{dust220E}^{ACT}
+
+  ACT_dustT_dr6_pa4_f220:
+    value: 'lambda ACT_dustT_220: ACT_dustT_220'
+  ACT_dustT_dr6_pa5_f090:
+    value: 'lambda ACT_dustT_90: ACT_dustT_90'
+  ACT_dustT_dr6_pa6_f090:
+    value: 'lambda ACT_dustT_90: ACT_dustT_90'
+  ACT_dustT_dr6_pa5_f150:
+    value: 'lambda ACT_dustT_150: ACT_dustT_150'
+  ACT_dustT_dr6_pa6_f150:
+    value: 'lambda ACT_dustT_150: ACT_dustT_150'
+  ACT_dustE_dr6_pa4_f220:
+    value: 'lambda ACT_dustE_220: ACT_dustE_220'
+  ACT_dustE_dr6_pa5_f090:
+    value: 'lambda ACT_dustE_90: ACT_dustE_90'
+  ACT_dustE_dr6_pa6_f090:
+    value: 'lambda ACT_dustE_90: ACT_dustE_90'
+  ACT_dustE_dr6_pa5_f150:
+    value: 'lambda ACT_dustE_150: ACT_dustE_150'
+  ACT_dustE_dr6_pa6_f150:
+    value: 'lambda ACT_dustE_150: ACT_dustE_150'

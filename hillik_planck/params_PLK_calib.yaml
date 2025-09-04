@@ -19,7 +19,7 @@
       loc: 1.0
       scale: 0.01
     ref: 1.0
-    proposal: 0.01
+    proposal: 0.005
     latex: c^{PLK}_\mathrm{100A}
   PLK_cal_100B:
     prior:
@@ -27,7 +27,7 @@
       loc: 1.0
       scale: 0.01
     ref: 1.0
-    proposal: 0.01
+    proposal: 0.005
     latex: c^{PLK}_\mathrm{100B}
   PLK_cal_143A:
     value: 1.0
@@ -38,7 +38,7 @@
       loc: 1.0
       scale: 0.01
     ref: 1.0
-    proposal: 0.01
+    proposal: 0.005
     latex: c^{PLK}_\mathrm{143B}
   PLK_cal_217A:
     prior:
@@ -46,7 +46,7 @@
       loc: 1.0
       scale: 0.01
     ref: 1.0
-    proposal: 0.01
+    proposal: 0.005
     latex: c^{PLK}_\mathrm{217A}
   PLK_cal_217B:
     prior:
@@ -54,7 +54,7 @@
       loc: 1.0
       scale: 0.01
     ref: 1.0
-    proposal: 0.01
+    proposal: 0.005
     latex: c^{PLK}_\mathrm{217B}
 
   #Polar efficiencies

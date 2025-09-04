@@ -22,15 +22,15 @@
     value: 1.51
     latex: \beta_\mathrm{dustTE}^{Planck}
 
+  PLK_alpha_dustTE:
+    value: -2.4
+    latex: \alpha_\mathrm{dustTE}^{Planck}
   PLK_alpha_dust100TE:
-    value: -2.4
-    latex: \alpha_\mathrm{dust100TE}^{Planck}
+    value: "lambda PLK_alpha_dustTE: PLK_alpha_dustTE"
   PLK_alpha_dust143TE:
-    value: -2.4
-    latex: \alpha_\mathrm{dust143TE}^{Planck}
+    value: "lambda PLK_alpha_dustTE: PLK_alpha_dustTE"
   PLK_alpha_dust217TE:
-    value: -2.4
-    latex: \alpha_\mathrm{dust217TE}^{Planck}
+    value: "lambda PLK_alpha_dustTE: PLK_alpha_dustTE"
 
 
   PLK_Adust100ET:
@@ -54,3 +54,23 @@
     value: "lambda PLK_alpha_dust217TE: PLK_alpha_dust217TE"
     latex: \alpha_\mathrm{dust217ET}^{Planck}
 
+
+  #Amplitudes
+  PLK_dustT_100:
+    value: 0.
+    latex: A_\mathrm{dust100T}^{Planck}
+  PLK_dustT_143:
+    value: 0.
+    latex: A_\mathrm{dust143T}^{Planck}
+  PLK_dustT_217:
+    value: 0.
+    latex: A_\mathrm{dust217T}^{Planck}
+  PLK_dustE_100:
+    value: 0.
+    latex: A_\mathrm{dust100E}^{Planck}
+  PLK_dustE_143:
+    value: 0.
+    latex: A_\mathrm{dust143E}^{Planck}
+  PLK_dustE_217:
+    value: 0.
+    latex: A_\mathrm{dust217E}^{Planck}

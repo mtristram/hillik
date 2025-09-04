@@ -21,3 +21,15 @@
   SPT3G_radio_EE:
     value: 0.
     latex: A_\mathrm{radioEE}^\mathrm{SPT3G}
+
+
+  #Dust amplitudes
+  SPT3G_dustE_90:
+    value: 0.
+    latex: A_\mathrm{dust90E}^{SPT3G}
+  SPT3G_dustE_150:
+    value: 0.
+    latex: A_\mathrm{dust150E}^{SPT3G}
+  SPT3G_dustE_220:
+    value: 0.
+    latex: A_\mathrm{dust220E}^{SPT3G}

@@ -455,7 +455,6 @@ class dust_spt3g(dust):
             dlg = np.zeros( self.lmax+1)
             dlg[ell] = (ell/self.lnorm)**(2+alpha)
             
-#            print( self.mode, (self.sed._feff[f1],self.sed._feff[f2]), sed[f1], sed[f2])
             dl.append( ad * dlg * sed[f1] * sed[f2] )
 
         return np.array(dl)
@@ -467,11 +466,11 @@ class dust_amplitude(fgmodel):
     Adds galactic dust for each cross-spectrum using a power law.
 
     .. math::
-        C_\\ell = A(\\nu_1, \\nu_2) * \\left( \\ell / \\ell_{ref} \\right)^{\\alpha}
+        C_\\ell = A(\\nu_1,X) * A(\\nu_2,Y) * \\left( \\ell / \\ell_{ref} \\right)^{\\alpha}
 
     where:
 
-    * :math:`A(\\nu_1,\\nu_2)` is the amplitude
+    * :math:`A(\\nu,X))` is the amplitude for mode X=[T,E] at freq \\nu
     * :math:`\\ell_{ref}` is the reference ell
     * :math:`\\alpha` is the power law index
 
@@ -483,18 +482,21 @@ class dust_amplitude(fgmodel):
         self.lnorm = kwargs.get('lnorm',200)
         self.dlfg = np.zeros( lmax+1)
 
-        alpha_dust = -2.5 if mode == "TT" else -2.4
+        alpha_dust = -2.6 if mode == "TT" else -2.4
         self.dlfg = self._gen_dl_powerlaw( alpha_dust)
     
     def compute_dl(self, pars):
         if   self.mode == "TT": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustT'
-        elif self.mode == "TE": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustP'
-        elif self.mode == "ET": ad1,ad2 = f'{self.survey}_dustP',f'{self.survey}_dustT'
-        elif self.mode == "EE": ad1,ad2 = f'{self.survey}_dustP',f'{self.survey}_dustP'
+        elif self.mode == "TE": ad1,ad2 = f'{self.survey}_dustT',f'{self.survey}_dustE'
+        elif self.mode == "ET": ad1,ad2 = f'{self.survey}_dustE',f'{self.survey}_dustT'
+        elif self.mode == "EE": ad1,ad2 = f'{self.survey}_dustE',f'{self.survey}_dustE'
 
         dl = []
         for f1, f2 in self.cross_frequencies:
-            dl.append( pars[ad1+f"_{f1}"] * pars[ad2+f"_{f2}"] * self.dlfg)
+            if self.survey == "PLK":
+                dl.append( pars[ad1+f"_{max(f1,f2)}"] * pars[ad2+f"_{max(f1,f2)}"] * self.dlfg)
+            else:
+                dl.append( pars[ad1+f"_{f1}"] * pars[ad2+f"_{f2}"] * self.dlfg)
 
         return np.array(dl)
 

@@ -38,3 +38,16 @@
     value: "lambda PLK_alpha_dustTT: PLK_alpha_dustTT"
   PLK_alpha_dust217TT:
     value: "lambda PLK_alpha_dustTT: PLK_alpha_dustTT"
+
+
+
+  #Amplitudes
+  PLK_dustT_100:
+    value: 0.
+    latex: A_\mathrm{dust100T}^{Planck}
+  PLK_dustT_143:
+    value: 0.
+    latex: A_\mathrm{dust143T}^{Planck}
+  PLK_dustT_217:
+    value: 0.
+    latex: A_\mathrm{dust217T}^{Planck}

@@ -55,3 +55,13 @@
     value: 0.
     latex: A_\mathrm{PS}^\mathrm{SPT3G}(220x220)
   
+  #Dust amplitudes
+  SPT3G_dustT_90:
+    value: 0.
+    latex: A_\mathrm{dust90T}^{SPT3G}
+  SPT3G_dustT_150:
+    value: 0.
+    latex: A_\mathrm{dust150T}^{SPT3G}
+  SPT3G_dustT_220:
+    value: 0.
+    latex: A_\mathrm{dust220T}^{SPT3G}
