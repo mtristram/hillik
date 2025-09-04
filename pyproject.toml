@@ -1,0 +1,47 @@
+
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hillik"
+dynamic = ["version"]
+description = "A cobaya high-ell CMB likelihood"
+readme = "README.md"
+authors = [
+    { name = "Matthieu Tristram" }
+]
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+dependencies = [
+    "astropy",
+    "cobaya>=3.5",
+    "sacc>=0.9.0",
+]
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+
+[project.urls]
+Homepage = "https://github.com/mtristram/hillik"
+Licensing = "https://github.com/mtristram/hillik/blob/master/LICENSE"
+
+[tool.setuptools_scm]
+version_file = "_version.py"
+
+[tool.setuptools.packages.find]
+include = ["hillik*"]
+
+[tool.setuptools.package-data]
+hillik_planck = ["*.yaml", "hillipop.bibtex"]
+hillik_spt = ["*.yaml", "spt3g_D1.bibtex"]
+hillik_act = ["*.yaml", "actpol_full_dr6.bibtex"]
+
+[tool.coverage.run]
+omit = ["hillik_*/tests/*", "_version.py"]
