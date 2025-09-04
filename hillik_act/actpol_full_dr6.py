@@ -43,7 +43,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
     input_file: Optional[str]  = "dr6_data.fits"
 
     lmin: Optional[int] = 2
-    lmax: Optional[int] = 8500
+    lmax: Optional[int] = 8501
     BoltzmannLmax: Optional[str] = 9000
 
     #----------------------------------------------------------------
@@ -246,6 +246,8 @@ class ACTDR6Likelihood(InstallableLikelihood):
         self.log.debug(f"Log-likelihood value computed = {logp})")
         return logp
 
+    def dof( self):
+        return len(self.inv_cov)
 
     # Calibration
     # Data is scaled as: TT: c1*c2, TE: c1*c2*p2, EE: c1*p1*c2*p2
