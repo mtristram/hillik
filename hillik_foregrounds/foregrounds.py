@@ -151,7 +151,7 @@ class fgmodel(HasLogger):
         """
         return self.dlfg
 
-        
+
 
 
 class SED(HasLogger):

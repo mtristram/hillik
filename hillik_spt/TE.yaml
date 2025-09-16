@@ -171,6 +171,26 @@ params:
     value: 7.
     latex: A_\mathrm{IR}^\mathrm{SPT3G}
 
+  #Poisson
+  SPT3G_ps_90x90: 
+    value: 0.
+    latex: A_\mathrm{PS}^\mathrm{SPT3G}(90x90)
+  SPT3G_ps_90x150:
+    value: 0.
+    latex: A_\mathrm{PS}^\mathrm{SPT3G}(90x150)
+  SPT3G_ps_90x220:
+    value: 0.
+    latex: A_\mathrm{PS}^\mathrm{SPT3G}(90x220)
+  SPT3G_ps_150x150:
+    value: 0.
+    latex: A_\mathrm{PS}^\mathrm{SPT3G}(150x150)
+  SPT3G_ps_150x220:
+    value: 0.
+    latex: A_\mathrm{PS}^\mathrm{SPT3G}(150x220)
+  SPT3G_ps_220x220:
+    value: 0.
+    latex: A_\mathrm{PS}^\mathrm{SPT3G}(220x220)
+
   #Beam eigenmodes
   SPT3G_beta_1: 0.
   SPT3G_beta_2: 0.
