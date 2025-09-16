@@ -1,7 +1,6 @@
 debug: false
 
 likelihood:
-  hillik_spt.TThighl: null
   hillik_spt.TTTEEE: null
 
 params:
@@ -57,9 +56,30 @@ params:
   H0:
   sigma8:
 
-  #calib
-  SPT3G_cal: 1.00
-#  SPT_cal: 1.00
+  #calibration
+  SPT3G_cal:
+    prior:
+      dist: norm
+      loc: 1.00
+      scale: 0.0036
+    ref: 1.00
+    proposal: 0.01
+
+  #beta prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+  beta_radio:
+    prior:
+      dist: norm
+      loc: -0.8
+      scale: 0.1
+    ref: -0.8
+    proposal: 0.05
 
 theory:
   camb:

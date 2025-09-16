@@ -1,7 +1,6 @@
 debug: false
 
 likelihood:
-  hillik_spt.TThighl: null
   hillik_spt.TTTEEE: null
 
 params:

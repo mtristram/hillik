@@ -71,38 +71,38 @@ params:
     prior:
       min: 0.
       max: 10.
-    ref: 2.
+    ref: 6.
     proposal: 0.5
   PLK_dustT_143:
     prior:
       min: 0.
       max: 20.
-    ref: 2.
+    ref: 6.
     proposal: 0.5
   PLK_dustT_217:
     prior:
       min: 0.
       max: 20.
-    ref: 10.
+    ref: 2.
     proposal: 0.5
   PLK_dustE_100:
     prior:
       min: 0.
-      max: 10.
-    ref: 2.
-    proposal: 0.5
+      max: 5.
+    ref: 0.3
+    proposal: 0.05
   PLK_dustE_143:
     prior:
       min: 0.
-      max: 20.
-    ref: 2.
-    proposal: 0.5
+      max: 5.
+    ref: 0.3
+    proposal: 0.05
   PLK_dustE_217:
     prior:
       min: 0.
-      max: 20.
-    ref: 10.
-    proposal: 0.5
+      max: 5.
+    ref: 0.5
+    proposal: 0.1
 
   ACT_AdustTT: 0.
   ACT_AdustTE: 0.
@@ -117,38 +117,38 @@ params:
     prior:
       min: 0.
       max: 1.
-    ref: 0.4
+    ref: 0.
     proposal: 0.1
   ACT_dustT_150:
     prior:
       min: 0.
-      max: 1.
-    ref: 0.1
-    proposal: 0.1
+      max: 5.
+    ref: 0.5
+    proposal: 0.2
   ACT_dustT_220:
     prior:
       min: 0.
-      max: 10.
-    ref: 1.
-    proposal: 0.1
+      max: 20.
+    ref: 10.
+    proposal: 1.
   ACT_dustE_90:
     prior:
       min: 0.
-      max: 1.
-    ref: 0.01
-    proposal: 0.01
+      max: 5.
+    ref: 0.8
+    proposal: 0.1
   ACT_dustE_150:
     prior:
       min: 0.
-      max: 1.
-    ref: 0.1
-    proposal: 0.05
+      max: 5.
+    ref: 0.6
+    proposal: 0.1
   ACT_dustE_220:
     prior:
       min: 0.
       max: 10.
-    ref: 1.
-    proposal: 0.1
+    ref: 5.
+    proposal: 1.
 
 
   SPT3G_AdustTT: 0.
@@ -164,8 +164,8 @@ params:
     prior:
       min: 0.
       max: 1.
-    ref: 0.4
-    proposal: 0.1
+    ref: 0.1
+    proposal: 0.05
   SPT3G_dustT_150:
     prior:
       min: 0.
@@ -188,14 +188,15 @@ params:
     prior:
       min: 0.
       max: 1.
-    ref: 0.1
+    ref: 0.2
     proposal: 0.05
   SPT3G_dustE_220:
     prior:
       min: 0.
-      max: 10.
-    ref: 1.
+      max: 5.
+    ref: 0.4
     proposal: 0.1
+
 
 
 theory:
@@ -210,6 +211,7 @@ theory:
 sampler:
   mcmc:
     learn_proposal_Rminus1_max_early: 500.
+    learn_proposal_Rminus1_max: 500.
     covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
 
 output: chains/mcmc

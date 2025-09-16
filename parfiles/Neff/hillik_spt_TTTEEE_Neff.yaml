@@ -1,13 +1,9 @@
 debug: false
 
 likelihood:
-  hillik_act.wide.TTTEEE: null
-  hillik_act.deep.TTTEEE: null
-
+  hillik_spt.TTTEEE: null
 
 params:
-  cal_ACT: 1.0
-
   # Cosmo
   cosmomc_theta:
     prior:
@@ -51,19 +47,40 @@ params:
     proposal: 0.007
   nnu:
     prior:
-      min: 0.05
-      max: 10.
+      min: 2.
+      max: 5.
     ref: 3.046
-    proposal: 0.1
+    proposal: 0.2
 
   #derived
   H0:
-
   sigma8:
 
-prior:
-  reio: 'lambda tau: stats.norm.logpdf(tau, loc=0.055, scale=0.006)'
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
+
+  #calibration
+  SPT3G_cal:
+    prior:
+      dist: norm
+      loc: 1.00
+      scale: 0.0036
+    ref: 1.00
+    proposal: 0.01
+
+  #beta prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+  beta_radio:
+    prior:
+      dist: norm
+      loc: -0.8
+      scale: 0.1
+    ref: -0.8
+    proposal: 0.05
 
 
 theory:
@@ -76,8 +93,5 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_actTTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_spt_TTTEEE.covmat
 
-output: chains/mcmc
-
-force: true

@@ -1,9 +1,7 @@
 debug: false
 
 likelihood:
-  planck_2018_lowl.TT: null
-  planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE: null
+  hillik_act.TTTEEE: null
 
 
 params:
@@ -14,7 +12,6 @@ params:
       max: 0.0105
     ref: 0.0104
     proposal: 1.5e-6
-    latex: \theta_\mathrm{MC}
   logA:
     prior:
       min: 2.6
@@ -22,7 +19,6 @@ params:
     proposal: 0.0036
     ref: 3.044
     drop: True
-    latex: \log(10^{10} A_\mathrm{s})
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
     latex: A_\mathrm{s}
@@ -32,43 +28,60 @@ params:
       max: 1.1
     ref: 0.9649
     proposal: 0.0033
-    latex: n_\mathrm{s}
   ombh2:
     prior:
       min: 0.017
       max: 0.027
     ref: 0.02237
     proposal: 6.5e-5
-    latex: \Omega_\mathrm{b}h^2
   omch2:
     prior:
       min: 0.09
       max: 0.15
     ref: 0.1200
     proposal: 0.0011
-    latex: \Omega_\mathrm{c}h^2
   tau:
     prior:
       min: 0.01
       max: 0.15
     ref: 0.055
     proposal: 0.007
-    latex: \tau_\mathrm{reio}
   nnu:
     prior:
-      min: 2.
-      max: 5.
+      min: 0.05
+      max: 10.
     ref: 3.046
-    proposal: 0.2
+    proposal: 0.1
 
   #derived
   H0:
-
   sigma8:
 
+  # calibration
+  ACT_cal:
+    prior:
+      dist: norm
+      loc: 1.0
+      scale: 0.003
+    ref: 1.0
+    proposal: 0.0015
 
-prior:
-  cib: 'lambda beta_cib: stats.norm.logpdf(beta_cib, loc=1.75, scale=0.06)'
+  #beta prior
+  beta_cib:
+    prior:
+      dist: norm
+      loc: 1.75
+      scale: 0.06
+    ref: 1.75
+    proposal: 0.05
+  beta_radio:
+    prior:
+      dist: norm
+      loc: -0.8
+      scale: 0.1
+    ref: -0.8
+    proposal: 0.05
+
 
 theory:
   camb:
@@ -80,8 +93,4 @@ theory:
 
 sampler:
   mcmc:
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/chains/hillik_plkTTTEEE.covmat
-
-output: chains/mcmc
-
-force: true
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_act_TTTEEE.covmat
