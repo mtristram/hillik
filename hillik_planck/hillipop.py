@@ -98,12 +98,8 @@ class _HillipopLikelihood(InstallableLikelihood):
         self.lmin = np.min([l.min() for l in self._lmins.values()])
         self.lmax = np.max([l.max() for l in self._lmaxs.values()])
         
-        #Bin strategy
-        if self._is_mode['TT']:
-            self.wf = bins.Bins( lite_lmins, lite_lmaxs)
-        else:
-            self.wf = bins.Bins.fromdeltal( 2, self.lmax+1, 1)
-
+        #Binning
+        self.wf = bins.Bins( lite_lmins, lite_lmaxs)
 
         # Data
         basename = os.path.join(self.data_folder, self.xspectra_basename)
