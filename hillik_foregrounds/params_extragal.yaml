@@ -60,3 +60,7 @@
   beta_dusty:
     value: "lambda beta_cib: beta_cib"
     latex: \beta_\mathrm{IR}^\mathrm{PS}
+
+  alpha_tsz:
+    value: 0.
+    latex: \alpha_\mathrm{tSZ}
