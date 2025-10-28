@@ -479,7 +479,7 @@ class TE(_HillipopLikelihood):
     install_options = {"download_url": "{}/planck_2020_hillipop_TE_v4.2.tar.gz".format(data_url)}
 
 class EE(_HillipopLikelihood):
-    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+    """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
     maps
 
