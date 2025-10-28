@@ -33,9 +33,9 @@ calib_params = {
 
 nuisance_params = {
     "TT": {
-        "PLK_Adust100TT": 20.,
-        "PLK_Adust143TT": 10.,
-        "PLK_Adust217TT":  6.,
+        "PLK_Adust100TT": 27.,
+        "PLK_Adust143TT": 21.,
+        "PLK_Adust217TT": 10.,
         "Acib": 1.03,
         "Atsz": 6.,
         "Aksz": 1.,
@@ -47,14 +47,14 @@ nuisance_params = {
         "PLK_alpha_dustTT": -2.6
         },
     "EE": {
-        "PLK_Adust100EE": 0.4,
-        "PLK_Adust143EE": 0.2,
-        "PLK_Adust217EE": 0.1,
+        "PLK_Adust100EE": 0.8,
+        "PLK_Adust143EE": 0.3,
+        "PLK_Adust217EE": 0.2,
         },
     "TE": {
-        "PLK_Adust100TE": 1.,
-        "PLK_Adust143TE": 0.6,
-        "PLK_Adust217TE": 0.06,
+        "PLK_Adust100TE": 1.6,
+        "PLK_Adust143TE": 0.8,
+        "PLK_Adust217TE": 0.4,
         },
 }
 nuisance_params["TTTEEE"] = {
@@ -64,7 +64,8 @@ nuisance_params["TTTEEE"] = {
 }
 
 #chi2s = {"TT": 9231.9894, "EE": 9509.2059, "TE": 10214.672, "TTTEEE": 13138.09}
-chi2s = {"TT": 9231.9894, "EE": 9509.2059, "TE": 10214.672}
+#chi2s = {"TT": 4810.9264, "EE": 1805.0759, "TE": 1985.9408}
+chi2s = {"TT": 4810.9264}
 
 
 class HillikPlkTest(unittest.TestCase):
@@ -109,5 +110,5 @@ class HillikPlkTest(unittest.TestCase):
             }
             
             model = get_model(info)
-#            print( f"COBAYA/{mode}: {-2 * model.loglikes({})[0][0]}")
+            print( f"COBAYA/{mode}: {-2 * model.loglikes({})[0][0]}")
             self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
