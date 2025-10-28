@@ -51,8 +51,8 @@ params:
   #Dust beta
   beta_dustTT:
     prior:
-      min: 1.40
-      max: 1.60
+      min: 1.00
+      max: 2.00
     ref: 1.51
     proposal: 0.1
   PLK_beta_dustTT:
@@ -64,8 +64,8 @@ params:
 
   beta_dustTE:
     prior:
-      min: 1.40
-      max: 1.60
+      min: 1.00
+      max: 2.00
     ref: 1.59
     proposal: 0.1
   PLK_beta_dustTE:
@@ -77,8 +77,8 @@ params:
 
   beta_dustEE:
     prior:
-      min: 1.40
-      max: 1.60
+      min: 1.00
+      max: 2.00
     ref: 1.59
     proposal: 0.1
   PLK_beta_dustEE:

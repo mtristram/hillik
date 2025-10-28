@@ -1,0 +1,228 @@
+debug: false
+
+likelihood:
+  planck_2018_lowl.TT: null
+  planck_2020_lollipop.lowlE: null
+  hillik_planck.TTTEEE:
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/ps/foregrounds_freeps]
+  hillik_spt.TTTEEE:
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/ps/foregrounds_freeps]
+  hillik_act.TTTEEE_PACT:
+    foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/ps/foregrounds_freeps]
+
+params:
+  # Cosmo
+  cosmomc_theta:
+    prior:
+      min: 0.0103
+      max: 0.0105
+    ref: 0.0104
+    proposal: 1.5e-6
+  logA:
+    prior:
+      min: 2.6
+      max: 3.5
+    proposal: 0.0036
+    ref: 3.044
+    drop: True
+  As:
+    value: "lambda logA: 1e-10*np.exp(logA)"
+  ns:
+    prior:
+      min: 0.9
+      max: 1.1
+    ref: 0.9649
+    proposal: 0.0033
+  ombh2:
+    prior:
+      min: 0.017
+      max: 0.027
+    ref: 0.02237
+    proposal: 6.5e-5
+  omch2:
+    prior:
+      min: 0.09
+      max: 0.15
+    ref: 0.1200
+    proposal: 0.0011
+  tau:
+    prior:
+      min: 0.01
+      max: 0.15
+    ref: 0.055
+    proposal: 0.007
+  omegak:
+    prior:
+      min: -0.1
+      max: 0.1
+    ref: 0.0
+    proposal: 0.01
+
+  #derived
+  H0:
+  sigma8:
+
+
+  #Point Sources
+  beta_dusty: 0.
+  beta_radio: 0.
+  SPT3G_cib_ps: 0.
+  SPT3G_radio_TT: 0.
+  SPT3G_radio_TE: 0.
+  SPT3G_radio_EE: 0.
+
+  SPT3G_ps_90x90:
+    prior:
+      max: 20.0
+      min: 0.0
+    ref: 3.6
+    proposal: 0.7
+  SPT3G_ps_90x150:
+    prior:
+      max: 20.0
+      min: 0.0
+    ref: 3.6
+    proposal: 0.7
+  SPT3G_ps_90x220:
+    prior:
+      max: 20.0
+      min: 0.0
+    ref: 14.9
+    proposal: 1.
+  SPT3G_ps_150x150:
+    prior:
+      max: 20.0
+      min: 0.0
+    ref: 8.36
+    proposal: 1.
+  SPT3G_ps_150x220:
+    prior:
+      max: 100.0
+      min: 0.0
+    ref: 30.2
+    proposal: 1.
+  SPT3G_ps_220x220:
+    prior:
+      max: 200.0
+      min: 0.0
+    ref: 90.9
+    proposal: 4.
+
+  PLK_ps_100x100:
+    prior:
+      min: 200
+      max: 400
+    ref: 335.
+    proposal: 10.
+  PLK_ps_100x143:
+    prior:
+      min: 0
+      max: 200
+    ref: 184.
+    proposal: 8.
+  PLK_ps_100x217:
+    prior:
+      min: 0
+      max: 200
+    ref: 128.
+    proposal: 7.
+  PLK_ps_143x143:
+    prior:
+      min: 0
+      max: 200
+    ref: 76.
+    proposal: 4.
+  PLK_ps_143x217:
+    prior:
+      min: 0
+      max: 200
+    ref: 65.
+    proposal: 3.
+  PLK_ps_217x217:
+    prior:
+      min: 0
+      max: 200
+    ref: 126.
+    proposal: 5.
+
+  ACT_ps_90x90:
+    prior:
+      min: 0.
+      max: 50.
+    ref: 19.
+    proposal: 0.5
+  ACT_ps_90x150:
+    prior:
+      min: 0.
+      max: 50.
+    ref: 10.
+    proposal: 0.3
+  ACT_ps_90x220:
+    prior:
+      min: 0.
+      max: 50.
+    ref: 17.
+    proposal: 1.0
+  ACT_ps_150x150:
+    prior:
+      min: 0.
+      max: 50.
+    ref: 10.6
+    proposal: 0.2
+  ACT_ps_150x220:
+    prior:
+      min: 0.
+      max: 50.
+    ref: 29.6
+    proposal: 0.9
+  ACT_ps_220x220:
+    prior:
+      min: 0.
+      max: 200.
+    ref: 95.
+    proposal: 3.0
+
+  ACT_ps_dr6_pa4_f220xdr6_pa4_f220:
+    value: 'lambda ACT_ps_220x220: ACT_ps_220x220'
+  ACT_ps_dr6_pa4_f220xdr6_pa5_f090:
+    value: 'lambda ACT_ps_90x220: ACT_ps_90x220'
+  ACT_ps_dr6_pa4_f220xdr6_pa5_f150:
+    value: 'lambda ACT_ps_150x220: ACT_ps_150x220'
+  ACT_ps_dr6_pa4_f220xdr6_pa6_f090:
+    value: 'lambda ACT_ps_90x220: ACT_ps_90x220'
+  ACT_ps_dr6_pa4_f220xdr6_pa6_f150:
+    value: 'lambda ACT_ps_150x220: ACT_ps_150x220'
+  ACT_ps_dr6_pa5_f090xdr6_pa5_f090:
+    value: 'lambda ACT_ps_90x90: ACT_ps_90x90'
+  ACT_ps_dr6_pa5_f090xdr6_pa5_f150:
+    value: 'lambda ACT_ps_90x150: ACT_ps_90x150'
+  ACT_ps_dr6_pa5_f090xdr6_pa6_f090:
+    value: 'lambda ACT_ps_90x90: ACT_ps_90x90'
+  ACT_ps_dr6_pa5_f090xdr6_pa6_f150:
+    value: 'lambda ACT_ps_90x150: ACT_ps_90x150'
+  ACT_ps_dr6_pa5_f150xdr6_pa5_f150:
+    value: 'lambda ACT_ps_150x150: ACT_ps_150x150'
+  ACT_ps_dr6_pa5_f150xdr6_pa6_f090:
+    value: 'lambda ACT_ps_90x150: ACT_ps_90x150'
+  ACT_ps_dr6_pa5_f150xdr6_pa6_f150:
+    value: 'lambda ACT_ps_150x150: ACT_ps_150x150'
+  ACT_ps_dr6_pa6_f090xdr6_pa6_f090:
+    value: 'lambda ACT_ps_90x90: ACT_ps_90x90'
+  ACT_ps_dr6_pa6_f090xdr6_pa6_f150:
+    value: 'lambda ACT_ps_90x150: ACT_ps_90x150'
+  ACT_ps_dr6_pa6_f150xdr6_pa6_f150:
+    value: 'lambda ACT_ps_150x150: ACT_ps_150x150'
+
+
+theory:
+  camb:
+    stop_at_error: False
+    extra_args:
+      lens_potential_accuracy: 1
+
+sampler:
+  mcmc:
+    learn_proposal_Rminus1_max: 200.
+    learn_proposal_Rminus1_max_early: 500.
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE_ps_freeps.covmat
+

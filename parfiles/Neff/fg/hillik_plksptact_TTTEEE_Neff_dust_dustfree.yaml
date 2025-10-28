@@ -12,44 +12,57 @@ likelihood:
 
 params:
   # Cosmo
-  H0:
+  cosmomc_theta:
     prior:
-      min: 60
-      max: 80
-    proposal: 1.
-    ref: 67.4
+      min: 0.0103
+      max: 0.0105
+    ref: 0.0104
+    proposal: 1.5e-6
   logA:
     prior:
       min: 2.6
       max: 3.5
-    proposal: 0.05
+    proposal: 0.0036
+    ref: 3.044
+    drop: True
   As:
     value: "lambda logA: 1e-10*np.exp(logA)"
-    latex: A_\mathrm{s}
   ns:
     prior:
       min: 0.9
       max: 1.1
-    proposal: 0.016
-  omegabh2:
+    ref: 0.9649
+    proposal: 0.0033
+  ombh2:
     prior:
       min: 0.017
       max: 0.027
-    proposal: 0.0003
-  omegach2:
+    ref: 0.02237
+    proposal: 6.5e-5
+  omch2:
     prior:
       min: 0.09
       max: 0.15
-    proposal: 0.004
+    ref: 0.1200
+    proposal: 0.0011
   tau:
     prior:
       min: 0.01
       max: 0.15
-    proposal: 0.03
+    ref: 0.055
+    proposal: 0.007
+  nnu:
+    prior:
+      min: 2.
+      max: 5.
+    ref: 3.044
+    proposal: 0.2
 
   #derived
-  theta_s_100:
+  H0:
   sigma8:
+
+
 
   #Dust amplitudes
   PLK_Adust100TT: 0.
@@ -200,18 +213,17 @@ params:
 
 
 theory:
-  cosmopower:
+  camb:
     stop_at_error: False
-    path_to_trained_models: data/cosmopower/lcdm
-    TT_emulator: TTTEEE/TT_v1
-    TE_emulator: TTTEEE/TE_v1
-    EE_emulator: TTTEEE/EE_v1
-    DER_emulator: derived-parameters/DER_v1
+    extra_args:
+      lens_potential_accuracy: 1
+      neutrino_hierarchy: degenerate
+      num_massive_neutrinos: 3
 
 sampler:
   mcmc:
+    learn_proposal_Rminus1_max: 200.
     learn_proposal_Rminus1_max_early: 500.
-    learn_proposal_Rminus1_max: 500.
-    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE.covmat
+    covmat: /sps/planck/Users/tristram/Soft/Hillik/covmat/hillik_plksptact_TTTEEE_dust_dustfree.covmat
 
 output: chains/mcmc
