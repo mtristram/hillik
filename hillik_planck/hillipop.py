@@ -376,6 +376,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         return len( self._invkll)
         
     def reduction_matrix(self, mode=0):
+        '''
+        reduction matrix (eq. 19 Dutcher21): inv(X.T*invC*X) * X.T*invC*D
+        '''
         X = np.zeros( (len(self.delta_dl),self.lmax+1) )
 
         x0 = 0
