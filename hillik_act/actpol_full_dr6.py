@@ -219,7 +219,10 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
 
     def reduction_matrix(self, mode='TT'):
-        X = np.zeros( (len(self.delta_dl),self.lmax) )
+        '''
+        reduction matrix (eq. 19 Dutcher21): inv(X.T*invC*X) * X.T*invC*D
+        '''
+        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
 
         x0 = 0
         for ispec,spec in enumerate(self.spectra):
@@ -227,7 +230,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
             if mode in spec["polarizations"]:
                 bpw = spec[mode]["bpw"]
                 nbin = len(spec[mode]["leff"])
-                X[x0:x0+nbin,:] = bpw.weight.T
+                X[x0:x0+nbin,2:] = bpw.weight.T
                 x0 += nbin
 
         return X
