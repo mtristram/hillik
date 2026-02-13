@@ -20,9 +20,9 @@ import hillik_foregrounds as fg
 from . import bins
 
 
-#bintab for Hillipop lite
-lite_lmins = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10))
-lite_lmaxs = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10)+9)
+#bintab for Hillipop bin
+bin_lmins = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10))
+bin_lmaxs = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10)+9)
 
 #effective frequencies
 maps = ["100A", "100B", "143A", "143B", "217A", "217B"]
@@ -99,7 +99,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         self.lmax = np.max([l.max() for l in self._lmaxs.values()])
         
         #Binning
-        self.wf = bins.Bins( lite_lmins, lite_lmaxs)
+        self.wf = bins.Bins( bin_lmins, bin_lmaxs)
 
         # Data
         basename = os.path.join(self.data_folder, self.xspectra_basename)
@@ -438,7 +438,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 return False
             # Test if the covariance file is there
             ext = cls.__name__
-            if ext=="TT" or ext=="TTTEEE": ext = ext+"_lite" 
+            if ext=="TT" or ext=="TTTEEE": ext = ext+"_bin" 
             test_path = os.path.join(path, f"**/invfll_PR4_v4.2_{ext}.fits")
             return len(glob.glob(test_path, recursive=True)) > 0
         return True
@@ -457,7 +457,7 @@ class TTTEEE(_HillipopLikelihood):
 
     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_lite_v4.2.tar.gz".format(data_url)}
+    install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_bin_v4.2.tar.gz".format(data_url)}
 
 
 class TT(_HillipopLikelihood):
@@ -467,7 +467,7 @@ class TT(_HillipopLikelihood):
 
     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TT_lite_v4.2.tar.gz".format(data_url)}
+    install_options = {"download_url": "{}/planck_2020_hillipop_TT_bin_v4.2.tar.gz".format(data_url)}
 
 class TE(_HillipopLikelihood):
     """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
