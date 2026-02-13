@@ -25,34 +25,41 @@
   PLK_alpha_dustTE:
     value: -2.4
     latex: \alpha_\mathrm{dustTE}^{Planck}
+
   PLK_alpha_dust100TE:
     value: "lambda PLK_alpha_dustTE: PLK_alpha_dustTE"
+    derived: False
   PLK_alpha_dust143TE:
     value: "lambda PLK_alpha_dustTE: PLK_alpha_dustTE"
+    derived: False
   PLK_alpha_dust217TE:
     value: "lambda PLK_alpha_dustTE: PLK_alpha_dustTE"
+    derived: False
 
 
   PLK_Adust100ET:
     value: "lambda PLK_Adust100TE: PLK_Adust100TE"
+    derived: False
   PLK_Adust143ET:
     value: "lambda PLK_Adust143TE: PLK_Adust143TE"
+    derived: False
   PLK_Adust217ET:
     value: "lambda PLK_Adust217TE: PLK_Adust217TE"
+    derived: False
 
   PLK_beta_dustET:
     value: "lambda PLK_beta_dustTE: PLK_beta_dustTE"
-    latex: \beta_\mathrm{dustET}^{Planck}
+    derived: False
 
   PLK_alpha_dust100ET:
     value: "lambda PLK_alpha_dust100TE: PLK_alpha_dust100TE"
-    latex: \alpha_\mathrm{dust100ET}^{Planck}
+    derived: False
   PLK_alpha_dust143ET:
     value: "lambda PLK_alpha_dust143TE: PLK_alpha_dust143TE"
-    latex: \alpha_\mathrm{dust143ET}^{Planck}
+    derived: False
   PLK_alpha_dust217ET:
     value: "lambda PLK_alpha_dust217TE: PLK_alpha_dust217TE"
-    latex: \alpha_\mathrm{dust217ET}^{Planck}
+    derived: False
 
 
   #Amplitudes
