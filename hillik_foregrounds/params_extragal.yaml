@@ -59,6 +59,7 @@
 
   beta_dusty:
     value: "lambda beta_cib: beta_cib"
+    derived: False
     latex: \beta_\mathrm{IR}^\mathrm{PS}
 
   alpha_tsz:
