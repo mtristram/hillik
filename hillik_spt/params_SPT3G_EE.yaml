@@ -19,7 +19,12 @@
 
   #PS
   SPT3G_radio_EE:
-    value: 0.
+#    value: 0.
+    prior:
+      min: 0.0
+      max: 10.0
+    ref: 0.
+    proposal: 1.0
     latex: A_\mathrm{radioEE}^\mathrm{SPT3G}
 
 
