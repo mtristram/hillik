@@ -176,12 +176,6 @@ class SPT3G_D1_Lik(InstallableLikelihood):
                     dtype=int,
                 )
                 for i,v in enumerate(vec_indices)
-#                np.arange(
-#                    ishift[i] + self.spec_bin_min[i] - 1,
-#                    ishift[i] + self.spec_bin_max[i],
-#                    dtype=int,
-#                )
-#                for i in vec_indices
             ]
         )
         self.log.debug(f"Selected {len(vec_indices)} spectra: {[spec for spec in self.spectra_to_fit]}")
@@ -366,7 +360,7 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         # Select bins and calculate difference of theory and data
         self.log.debug("Compute residuals")
-        delta_data_model = np.concatenate(
+        self.delta_dl = np.concatenate(
             [
                 (self.bandpowers[spec] - db_model[spec])[self.spec_bin_min[i]-1:self.spec_bin_max[i]]
                 for i,spec in enumerate(self.spectra_to_fit)
@@ -375,9 +369,9 @@ class SPT3G_D1_Lik(InstallableLikelihood):
 
         # Compute chisq
         self.log.debug("Compute chi2")
-        chi2 = delta_data_model @ self._inv_bpcov @ delta_data_model
+        chi2 = self.delta_dl @ self._inv_bpcov @ self.delta_dl
 
-        self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(delta_data_model)}")
+        self.log.debug(f"SPT3G chi2/ndof = {chi2:.14f}/{len(self.delta_dl)}")
         return chi2
         
 
@@ -527,6 +521,20 @@ class SPT3G_D1_Lik(InstallableLikelihood):
             raise LoggedError( self.log, f"Wrong cross-spectrum for Polarized beam ({mode})")
 
         return BeamCorrection
+
+    def reduction_matrix(self, mode='TT'):
+        '''
+        reduction matrix (eq. 19 Dutcher21): inv(X.T*invC*X) * X.T*invC*D
+        '''
+        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
+        x0 = 0
+        for ispec,spec in enumerate(self.spectra_to_fit):
+            if mode not in spec: continue
+            nbin = np.size(self.windows[spec],0)
+            X[x0:x0+nbin,2:] = self.windows[spec]
+            x0 += nbin
+        return X
+
 
 
 class TTTEEE(SPT3G_D1_Lik):
