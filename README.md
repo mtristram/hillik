@@ -9,8 +9,8 @@ HiLLik: High-L Likelihood for CMB
 Gaussian approximation for cross-correlation spectra from Planck, SPT and ACT.
 It is based on different public codes:
 - [Planck Hillipop](https://github.com/planck-npipe/hillipop)
-- [SPTlik](https://github.com/xgarrido/spt_likelihoods)
-- [ACT-DR4](https://github.com/mtristram/actpol_full_dr4)
+- [CANDL](https://github.com/Lbalkenhol/candl_data)
+- [ACT-DR6](https://github.com/ACTCollaboration/act_dr6_mflike)
 
 The foreground model is coherent over the three datasets and includes several foregrounds residuals in spectra domain:
 - Galactic dust;
@@ -27,8 +27,8 @@ Likelihood versions
 
 Likelihoods available are:
 * ``hillik_planck``, Planck 2020 (PR4) [Planck Collaboration 2020](https://arxiv.org/abs/2007.04997)
-* ``hillik_spt``, SPT high-l [Reichardt et al. 2020](https://arxiv.org/abs/2002.06197) et SPT3G [Balkenhol et al. 2022](https://arxiv.org/abs/2212.05642)
-* ``hillik_act``, ACT DR6 Baseline Multi-frquency Likelihood presented in [Louis et al. 2025](https://arxiv.org/abs/2503.14452)
+* ``hillik_spt``, SPT3G (D1) [Camphuis et al. 2025](https://arxiv.org/abs/2506.20707)
+* ``hillik_act``, ACT (DR6) Baseline Multi-frquency Likelihood presented in [Louis et al. 2025](https://arxiv.org/abs/2503.14452)
 
 Install
 -------
@@ -91,6 +91,8 @@ $ cobaya-run -p $COBAYA_DIR/modules software/hillik/example/hillik_plk.yaml
 
 Requirements
 ------------
-* Python >= 3.5
+* Python >= 3.8
 * `numpy`
-* `astropy`
+* `cobaya` >= 3.5
+* `astropy` >= 6.0.1
+* `sacc` >= 0.9.0
