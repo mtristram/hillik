@@ -4,6 +4,12 @@ import numpy as np
 import itertools
 from cobaya.log import HasLogger, LoggedError
 from scipy import constants
+from astropy.utils.compat import NUMPY_LT_2_0
+
+if NUMPY_LT_2_0:
+    from numpy import trapz
+else:
+    from numpy import trapezoid as trapz
 
 
 T_CMB = 2.72548
@@ -213,10 +219,10 @@ class SED(HasLogger):
 
             nu = bpl['nu'] + self._bp_shifts[f]
             rl = bpl['bandpass']*dBdT(nu)*bpl['beam']
-            rl /= np.trapz(rl,nu)[...,np.newaxis]
+            rl /= trapz(rl,nu)[...,np.newaxis]
             
             fl = rl*self.fgRatio(nu, **kwargs)
-            amp[f] = np.trapz(fl,nu)
+            amp[f] = trapz(fl,nu)
 
         return amp
 
@@ -225,8 +231,8 @@ class SED(HasLogger):
         for f in exps:
             bp = self._bandpass[f]
             nu = bp['nu'] + self._bp_shifts[f]
-            U = np.trapz(bp['transmission']*dBdT(nu)*self.fgRatio(bp['nu'],**kwargs), nu)
-            D = np.trapz(bp['transmission']*dBdT(nu), nu)
+            U = trapz(bp['transmission']*dBdT(nu)*self.fgRatio(bp['nu'],**kwargs), nu)
+            D = trapz(bp['transmission']*dBdT(nu), nu)
             amp[f] = U/D
         return amp
 
