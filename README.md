@@ -43,8 +43,9 @@ $ export COBAYA_PACKAGES_PATH=$PWD/modules
 $ mkdir software
 $ mkdir modules
 ```
+For more details, please refer to the installing web page from cobaya [here](https://cobaya.readthedocs.io/en/latest/installation_cosmo.html#using-the-automatic-installer).
 
-Optionnal: you can make a python virtual env (note that in that case, you need to source at every log)
+Optional: you can make a python virtual env (note that in that case, you need to source at every log)
 ```shell
 $ python -m venv pyenv
 $ source pyenv/bin/activate
@@ -73,12 +74,12 @@ Data
 
 Data for the likelihoods are installed automatically by cobaya. Just type
 ```shell
-$ cobaya-install -p $COBAYA_DIR/modules your_file.yaml
+$ cobaya-install -p $COBAYA_PACKAGES_PATH your_file.yaml
 ```
 
 For the foregrounds template models, you need to untar manually the tarball:
 ```shell
-$ ln -s $COBAYA_DIR/software/hillik/data $COBAYA_DIR/modules/data/foregrounds
+$ ln -s $COBAYA_DIR/software/hillik/data $COBAYA_PACKAGES_PATH/data/foregrounds
 ```
 
 Test
