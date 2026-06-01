@@ -99,7 +99,7 @@ Requirements
 
 References
 ----------
-If you use this likelihood, please cite the following paper:\
+If you use this likelihood, please cite the following paper:
 > Combining cosmic microwave background datasets with consistent foreground modelling\
 > M. Tristram, et al., A&A, [2511.04733](https://arxiv.org/abs/2511.04733)\
 > DOI: [https://doi.org/10.1051/0004-6361/202558015](https://doi.org/10.1051/0004-6361/202558015)
