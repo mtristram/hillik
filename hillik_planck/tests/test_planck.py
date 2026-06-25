@@ -84,6 +84,35 @@ expected_lmin = {
     "TTTEEE": 30,
 }
 
+planck_actcut_lrange = {
+    "TT": [30, 2000],
+    "TE": [30, 1500],
+    "EE": [30, 1000],
+}
+
+expected_planck_actcut_chi2 = 7392.6049
+expected_planck_actcut_dof = 4202
+expected_planck_actcut_lmax = 2000
+expected_planck_actcut_lmin = 30
+
+planck_tt_only_lrange = {
+    "TT": [30, 1000],
+}
+
+expected_planck_tt_only_chi2 = 1581.7426
+expected_planck_tt_only_dof = 1096
+expected_planck_tt_only_lmax = 1000
+expected_planck_tt_only_lmin = 30
+
+planck_ee_only_lrange = {
+    "EE": [30, 1000],
+}
+
+expected_planck_ee_only_chi2 = 1364.6279
+expected_planck_ee_only_dof = 1046
+expected_planck_ee_only_lmax = 1000
+expected_planck_ee_only_lmin = 30
+
 def minimum_lmin(likelihood):
     return min(
         min(likelihood._lmins[mode])
@@ -148,3 +177,83 @@ class HillikPlkTest(unittest.TestCase):
                 self.assertEqual(likelihood._invkll.shape, (expected_dof[mode], expected_dof[mode]))
                 self.assertTrue(np.array_equal(likelihood._invkll, likelihood._invkll.T))
                 self.assertEqual(len(likelihood.delta_dl), expected_dof[mode])
+
+    def test_lrange(self):
+        from cobaya.model import get_model
+
+        likelihood_name = "hillik_planck.TTTEEE"
+        info = {
+            "debug": False,
+            "likelihood": {likelihood_name: {"lrange": planck_actcut_lrange}},
+            "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+            "params": {**cosmo_params, **calib_params, **nuisance_params["TTTEEE"]},
+            "packages_path": packages_path,
+        }
+        model = get_model(info)
+        measured_chi2 = -2 * model.loglikes({})[0][0]
+        likelihood = model.likelihood[likelihood_name]
+
+        print(f"{likelihood_name} lrange:  {measured_chi2} (measured),  {expected_planck_actcut_chi2} (expected),  diff={measured_chi2-expected_planck_actcut_chi2}")
+        self.assertAlmostEqual(measured_chi2, expected_planck_actcut_chi2, delta=1)
+        self.assertEqual(minimum_lmin(likelihood), expected_planck_actcut_lmin)
+        self.assertEqual(likelihood.lmax, expected_planck_actcut_lmax)
+        self.assertEqual(likelihood.dof(), expected_planck_actcut_dof)
+        self.assertEqual(likelihood._invkll.shape, (expected_planck_actcut_dof, expected_planck_actcut_dof))
+        self.assertTrue(np.allclose(likelihood._invkll, likelihood._invkll.T))
+        self.assertEqual(len(likelihood.delta_dl), expected_planck_actcut_dof)
+
+    def test_partial_lrange_removes_modes(self):
+        from cobaya.model import get_model
+
+        likelihood_name = "hillik_planck.TTTEEE"
+        info = {
+            "debug": False,
+            "likelihood": {likelihood_name: {"lrange": planck_tt_only_lrange}},
+            "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+            "params": {**cosmo_params, **calib_params, **nuisance_params["TTTEEE"]},
+            "packages_path": packages_path,
+        }
+        model = get_model(info)
+        measured_chi2 = -2 * model.loglikes({})[0][0]
+        likelihood = model.likelihood[likelihood_name]
+
+        print(f"{likelihood_name} TT-only lrange:  {measured_chi2} (measured),  {expected_planck_tt_only_chi2} (expected),  diff={measured_chi2-expected_planck_tt_only_chi2}")
+        self.assertAlmostEqual(measured_chi2, expected_planck_tt_only_chi2, delta=1)
+        self.assertTrue(likelihood._is_mode["TT"])
+        self.assertFalse(likelihood._is_mode["EE"])
+        self.assertFalse(likelihood._is_mode["TE"])
+        self.assertFalse(likelihood._is_mode["ET"])
+        self.assertEqual(minimum_lmin(likelihood), expected_planck_tt_only_lmin)
+        self.assertEqual(likelihood.lmax, expected_planck_tt_only_lmax)
+        self.assertEqual(likelihood.dof(), expected_planck_tt_only_dof)
+        self.assertEqual(likelihood._invkll.shape, (expected_planck_tt_only_dof, expected_planck_tt_only_dof))
+        self.assertTrue(np.allclose(likelihood._invkll, likelihood._invkll.T))
+        self.assertEqual(len(likelihood.delta_dl), expected_planck_tt_only_dof)
+
+    def test_partial_lrange_keeps_ee_only(self):
+        from cobaya.model import get_model
+
+        likelihood_name = "hillik_planck.TTTEEE"
+        info = {
+            "debug": False,
+            "likelihood": {likelihood_name: {"lrange": planck_ee_only_lrange}},
+            "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+            "params": {**cosmo_params, **calib_params, **nuisance_params["TTTEEE"]},
+            "packages_path": packages_path,
+        }
+        model = get_model(info)
+        measured_chi2 = -2 * model.loglikes({})[0][0]
+        likelihood = model.likelihood[likelihood_name]
+
+        print(f"{likelihood_name} EE-only lrange:  {measured_chi2} (measured),  {expected_planck_ee_only_chi2} (expected),  diff={measured_chi2-expected_planck_ee_only_chi2}")
+        self.assertAlmostEqual(measured_chi2, expected_planck_ee_only_chi2, delta=1)
+        self.assertFalse(likelihood._is_mode["TT"])
+        self.assertTrue(likelihood._is_mode["EE"])
+        self.assertFalse(likelihood._is_mode["TE"])
+        self.assertFalse(likelihood._is_mode["ET"])
+        self.assertEqual(minimum_lmin(likelihood), expected_planck_ee_only_lmin)
+        self.assertEqual(likelihood.lmax, expected_planck_ee_only_lmax)
+        self.assertEqual(likelihood.dof(), expected_planck_ee_only_dof)
+        self.assertEqual(likelihood._invkll.shape, (expected_planck_ee_only_dof, expected_planck_ee_only_dof))
+        self.assertTrue(np.allclose(likelihood._invkll, likelihood._invkll.T))
+        self.assertEqual(len(likelihood.delta_dl), expected_planck_ee_only_dof)

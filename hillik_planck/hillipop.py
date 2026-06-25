@@ -32,14 +32,17 @@ import numpy as np
 from cobaya.conventions import data_path, packages_path_input
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
+from cobaya.mpi import is_main_process
 
 import hillik_foregrounds as fg
 from . import bins
 
 
-#bintab for Hillipop bin
-bin_lmins = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10))
-bin_lmaxs = list( np.arange(30, 251, 1))+list( np.arange(251, 2500, 10)+9)
+#predefined binning
+lower_l = np.arange( 30,  251,  1)  # unbinned
+upper_l = np.arange(251, 2500, 10)  # binned
+bin_lmins = np.concatenate((lower_l, upper_l))
+bin_lmaxs = np.concatenate((lower_l, upper_l + 9))
 
 #effective frequencies
 maps = ["100A", "100B", "143A", "143B", "217A", "217B"]
@@ -68,6 +71,7 @@ class _HillipopLikelihood(InstallableLikelihood):
     xspectra_basename: Optional[str]
     covariance_matrix_file: Optional[str]
     foregrounds: Optional[dict]
+    lrange: Optional[dict] = None
 
     def initialize(self):
         # Set path to data
@@ -118,28 +122,19 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._is_mode["ET"] = self._is_mode["TE"]
         self.log.debug(f"mode = {self._is_mode}")
 
-        # Multipole ranges
+        # Multipole ranges and binning
         filename = os.path.join(self.data_folder, self.multipoles_range_file)
         self._lmins, self._lmaxs = self._set_multipole_ranges(filename)
-        self.lmin = np.min([l.min() for l in self._lmins.values()])
-        self.lmax = np.max([l.max() for l in self._lmaxs.values()])
-
-        #Binning
-        self.wf = bins.Bins( bin_lmins, bin_lmaxs)
-
-        # Data
-        basename = os.path.join(self.data_folder, self.xspectra_basename)
-        self._dldata = self._read_dl_xspectra(basename)
-
-        # Weights
-        dlsig = self._read_dl_xspectra(basename, hdu=2)
-        for m,w8 in dlsig.items(): w8[w8==0] = np.inf
-        self._dlweight = {k:1/v**2 for k,v in dlsig.items()}
+        self.lmin = min(min(self._lmins[mode]) for mode, is_mode in self._is_mode.items() if is_mode)
+        self.lmax = max(max(self._lmaxs[mode]) for mode, is_mode in self._is_mode.items() if is_mode)
+        self.wf = bins.Bins(bin_lmins, bin_lmaxs)
 
         # Inverted Covariance matrix
         filename = os.path.join(self.data_folder, self.covariance_matrix_file)
         self._invkll = self._read_invcovmatrix(filename)
-        self._invkll = self._invkll.astype('float32')   #speed-up X@C@X
+        if self.lrange:
+            self._cut_lrange()
+        self._invkll = self._invkll.astype('float32')
 
         # Precompute binning operators for _select_spectra
         self._bin_p = {}
@@ -153,6 +148,15 @@ class _HillipopLikelihood(InstallableLikelihood):
                 wf.cut_binning(lmin, lmax)
                 p, _ = wf._bin_operators(Dl=False)
                 self._bin_p[(mode, xf)] = p
+
+        # Data
+        basename = os.path.join(self.data_folder, self.xspectra_basename)
+        self._dldata = self._read_dl_xspectra(basename)
+
+        # Weights
+        dlsig = self._read_dl_xspectra(basename, hdu=2)
+        for m,w8 in dlsig.items(): w8[w8==0] = np.inf
+        self._dlweight = {k:1/v**2 for k,v in dlsig.items()}
 
         # Foregrounds
         self.fgs = {tag:[] for tag, is_tag in self._is_mode.items() if is_tag}  # list of foregrounds per mode [TT,EE,TE,ET]
@@ -170,6 +174,18 @@ class _HillipopLikelihood(InstallableLikelihood):
                     kwargs["filename_tsz"] = self.foregrounds[tag]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["tsz"])
                     kwargs["filename_cib"] = self.foregrounds[tag]["cib"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["cib"])
                 fgs.append(getattr(fg,name)(**kwargs))
+
+        if is_main_process():
+            for xs, (m1, m2) in enumerate(combinations(self._mapnames, 2)):
+                logstr = f"{m1}x{m2}: "
+                for mode in ['TT','EE','TE']:
+                    if self._is_mode[mode]:
+                        xflmin = self._lmins[mode][xs]
+                        xflmax = self._lmaxs[mode][xs]
+                        wf = deepcopy( self.wf)
+                        wf.cut_binning( xflmin, xflmax)
+                        logstr += f"{mode}[{wf.lmin:4d}-{wf.lmax:4d}]  "
+                self.log.debug(logstr)
 
         self.log.info("Initialized!")
 
@@ -269,6 +285,77 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         return data
 
+    def _cut_lrange(self):
+        """
+        Apply multipole cuts from `lrange` on the covariance matrix and lmins/lmaxs.
+        """
+
+        # build index list for covariance cutting
+        self.log.debug(f"\tSet up lmin/lmax cuts for lrange:\n{self.lrange}")
+        idx_offset = 0
+        kept_idxs = []
+        for XY in ["TT", "EE", "TE"]:
+            if not self._is_mode[XY]:
+                continue
+            l_cuts = self.lrange.get(XY)
+            if l_cuts is None:
+                lmin_cut = self.lmax
+                lmax_cut = self.lmin
+            else:
+                lmin_cut, lmax_cut = l_cuts
+
+            # validate lrange
+            if lmin_cut < min(self._lmins[XY]):
+                raise LoggedError(self.log, f"{XY} lmin should be >= {min(self._lmins[XY])} (lmin={lmin_cut} requested)")
+            if lmax_cut > max(self._lmaxs[XY]):
+                raise LoggedError(self.log, f"{XY} lmax should be <= {max(self._lmaxs[XY])} (lmax={lmax_cut} requested)")
+
+            for xf in range(self._nxfreq):
+                xflmin = self._lmins[XY][self._xspec2xfreq.index(xf)]
+                xflmax = self._lmaxs[XY][self._xspec2xfreq.index(xf)]
+
+                wf = deepcopy(self.wf)
+                wf.cut_binning(xflmin, xflmax)
+
+                mask = (wf.lmins >= lmin_cut) & (wf.lmaxs <= lmax_cut)
+                kept_idxs.extend(idx_offset + np.flatnonzero(mask))
+                idx_offset += wf.nbins
+
+                if mask.sum() < len(mask) and is_main_process():
+                    if mask.any():
+                        self.log.debug(
+                            f"Cutting {XY} {self._xfreq_labels[xf]} to [{lmin_cut}, {lmax_cut}]. "
+                            f"Keeping {mask.sum()}/{len(mask)} bins "
+                            f"(effective range [{wf.lmins[mask].min()}, {wf.lmaxs[mask].max()}])."
+                        )
+                    else:
+                        self.log.debug(f"Removing {XY} {self._xfreq_labels[xf]} entirely ({len(mask)} bins cut).")
+
+            # integrate lrange into _lmins/_lmaxs
+            X, Y = XY
+            for YX in {XY, Y+X}:
+                if l_cuts is not None:
+                    self._lmins[YX] = np.maximum(self._lmins[XY], lmin_cut)
+                    self._lmaxs[YX] = np.minimum(self._lmaxs[XY], lmax_cut)
+                else:
+                    self._is_mode[YX] = False
+                    self._lmins.pop(YX, None)
+                    self._lmaxs.pop(YX, None)
+        used_modes = [XY for XY in ["TT", "EE", "TE"] if self._is_mode[XY]]
+        self.lmin = min(min(self._lmins[XY]) for XY in used_modes)
+        self.lmax = max(max(self._lmaxs[XY]) for XY in used_modes)
+
+        # early exit if nothing was cut
+        if len(kept_idxs) == self._invkll.shape[0]:
+            return
+
+        # invert, cut, re-invert covariance matrix
+        self.log.debug("\tInvert invkll matrix")
+        kll = np.linalg.inv(self._invkll)
+        kll = kll[kept_idxs,:][:,kept_idxs]
+        self.log.debug("\tInvert kll matrix")
+        self._invkll = np.linalg.inv(kll)
+
     def _get_matrix_size(self):
         """
         Compute covariance matrix size given activated mode
@@ -354,7 +441,7 @@ class _HillipopLikelihood(InstallableLikelihood):
     def dof(self):
         return len(self._invkll)
 
-    def reduction_matrix(self, mode=0):
+    def reduction_matrix(self, mode):
         """
         Reduction matrix (eq. 19 Dutcher21): inv(X.T*invC*X) * X.T*invC*D
         """
@@ -363,11 +450,11 @@ class _HillipopLikelihood(InstallableLikelihood):
         for xf in range(self._nxfreq):
             lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
             lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
-            mywf = deepcopy( self.wf)
-            mywf.cut_binning( lmin, lmax)
-            for il,(bmin,bmax,dl) in enumerate(zip(mywf.lmins,mywf.lmaxs,mywf.dl)):
-                X[x0+il,bmin:bmax+1] = 1/dl
-            x0 += mywf.nbins
+            wf = deepcopy(self.wf)
+            wf.cut_binning(lmin, lmax)
+            for il, (bmin, bmax, dl) in enumerate(zip(wf.lmins, wf.lmaxs, wf.dl)):
+                X[x0+il, bmin:bmax+1] = 1/dl
+            x0 += wf.nbins
         
         return X
 
