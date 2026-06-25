@@ -9,6 +9,7 @@ full ACT DR6 spectra at 90, 150, 220 in temperature and polarization
 
 """
 import os
+import warnings
 from typing import Optional, Sequence
 
 import hillik_foregrounds as hfg
@@ -91,7 +92,9 @@ class ACTDR6Likelihood(InstallableLikelihood):
         #-----------------------------------------------
         #load spectrum
         #-----------------------------------------------
-        data = sacc.Sacc.load_fits( os.path.join(self.data_folder, self.input_file))
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="The FITS format without the 'sacc_ordering' column is deprecated.*", category=UserWarning)
+            data = sacc.Sacc.load_fits( os.path.join(self.data_folder, self.input_file))
 
         def get_cl_name(pol,exp1,exp2):
             pol_dict = {"T": "0", "E": "e", "B": "b"}
