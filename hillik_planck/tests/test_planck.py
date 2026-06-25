@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import numpy as np
 from cobaya.install import resolve_packages_path
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
 
@@ -145,4 +146,5 @@ class HillikPlkTest(unittest.TestCase):
                 self.assertEqual(likelihood.lmax, expected_lmax[mode])
                 self.assertEqual(likelihood.dof(), expected_dof[mode])
                 self.assertEqual(likelihood._invkll.shape, (expected_dof[mode], expected_dof[mode]))
+                self.assertTrue(np.array_equal(likelihood._invkll, likelihood._invkll.T))
                 self.assertEqual(len(likelihood.delta_dl), expected_dof[mode])
