@@ -1,10 +1,8 @@
 import os
-import tempfile
 import unittest
 
-packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
-    tempfile.gettempdir(), "Hillik_packages"
-)
+from cobaya.install import resolve_packages_path
+packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
 
 cosmo_params = {
     "cosmomc_theta": 0.010408,
@@ -65,19 +63,36 @@ nuisance_params["TTTEEE"] = {
 
 #chi2s = {"TT": 9231.9894, "EE": 9509.2059, "TE": 10214.672, "TTTEEE": 13138.09}
 #chi2s = {"TT": 4810.9264, "EE": 1805.0759, "TE": 1985.9408}
-chi2s = {"TT": 4810.9264}
+expected_chi2 = {
+    "TT": 4810.9264,
+    "TTTEEE": 8578.9722,
+}
+
+expected_dof = {
+    "TT": 1646,
+    "TTTEEE": 4872,
+}
+
+expected_lmax = {
+    "TT": 2500,
+    "TTTEEE": 2500,
+}
 
 
 class HillikPlkTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
-        for mode in chi2s.keys():
+        for mode in expected_chi2.keys():
             install(
-                {"likelihood": {"hillik_planck.{}".format(mode): None}},
+                {"likelihood": {f"hillik_planck.{mode}": None}},
                 path=packages_path,
                 skip_global=True,
+                no_set_global=True,
             )
+        print("\n" + "=" * 80)
+        print("Starting hillik_planck regression checks")
+        print("=" * 80)
 
 ##     def test_camb(self):
 ##         import camb
@@ -100,15 +115,24 @@ class HillikPlkTest(unittest.TestCase):
     def test_cobaya(self):
         from cobaya.model import get_model
 
-        for mode, chi2 in chi2s.items():
-            info = {
-                "debug": False,
-                "likelihood": {"hillik_planck.{}".format(mode): None},
-                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
-                "packages_path": packages_path,
-            }
-            
-            model = get_model(info)
-            print( f"COBAYA/{mode}: {-2 * model.loglikes({})[0][0]}")
-            self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
+        for mode in expected_chi2:
+            with self.subTest(mode=mode):
+                likelihood_name = f"hillik_planck.{mode}"
+                info = {
+                    "debug": False,
+                    "likelihood": {likelihood_name: None},
+                    "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+                    "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
+                    "packages_path": packages_path,
+                }
+
+                model = get_model(info)
+                measured_chi2 = -2 * model.loglikes({})[0][0]
+                likelihood = model.likelihood[likelihood_name]
+
+                print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
+                self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
+                self.assertEqual(likelihood.lmax, expected_lmax[mode])
+                self.assertEqual(likelihood.dof(), expected_dof[mode])
+                self.assertEqual(likelihood._invkll.shape, (expected_dof[mode], expected_dof[mode]))
+                self.assertEqual(len(likelihood.delta_dl), expected_dof[mode])
