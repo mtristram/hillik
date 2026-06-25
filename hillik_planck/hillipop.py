@@ -105,6 +105,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._nxfreq = self._nfreq * (self._nfreq + 1) // 2
         self._nxspec = self._nmap * (self._nmap - 1) // 2
         self._xspec2xfreq = self._xspec2xfreq()
+        self._xfreq_labels = self._xfreq_labels()
         self.log.debug(f"frequencies = {self.frequencies}")
 
         # Define the hillik-survey
@@ -174,6 +175,14 @@ class _HillipopLikelihood(InstallableLikelihood):
                 spec2freq.append(list_fqs.index((f1, f2)))
 
         return spec2freq
+
+    def _xfreq_labels(self):
+        freqs = list(np.unique(self.frequencies))
+        labels = []
+        for f1 in range(self._nfreq):
+            for f2 in range(f1, self._nfreq):
+                labels.append(f"{freqs[f1]}x{freqs[f2]}")
+        return labels
 
     def _set_multipole_ranges(self, filename):
         """
