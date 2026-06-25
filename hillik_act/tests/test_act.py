@@ -1,12 +1,8 @@
 import os
-import tempfile
 import unittest
 
-import numpy as np
-
-packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
-    tempfile.gettempdir(), "ACT_packages"
-)
+from cobaya.install import resolve_packages_path
+packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
 
 cosmo_params = {
     "cosmomc_theta": 0.01040,
@@ -14,13 +10,13 @@ cosmo_params = {
     "ombh2": 0.022591,
     "omch2": 0.1238,
     "ns": 0.9666,
-    "Alens": 1.0,
     "tau": 0.056,
+    "Alens": 1.0,
 }
 
-ACTmaps = ["dr6_pa4_f220","dr6_pa5_f090","dr6_pa5_f150","dr6_pa6_f090","dr6_pa6_f150"]
+ACTmaps = ["dr6_pa4_f220", "dr6_pa5_f090", "dr6_pa5_f150", "dr6_pa6_f090", "dr6_pa6_f150"]
 
-syste_params = {
+calib_params = {
     "ACT_cal": 1.0,
     **{f"ACT_cal_{m}": 1.0 for m in ACTmaps},
     **{f"ACT_pe_{m}": 1.0 for m in ACTmaps},
@@ -45,7 +41,6 @@ fg_params = {
     'EE':{'ACT_AdustEE': 0.17, 'ACT_beta_dustEE':1.5, 'ACT_alpha_dustEE':-2.4, 'ACT_radio_EE': 0.0},
 }
 
-
 nuisance_params = {
     "TT": {**fg_params['TT'],**extgal_params},
     "EE": {**fg_params['EE']},
@@ -53,52 +48,62 @@ nuisance_params = {
     "TTTEEE": {**fg_params['TT'],**extgal_params,**fg_params['TE'],**fg_params['EE']},
     }
 
-
-chi2s = {
+expected_chi2 = {
     "TT": 3254.41,
     "EE":  979.42,
     "TE": 1925.22,
     "TTTEEE": 6133.82,
-    }
+}
 
 class ACTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
-        for mode in chi2s.keys():
-            install({"likelihood": {f"hillik_act.{mode}": None}}, path=packages_path)
+        for mode in expected_chi2:
+            install(
+                {"likelihood": {f"hillik_act.{mode}": None}},
+                path=packages_path,
+                no_set_global=True,
+            )
+        print("\n" + "=" * 80)
+        print("Starting hillik_act regression checks")
+        print("=" * 80)
 
 ##     def test_camb(self):
 ##         import camb
 ##         import hillik_act
-        
+
 ##         camb_cosmo = cosmo_params.copy()
 ##         camb_cosmo.update({"lmax": 9000, "lens_potential_accuracy": 1})
 ##         pars = camb.set_params(**camb_cosmo)
 ##         results = camb.get_results(pars)
 ##         powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
 ##         dl_dict = {k: powers["total"][:, v] for k, v in {"tt": 0, "ee": 1, "te": 3}.items()}
-        
-##         for mode, chi2 in chi2s.items():
+
+##         for mode, chi2 in expected_chi2.items():
 ##             _act = getattr(hillik_act, mode)({"packages_path": packages_path})
-##             loglike = _act.loglike(dl_dict, **{**syste_params,**nuisance_params[mode]})
+##             loglike = _act.loglike(dl_dict, **{**calib_params,**nuisance_params[mode]})
 ##             print( f"CAMB/{mode}: {-2*loglike}")
-#            self.assertAlmostEqual(-2 * loglike, chi2, 1)
+##             self.assertAlmostEqual(-2 * loglike, chi2, 1)
 
     def test_cobaya(self):
         from cobaya.model import get_model
 
-        for mode, chi2 in chi2s.items():
-            info = {
-                "debug": True,
-                "likelihood": {f"hillik_act.{mode}": None},
-                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_params,**nuisance_params[mode],**syste_params},
-                "packages_path": packages_path,
-            }
-            model = get_model(info)
-            print( f"COBAYA/{mode}: {-2*model.loglikes({})[0][0]}")
-            self.assertLess( abs(-2 * model.loglikes({})[0][0] - chi2), 1)
+        for mode in expected_chi2:
+            with self.subTest(mode=mode):
+                likelihood_name = f"hillik_act.{mode}"
+                info = {
+                    "debug": False,
+                    "likelihood": {likelihood_name: None},
+                    "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+                    "params": {**cosmo_params, **calib_params, **nuisance_params[mode]},
+                    "packages_path": packages_path,
+                }
+                model = get_model(info)
+                measured_chi2 = -2 * model.loglikes({})[0][0]
+
+                print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
+                self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
 
 
 if __name__ == "__main__":

@@ -1,34 +1,32 @@
 import os
-import tempfile
 import unittest
 
-import numpy as np
+from cobaya.install import resolve_packages_path
+packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
 
-packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or os.path.join(
-    tempfile.gettempdir(), "SPT_packages"
-)
-
-cosmo_pars = {
+cosmo_params = {
     "cosmomc_theta": 0.01040,
     "As": 2.16185225e-09,
     "ombh2": 0.02241,
     "omch2": 0.1188,
     "ns": 0.9686,
-    "Alens": 1.0,
     "tau": 0.060,
+    "Alens": 1.0,
 }
 
-freqs = [90,150,220]
+freqs = [90, 150, 220]
 
-nui_pars = { "SPT3G_cal": 1.00,
-             "SPT3G_kappa": 5e-6,
-             **{f"SPT3G_cal_{m}":1.00 for m in freqs},
-             **{f"SPT3G_pe_{m}":1.00 for m in freqs},
-             **{f'SPT3G_T2P2_{fq}':0. for fq in freqs},
-             **{f'SPT3G_beta_{i+1}':-0.5 for i in range(9)},
-             **{f'SPT3G_beta_pol_{fq}':0.5 for fq in freqs}}
+calib_params = {
+    "SPT3G_cal": 1.00,
+    "SPT3G_kappa": 5e-6,
+    **{f"SPT3G_cal_{m}":1.00 for m in freqs},
+    **{f"SPT3G_pe_{m}":1.00 for m in freqs},
+    **{f'SPT3G_T2P2_{fq}':0. for fq in freqs},
+    **{f'SPT3G_beta_{i+1}':-0.5 for i in range(9)},
+    **{f'SPT3G_beta_pol_{fq}':0.5 for fq in freqs}
+}
 
-fgs_pars = {
+nuisance_params = {
     'TT': {
         'xi':0.26, 'Atsz':0.94, 'Acib':3.0, 'Aksz':2.3,
         'beta_cib':1.80, 'beta_dusty': 1.80, 'beta_radio': -0.8, 'T_cib':25.,
@@ -45,32 +43,35 @@ fgs_pars = {
            'SPT3G_radio_EE': 0.
            }
     }
-fgs_pars['TTTEEE'] = {p:v for tag in ['TT','TE','EE']  for p,v in fgs_pars[tag].items()}
+nuisance_params['TTTEEE'] = {p:v for tag in ['TT','TE','EE']  for p,v in nuisance_params[tag].items()}
 
-chi2s = {"TTTEEE":2300.714}
-chi2s = {"TT":897.167}
-chi2s = {"EE":612.755}
-chi2s = {"TE":827.760}
-
-chi2s = {"TTTEEE":2300.714,"TT":897.167,"EE":612.755,"TE":827.760}
+expected_chi2 = {
+    "TT":897.167,
+    "EE":612.755,
+    "TE":827.760,
+    "TTTEEE":2300.714,
+}
 
 class SPTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
-        for mode in chi2s.keys():
+        for mode in expected_chi2:
             install(
-                {"likelihood": {"hillik_spt.{}".format(mode): None}},
+                {"likelihood": {f"hillik_spt.{mode}": None}},
                 path=packages_path,
-                skip_global=True,
+                no_set_global=True,
             )
+        print("\n" + "=" * 80)
+        print("Starting hillik_spt regression checks")
+        print("=" * 80)
 
 ##     def test_camb(self):
 ##         import camb
 ##         import hillik_spt
 
 ##         camb_cosmo = cosmo_params.copy()
-##         for mode, chi2 in chi2s.items():
+##         for mode, chi2 in expected_chi2.items():
 ##             _spt = getattr(hillik_spt, mode)({"debug":True,"packages_path":packages_path})
 
 ##             camb_cosmo.update({"lmax": 10000, "lens_potential_accuracy": 1})
@@ -78,26 +79,29 @@ class SPTLikeTest(unittest.TestCase):
 ##             results = camb.get_results(pars)
 ##             powers = results.get_cmb_power_spectra(pars, CMB_unit="muK")
 ##             cl_boltz = {k: powers["total"][:, v] for k, v in {"tt": 0, "TT": 0, "EE": 1, "TE": 3}.items()}
-            
-##             loglike = _spt.loglike(cl_boltz, **fg_params[mode],**calib_params[mode])
+
+##             loglike = _spt.loglike(cl_boltz, **nuisance_params[mode],**calib_params[mode])
 ##             print( f"CAMB/{mode}: {-2*loglike}")
-#            self.assertAlmostEqual(-2*loglike, chi2, 1)
+##             self.assertAlmostEqual(-2 * loglike, chi2, 1)
 
     def test_cobaya(self):
         from cobaya.model import get_model
 
-        for mode, chi2 in chi2s.items():
-            info = {
-                "debug": False,
-                "likelihood": {"hillik_spt.{}".format(mode): None},
-                "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
-                "params": {**cosmo_pars, **nui_pars, **fgs_pars['TTTEEE']},
-                "packages_path": packages_path,
-            }
-            
-            model = get_model(info)
-            print( f"chi2({mode}): {-2*model.loglikes({})[0][0]} / {chi2}")
-            self.assertLess( abs(-2*model.loglikes({})[0][0] - chi2), 1)
+        for mode in expected_chi2:
+            with self.subTest(mode=mode):
+                likelihood_name = f"hillik_spt.{mode}"
+                info = {
+                    "debug": False,
+                    "likelihood": {likelihood_name: None},
+                    "theory": {"camb": {"extra_args": {"lens_potential_accuracy": 1}}},
+                    "params": {**cosmo_params, **calib_params, **nuisance_params['TTTEEE']},
+                    "packages_path": packages_path,
+                }
+                model = get_model(info)
+                measured_chi2 = -2 * model.loglikes({})[0][0]
+
+                print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
+                self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
 
 
 if __name__ == "__main__":
