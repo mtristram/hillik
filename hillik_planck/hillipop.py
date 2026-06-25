@@ -141,6 +141,19 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._invkll = self._read_invcovmatrix(filename)
         self._invkll = self._invkll.astype('float32')   #speed-up X@C@X
 
+        # Precompute binning operators for _select_spectra
+        self._bin_p = {}
+        for mode in ["TT", "TE", "EE"]:
+            if not self._is_mode[mode]:
+                continue
+            for xf in range(self._nxfreq):
+                lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
+                lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
+                wf = deepcopy(self.wf)
+                wf.cut_binning(lmin, lmax)
+                p, _ = wf._bin_operators(Dl=False)
+                self._bin_p[(mode, xf)] = p
+
         # Foregrounds
         self.fgs = {tag:[] for tag, is_tag in self._is_mode.items() if is_tag}  # list of foregrounds per mode [TT,EE,TE,ET]
         if 'TE' in self.foregrounds: self.foregrounds['ET'] = self.foregrounds['TE']
@@ -283,11 +296,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         acl = np.asarray(cl)
         xl = []
         for xf in range(self._nxfreq):
-            lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
-            lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
-            wf = deepcopy( self.wf)
-            wf.cut_binning( lmin, lmax)
-            xl += list(wf.bin_spectra(acl[xf]))
+            p = self._bin_p[(mode, xf)]
+            minlmax = min(acl[xf].shape[0], p.shape[1])
+            xl += list(np.dot(acl[xf, :minlmax], p.T[:minlmax]))
         return xl
 
     def _xspectra_to_xfreq(self, cl, weight, normed=True):
