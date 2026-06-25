@@ -55,6 +55,20 @@ expected_chi2 = {
     "TTTEEE": 6133.82,
 }
 
+expected_dof = {
+    "TT": 601,
+    "EE": 406,
+    "TE": 644,
+    "TTTEEE": 1651,
+}
+
+expected_lmax = {
+    "TT": 8501,
+    "EE": 8501,
+    "TE": 8501,
+    "TTTEEE": 8501,
+}
+
 class ACTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
@@ -101,9 +115,14 @@ class ACTLikeTest(unittest.TestCase):
                 }
                 model = get_model(info)
                 measured_chi2 = -2 * model.loglikes({})[0][0]
+                likelihood = model.likelihood[likelihood_name]
 
                 print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
                 self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
+                self.assertEqual(likelihood.lmax, expected_lmax[mode])
+                self.assertEqual(likelihood.dof(), expected_dof[mode])
+                self.assertEqual(likelihood.inv_cov.shape, (expected_dof[mode], expected_dof[mode]))
+                self.assertEqual(len(likelihood.delta_dl), expected_dof[mode])
 
 
 if __name__ == "__main__":

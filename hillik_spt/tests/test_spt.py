@@ -52,6 +52,20 @@ expected_chi2 = {
     "TTTEEE":2300.714,
 }
 
+expected_dof = {
+    "TT":312,
+    "EE":432,
+    "TE":648,
+    "TTTEEE":1392,
+}
+
+expected_lmax = {
+    "TT":4095,
+    "EE":4095,
+    "TE":4095,
+    "TTTEEE":4095,
+}
+
 class SPTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
@@ -99,9 +113,14 @@ class SPTLikeTest(unittest.TestCase):
                 }
                 model = get_model(info)
                 measured_chi2 = -2 * model.loglikes({})[0][0]
+                likelihood = model.likelihood[likelihood_name]
 
                 print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
                 self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
+                self.assertEqual(likelihood.lmax, expected_lmax[mode])
+                self.assertEqual(likelihood.dof(), expected_dof[mode])
+                self.assertEqual(likelihood._inv_bpcov.shape, (expected_dof[mode], expected_dof[mode]))
+                self.assertEqual(len(likelihood.delta_dl), expected_dof[mode])
 
 
 if __name__ == "__main__":
