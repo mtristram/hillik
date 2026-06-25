@@ -47,12 +47,14 @@ nuisance_params = {
     "TE": {**fg_params['TE']},
     "TTTEEE": {**fg_params['TT'],**extgal_params,**fg_params['TE'],**fg_params['EE']},
     }
+nuisance_params["TTTEEE_PACT"] = nuisance_params["TTTEEE"]
 
 expected_chi2 = {
     "TT": 3254.41,
     "EE":  979.42,
     "TE": 1925.22,
     "TTTEEE": 6133.82,
+    "TTTEEE_PACT": 3712.30,
 }
 
 expected_dof = {
@@ -60,6 +62,7 @@ expected_dof = {
     "EE": 406,
     "TE": 644,
     "TTTEEE": 1651,
+    "TTTEEE_PACT": 1139,
 }
 
 expected_lmax = {
@@ -67,7 +70,23 @@ expected_lmax = {
     "EE": 8501,
     "TE": 8501,
     "TTTEEE": 8501,
+    "TTTEEE_PACT": 8501,
 }
+
+expected_lmin = {
+    "TT": 600,
+    "EE": 600,
+    "TE": 600,
+    "TTTEEE": 600,
+    "TTTEEE_PACT": 1000,
+}
+
+def minimum_lmin(likelihood):
+    return min(
+        spec["scales"][mode][0]
+        for spec in likelihood.spectra
+        for mode in spec["polarizations"]
+    )
 
 class ACTLikeTest(unittest.TestCase):
     def setUp(self):
@@ -119,6 +138,7 @@ class ACTLikeTest(unittest.TestCase):
 
                 print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
                 self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
+                self.assertEqual(minimum_lmin(likelihood), expected_lmin[mode])
                 self.assertEqual(likelihood.lmax, expected_lmax[mode])
                 self.assertEqual(likelihood.dof(), expected_dof[mode])
                 self.assertEqual(likelihood.inv_cov.shape, (expected_dof[mode], expected_dof[mode]))

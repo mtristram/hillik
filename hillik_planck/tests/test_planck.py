@@ -78,6 +78,18 @@ expected_lmax = {
     "TTTEEE": 2500,
 }
 
+expected_lmin = {
+    "TT": 30,
+    "TTTEEE": 30,
+}
+
+def minimum_lmin(likelihood):
+    return min(
+        min(likelihood._lmins[mode])
+        for mode in ["TT", "TE", "EE"]
+        if likelihood._is_mode[mode]
+    )
+
 class HillikPlkTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
@@ -129,6 +141,7 @@ class HillikPlkTest(unittest.TestCase):
 
                 print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
                 self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
+                self.assertEqual(minimum_lmin(likelihood), expected_lmin[mode])
                 self.assertEqual(likelihood.lmax, expected_lmax[mode])
                 self.assertEqual(likelihood.dof(), expected_dof[mode])
                 self.assertEqual(likelihood._invkll.shape, (expected_dof[mode], expected_dof[mode]))

@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import numpy as np
 from cobaya.install import resolve_packages_path
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
 
@@ -66,6 +67,21 @@ expected_lmax = {
     "TTTEEE":4095,
 }
 
+expected_lmin = {
+    "TT":350,
+    "EE":350,
+    "TE":350,
+    "TTTEEE":350,
+}
+
+def minimum_lmin(likelihood):
+    lmins = []
+    for i, spec in enumerate(likelihood.spectra_to_fit):
+        selected_windows = likelihood.windows[spec][likelihood.spec_bin_min[i]-1:likelihood.spec_bin_max[i]]
+        support = np.any(selected_windows != 0, axis=0)
+        lmins.append(likelihood.lmin + np.flatnonzero(support)[0])
+    return min(lmins)
+
 class SPTLikeTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
@@ -117,6 +133,7 @@ class SPTLikeTest(unittest.TestCase):
 
                 print(f"{likelihood_name}:  {measured_chi2} (measured),  {expected_chi2[mode]} (expected),  diff={measured_chi2-expected_chi2[mode]}")
                 self.assertAlmostEqual(measured_chi2, expected_chi2[mode], delta=1)
+                self.assertEqual(minimum_lmin(likelihood), expected_lmin[mode])
                 self.assertEqual(likelihood.lmax, expected_lmax[mode])
                 self.assertEqual(likelihood.dof(), expected_dof[mode])
                 self.assertEqual(likelihood._inv_bpcov.shape, (expected_dof[mode], expected_dof[mode]))
