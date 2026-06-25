@@ -1,7 +1,24 @@
-#
-# HILLIPOP cut a lmax=2000
-#
-# Sep 2020   - M. Tristram -
+"""
+.. module:: HiLLiPoP for Hillik
+
+:Synopsis: Likelihood class for Planck PR4 to be used alongside ACT and SPT
+:Author: Matthieu Tristram
+
+Hillipop is a multifrequency CMB likelihood for Planck data.
+
+The likelihood is a spectrum-based Gaussian approximation for
+cross-correlation spectra from Planck 100, 143 and 217GHz
+split-frequency maps, with semi-analytic estimates of the Cl
+covariance matrix based on the data. The cross-spectra are debiased
+from the effects of the mask and the beam leakage using Xpol before
+being compared to the model, which includes CMB and foreground
+residuals. They cover the multipoles from l=30 to l=2500.
+
+This Hillik version makes the foreground treatment match between Planck, ACT,
+and SPT, and ensures there is not multipole overlap between Planck and ACT.
+
+"""
+
 import glob
 import logging
 import os
@@ -50,7 +67,7 @@ class _HillipopLikelihood(InstallableLikelihood):
     multipoles_range_file: Optional[str]
     xspectra_basename: Optional[str]
     covariance_matrix_file: Optional[str]
-    foregrounds: Optional[list]
+    foregrounds: Optional[dict]
 
     def initialize(self):
         # Set path to data
@@ -68,10 +85,18 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         self.data_folder = os.path.join(data_file_path, self.data_folder)
         if not os.path.exists(self.data_folder):
-            raise LoggedError( self.log, f"The 'data_folder' directory does not exist. Check the given path [{self.data_folder}].")
+            raise LoggedError(
+                self.log,
+                f"The 'data_folder' directory does not exist. "
+                f"Check the given path [{self.data_folder}].",
+            )
         self.fgds_folder = os.path.join(data_file_path, self.fgds_folder)
         if not os.path.exists(self.fgds_folder):
-            raise LoggedError( self.log, f"The 'fgds_folder' directory does not exist. Check the given path [{self.fgds_folder}].")
+            raise LoggedError(
+                self.log,
+                f"The 'fgds_folder' directory does not exist. "
+                f"Check the given path [{self.fgds_folder}].",
+            )
 
         self.frequencies = [100, 100, 143, 143, 217, 217]
         self._mapnames = ["100A", "100B", "143A", "143B", "217A", "217B"]
@@ -80,43 +105,43 @@ class _HillipopLikelihood(InstallableLikelihood):
         self._nxfreq = self._nfreq * (self._nfreq + 1) // 2
         self._nxspec = self._nmap * (self._nmap - 1) // 2
         self._xspec2xfreq = self._xspec2xfreq()
-        self.log.debug("frequencies = {}".format(self.frequencies))
-        
+        self.log.debug(f"frequencies = {self.frequencies}")
+
         # Define the hillik-survey
         self.survey = "PLK"
-        
+
         # Get likelihood name and add the associated mode
         likelihood_name = self.__class__.__name__
-        likelihood_modes = [likelihood_name[i:i+2] for i in range(0,len(likelihood_name),2)]
-        self._is_mode = {mode: mode in likelihood_modes for mode in ["TT", "TE", "EE","BB"]}
+        likelihood_modes = [likelihood_name[i:i+2] for i in range(0, len(likelihood_name), 2)]
+        self._is_mode = {mode: mode in likelihood_modes for mode in ["TT", "TE", "EE", "BB"]}
         self._is_mode["ET"] = self._is_mode["TE"]
-        self.log.debug("mode = {}".format(self._is_mode))
-        
+        self.log.debug(f"mode = {self._is_mode}")
+
         # Multipole ranges
         filename = os.path.join(self.data_folder, self.multipoles_range_file)
         self._lmins, self._lmaxs = self._set_multipole_ranges(filename)
         self.lmin = np.min([l.min() for l in self._lmins.values()])
         self.lmax = np.max([l.max() for l in self._lmaxs.values()])
-        
+
         #Binning
         self.wf = bins.Bins( bin_lmins, bin_lmaxs)
 
         # Data
         basename = os.path.join(self.data_folder, self.xspectra_basename)
         self._dldata = self._read_dl_xspectra(basename)
-        
+
         # Weights
         dlsig = self._read_dl_xspectra(basename, hdu=2)
         for m,w8 in dlsig.items(): w8[w8==0] = np.inf
         self._dlweight = {k:1/v**2 for k,v in dlsig.items()}
-        
+
         # Inverted Covariance matrix
         filename = os.path.join(self.data_folder, self.covariance_matrix_file)
         self._invkll = self._read_invcovmatrix(filename)
         self._invkll = self._invkll.astype('float32')   #speed-up X@C@X
-        
+
         # Foregrounds
-        self.fgs = {tag:[] for tag,v in self._is_mode.items() if v}  # list of foregrounds per mode [TT,EE,TE,ET]
+        self.fgs = {tag:[] for tag, is_tag in self._is_mode.items() if is_tag}  # list of foregrounds per mode [TT,EE,TE,ET]
         if 'TE' in self.foregrounds: self.foregrounds['ET'] = self.foregrounds['TE']
         for tag,fgs in self.fgs.items():
             for name in self.foregrounds[tag].keys():
@@ -131,16 +156,15 @@ class _HillipopLikelihood(InstallableLikelihood):
                     kwargs["filename_tsz"] = self.foregrounds[tag]["tsz"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["tsz"])
                     kwargs["filename_cib"] = self.foregrounds[tag]["cib"] and os.path.join(self.fgds_folder, self.foregrounds[tag]["cib"])
                 fgs.append(getattr(fg,name)(**kwargs))
-        
-        self.log.info("Initialized!")
 
+        self.log.info("Initialized!")
 
     def _xspec2xfreq(self):
         list_fqs = []
         for f1 in range(self._nfreq):
             for f2 in range(f1, self._nfreq):
                 list_fqs.append((f1, f2))
-        
+
         freqs = list(np.unique(self.frequencies))
         spec2freq = []
         for m1 in range(self._nmap):
@@ -148,7 +172,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 f1 = freqs.index(self.frequencies[m1])
                 f2 = freqs.index(self.frequencies[m2])
                 spec2freq.append(list_fqs.index((f1, f2)))
-        
+
         return spec2freq
 
     def _set_multipole_ranges(self, filename):
@@ -158,7 +182,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         """
         self.log.debug("Define multipole ranges")
         if not os.path.exists(filename):
-            raise ValueError("File missing {}".format(filename))
+            raise ValueError(f"File missing {filename}")
 
         tags = ["TT", "EE", "BB", "TE"]
         lmins = {}
@@ -182,7 +206,7 @@ class _HillipopLikelihood(InstallableLikelihood):
         Read xspectra from Xpol [Dl in K^2]
         Output: Dl (TT,EE,TE,ET) in muK^2
         """
-        self.log.debug("Reading cross-spectra {}".format("errors" if hdu == 2 else ""))
+        self.log.debug("Reading cross-spectra %s" % ("weights" if hdu == 2 else ""))
 
         with fits.open(f"{basename}_{self._mapnames[0]}x{self._mapnames[1]}.fits") as hdus:
             nhdu = len( hdus)
@@ -208,9 +232,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         Read xspectra inverse covmatrix from Xpol [Dl in K^-4]
         Output: invkll [Dl in muK^-4]
         """
-        self.log.debug("Covariance matrix file: {}".format(filename))
+        self.log.debug(f"Covariance matrix file: {filename}")
         if not os.path.exists(filename):
-            raise ValueError("File missing {}".format(filename))
+            raise ValueError(f"File missing {filename}")
 
         data = fits.getdata(filename)
         nel = int(np.sqrt(data.size))
@@ -218,7 +242,7 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         nell = self._get_matrix_size()
         if nel != nell:
-            raise ValueError("Incoherent covariance matrix (read:%d, expected:%d)" % (nel, nell))
+            raise ValueError(f"Incoherent covariance matrix (read:{nel}, expected:{nell})")
 
         return data
 
@@ -235,9 +259,9 @@ class _HillipopLikelihood(InstallableLikelihood):
                 for xf in range(self._nxfreq):
                     lmin = self._lmins[m][self._xspec2xfreq.index(xf)]
                     lmax = self._lmaxs[m][self._xspec2xfreq.index(xf)]
-                    mywf = deepcopy( self.wf)
-                    mywf.cut_binning( lmin, lmax)
-                    nell += mywf.nbins
+                    wf = deepcopy( self.wf)
+                    wf.cut_binning( lmin, lmax)
+                    nell += wf.nbins
 
         return nell
 
@@ -251,9 +275,9 @@ class _HillipopLikelihood(InstallableLikelihood):
         for xf in range(self._nxfreq):
             lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
             lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
-            mywf = deepcopy( self.wf)
-            mywf.cut_binning( lmin, lmax)
-            xl += list(mywf.bin_spectra(acl[xf]))
+            wf = deepcopy( self.wf)
+            wf.cut_binning( lmin, lmax)
+            xl += list(wf.bin_spectra(acl[xf]))
         return xl
 
     def _xspectra_to_xfreq(self, cl, weight, normed=True):
@@ -274,23 +298,22 @@ class _HillipopLikelihood(InstallableLikelihood):
 
     def _calibration( self, mode, map1, map2, pars):
 
-        if mode == 'TT':
+        if mode == "TT":
             cal1 = pars[f"{self.survey}_cal_{map1}"]
             cal2 = pars[f"{self.survey}_cal_{map2}"]
-        elif mode == 'EE':
+        elif mode == "EE":
             cal1 = pars[f"{self.survey}_cal_{map1}"]*pars[f"{self.survey}_pe_{map1}"]
             cal2 = pars[f"{self.survey}_cal_{map2}"]*pars[f"{self.survey}_pe_{map2}"]
-        elif mode == 'TE':
+        elif mode == "TE":
             cal1 = pars[f"{self.survey}_cal_{map1}"]
             cal2 = pars[f"{self.survey}_cal_{map2}"]*pars[f"{self.survey}_pe_{map2}"]
-        elif mode == 'ET':
+        elif mode == "ET":
             cal1 = pars[f"{self.survey}_cal_{map1}"]*pars[f"{self.survey}_pe_{map1}"]
             cal2 = pars[f"{self.survey}_cal_{map2}"]
 
         return cal1 * cal2 * pars["A_planck"] ** 2
 
     def _compute_residuals(self, pars, dlth, mode):
-
         # Nuisances
         cal = [self._calibration( mode, m1, m2, pars) for m1, m2 in combinations(self._mapnames, 2)]
 
@@ -306,6 +329,26 @@ class _HillipopLikelihood(InstallableLikelihood):
         Rspec = np.array([dldata[xs] - dlmodel[xs]/cal[xs] for xs in range(self._nxspec)])
 
         return Rspec
+
+    def dof(self):
+        return len(self._invkll)
+
+    def reduction_matrix(self, mode=0):
+        """
+        Reduction matrix (eq. 19 Dutcher21): inv(X.T*invC*X) * X.T*invC*D
+        """
+        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
+        x0 = 0
+        for xf in range(self._nxfreq):
+            lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
+            lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
+            mywf = deepcopy( self.wf)
+            mywf.cut_binning( lmin, lmax)
+            for il,(bmin,bmax,dl) in enumerate(zip(mywf.lmins,mywf.lmaxs,mywf.dl)):
+                X[x0+il,bmin:bmax+1] = 1/dl
+            x0 += mywf.nbins
+        
+        return X
 
     def compute_chi2(self, dlth, **params_values):
         """
@@ -329,17 +372,17 @@ class _HillipopLikelihood(InstallableLikelihood):
         Xl = []
         if self._is_mode["TT"]:
             # compute residuals Rl = Dl - Dlth
-            Rspec = self._compute_residuals(params_values, dlth, 'TT')
+            Rspec = self._compute_residuals(params_values, dlth, "TT")
             # average to cross-spectra
-            Rl = self._xspectra_to_xfreq(Rspec, self._dlweight['TT'])
+            Rl = self._xspectra_to_xfreq(Rspec, self._dlweight["TT"])
             # select multipole range
             Xl += self._select_spectra(Rl, 'TT')
 
         if self._is_mode["EE"]:
             # compute residuals Rl = Dl - Dlth
-            Rspec = self._compute_residuals(params_values, dlth, 'EE')
+            Rspec = self._compute_residuals(params_values, dlth, "EE")
             # average to cross-spectra
-            Rl = self._xspectra_to_xfreq(Rspec, self._dlweight['EE'])
+            Rl = self._xspectra_to_xfreq(Rspec, self._dlweight["EE"])
             # select multipole range
             Xl += self._select_spectra(Rl, 'EE')
 
@@ -348,13 +391,13 @@ class _HillipopLikelihood(InstallableLikelihood):
             Wl = 0
             # compute residuals Rl = Dl - Dlth
             if self._is_mode["TE"]:
-                Rspec = self._compute_residuals(params_values, dlth, 'TE')
-                RlTE, WlTE = self._xspectra_to_xfreq(Rspec, self._dlweight['TE'], normed=False)
+                Rspec = self._compute_residuals(params_values, dlth, "TE")
+                RlTE, WlTE = self._xspectra_to_xfreq(Rspec, self._dlweight["TE"], normed=False)
                 Rl = Rl + RlTE
                 Wl = Wl + WlTE
             if self._is_mode["ET"]:
-                Rspec = self._compute_residuals(params_values, dlth, 'ET')
-                RlET, WlET = self._xspectra_to_xfreq(Rspec, self._dlweight['ET'], normed=False)
+                Rspec = self._compute_residuals(params_values, dlth, "ET")
+                RlET, WlET = self._xspectra_to_xfreq(Rspec, self._dlweight["ET"], normed=False)
                 Rl = Rl + RlET
                 Wl = Wl + WlET
             # select multipole range
@@ -371,27 +414,6 @@ class _HillipopLikelihood(InstallableLikelihood):
 
         self.log.debug(f"chi2/ndof = {chi2}/{len(self.delta_dl)}")
         return chi2
-
-    def dof( self):
-        return len( self._invkll)
-        
-    def reduction_matrix(self, mode=0):
-        '''
-        reduction matrix (eq. 19 Dutcher21): inv(X.T*invC*X) * X.T*invC*D
-        '''
-        X = np.zeros( (len(self.delta_dl),self.lmax+1) )
-
-        x0 = 0
-        for xf in range(self._nxfreq):
-            lmin = self._lmins[mode][self._xspec2xfreq.index(xf)]
-            lmax = self._lmaxs[mode][self._xspec2xfreq.index(xf)]
-            mywf = deepcopy( self.wf)
-            mywf.cut_binning( lmin, lmax)
-            for il,(bmin,bmax,dl) in enumerate(zip(mywf.lmins,mywf.lmaxs,mywf.dl)):
-                X[x0+il,bmin:bmax+1] = 1/dl
-            x0 += mywf.nbins
-        
-        return X
 
     def get_requirements(self):
         return dict(Cl={mode: self.lmax for mode in ["tt", "ee", "te"]})
@@ -441,13 +463,15 @@ class _HillipopLikelihood(InstallableLikelihood):
                 return False
             # Test if the covariance file is there
             ext = cls.__name__
-            if ext=="TT" or ext=="TTTEEE": ext = ext+"_bin" 
+            if ext in {"TT", "TTTEEE"}:
+                ext = f"{ext}_bin"
             test_path = os.path.join(path, f"**/invfll_PR4_v4.2_{ext}.fits")
             return len(glob.glob(test_path, recursive=True)) > 0
         return True
 
 
 # ------------------------------------------------------------------------------------------------
+
 
 def _get_install_options(filename):
     return {"download_url": f"{data_url}/{filename}"}
@@ -456,37 +480,39 @@ def _get_install_options(filename):
 class TTTEEE(_HillipopLikelihood):
     """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
     with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-    split-frequency maps
+    split-frequency maps.
 
     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TTTEEE_bin_v4.2.tar.gz".format(data_url)}
+    install_options = _get_install_options("planck_2020_hillipop_TTTEEE_bin_v4.2.tar.gz")
 
 
 class TT(_HillipopLikelihood):
     """High-L TT Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
+    maps.
 
     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_TT_bin_v4.2.tar.gz".format(data_url)}
+    install_options = _get_install_options("planck_2020_hillipop_TT_bin_v4.2.tar.gz")
 
-class TE(_HillipopLikelihood):
-    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
-
-    """
-
-    install_options = {"download_url": "{}/planck_2020_hillipop_TE_v4.2.tar.gz".format(data_url)}
 
 class EE(_HillipopLikelihood):
     """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps
+    maps.
 
     """
 
-    install_options = {"download_url": "{}/planck_2020_hillipop_EE_v4.2.tar.gz".format(data_url)}
+    install_options = _get_install_options("planck_2020_hillipop_EE_v4.2.tar.gz")
+
+
+class TE(_HillipopLikelihood):
+    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
+    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+    maps.
+
+    """
+
+    install_options = _get_install_options("planck_2020_hillipop_TE_v4.2.tar.gz")
 
