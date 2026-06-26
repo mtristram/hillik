@@ -297,6 +297,8 @@ class _HillipopLikelihood(InstallableLikelihood):
         for XY in ["TT", "EE", "TE"]:
             if not self._is_mode[XY]:
                 continue
+            effective_lmins = self._lmins[XY].copy()
+            effective_lmaxs = self._lmaxs[XY].copy()
             l_cuts = self.lrange.get(XY)
             if l_cuts is None:
                 lmin_cut = self.lmax
@@ -311,8 +313,9 @@ class _HillipopLikelihood(InstallableLikelihood):
                 raise LoggedError(self.log, f"{XY} lmax should be <= {max(self._lmaxs[XY])} (lmax={lmax_cut} requested)")
 
             for xf in range(self._nxfreq):
-                xflmin = self._lmins[XY][self._xspec2xfreq.index(xf)]
-                xflmax = self._lmaxs[XY][self._xspec2xfreq.index(xf)]
+                xs_idxs = np.where(np.array(self._xspec2xfreq) == xf)[0]
+                xflmin = self._lmins[XY][xs_idxs[0]]
+                xflmax = self._lmaxs[XY][xs_idxs[0]]
 
                 wf = deepcopy(self.wf)
                 wf.cut_binning(xflmin, xflmax)
@@ -320,6 +323,12 @@ class _HillipopLikelihood(InstallableLikelihood):
                 mask = (wf.lmins >= lmin_cut) & (wf.lmaxs <= lmax_cut)
                 kept_idxs.extend(idx_offset + np.flatnonzero(mask))
                 idx_offset += wf.nbins
+                if mask.any():
+                    effective_lmins[xs_idxs] = wf.lmins[mask].min()
+                    effective_lmaxs[xs_idxs] = wf.lmaxs[mask].max()
+                else:
+                    effective_lmins[xs_idxs] = max(xflmin, lmin_cut)
+                    effective_lmaxs[xs_idxs] = min(xflmax, lmax_cut)
 
                 if mask.sum() < len(mask) and is_main_process():
                     if mask.any():
@@ -335,8 +344,8 @@ class _HillipopLikelihood(InstallableLikelihood):
             X, Y = XY
             for YX in {XY, Y+X}:
                 if l_cuts is not None:
-                    self._lmins[YX] = np.maximum(self._lmins[XY], lmin_cut)
-                    self._lmaxs[YX] = np.minimum(self._lmaxs[XY], lmax_cut)
+                    self._lmins[YX] = effective_lmins.copy()
+                    self._lmaxs[YX] = effective_lmaxs.copy()
                 else:
                     self._is_mode[YX] = False
                     self._lmins.pop(YX, None)
@@ -643,4 +652,3 @@ class EE_actcut(EE):
 
 class TE_actcut(TE):
     """Planck TE likelihood cut to the Planck side of the Planck-ACT split."""
-
