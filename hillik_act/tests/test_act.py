@@ -86,8 +86,8 @@ expectations = {
     },
     "TTTEEE_planckcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_planckcut"},
-        "chi2": 3712.30,
-        "dof": 1139,
+        "chi2": 3594.15,
+        "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
 }

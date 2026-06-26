@@ -29,40 +29,40 @@ data:
     - experiments: [dr6_pa5_f090, dr6_pa5_f090]
       polarizations: *polarizations_auto
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
     - experiments: [dr6_pa5_f090, dr6_pa5_f150]
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
     - experiments: [dr6_pa5_f090, dr6_pa6_f090]
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
     - experiments: [dr6_pa5_f090, dr6_pa6_f150]
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
 
     - experiments: [dr6_pa5_f150, dr6_pa5_f150]
       polarizations: *polarizations_auto
       scales:
-        EE: [800, *lmax]
+        EE: [776, *lmax]
     - experiments: [dr6_pa5_f150, dr6_pa6_f090]
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
     - experiments: [dr6_pa5_f150, dr6_pa6_f150]
       scales:
-        EE: [800, *lmax]
+        EE: [776, *lmax]
 
     - experiments: [dr6_pa6_f090, dr6_pa6_f090]
       polarizations: *polarizations_auto
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
     - experiments: [dr6_pa6_f090, dr6_pa6_f150]
       scales:
-        EE: [1000, *lmax]
+        EE: [976, *lmax]
 
     - experiments: [dr6_pa6_f150, dr6_pa6_f150]
       polarizations: *polarizations_auto
       scales:
-        EE: [600, *lmax]
+        EE: [576, *lmax]
 
 foregrounds: !defaults [foregrounds]
 

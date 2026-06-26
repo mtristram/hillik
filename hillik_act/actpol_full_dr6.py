@@ -123,10 +123,16 @@ class ACTDR6Likelihood(InstallableLikelihood):
                 lmin,lmax = spec["scales"][pol]
 
                 dt,exp1,exp2 = get_cl_name(pol,m1,m2)
-                ls,dls = data.get_ell_cl(dt,exp1,exp2)
-                spec[pol]['leff'] = np.array([l for l,dl in zip(ls,dls) if l>=lmin and l<=lmax])
-                spec[pol]['dl']   = np.array([dl for l,dl in zip(ls,dls) if l>=lmin and l<=lmax])
-                ind = data.indices( dt, (exp1,exp2), ell__gt=lmin, ell__lt=lmax)
+                ls,dls,ind = data.get_ell_cl(dt,exp1,exp2, return_ind=True)
+                diffs = np.diff(ls)
+                half_bw = np.empty_like(ls)
+                half_bw[0] = diffs[0] / 2
+                for i, diff in enumerate(diffs):
+                    half_bw[i+1] = diff - half_bw[i]
+                mask = np.logical_and(ls-half_bw >= lmin, ls+half_bw <= lmax)
+                spec[pol]['leff'] = ls[mask]
+                spec[pol]['dl']   = dls[mask]
+                ind = ind[mask]
                 spec[pol]["bpw"] = data.get_bandpower_windows(ind)
                 select_ind += list(ind)
                 self.log.debug( f"{spec['experiments']} {pol}: {len(ind)}bins [{lmin},{lmax}]")
