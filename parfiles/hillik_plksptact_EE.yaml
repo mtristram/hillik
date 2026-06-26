@@ -2,9 +2,9 @@ debug: false
 
 likelihood:
   planck_2020_lollipop.lowlE: null
-  hillik_planck.EE: null
+  hillik_planck.EE_actcut: null
+  hillik_act.EE_planckcut: null
   hillik_spt.EE: null
-  hillik_act.EE_PACT: null
 
 params:
   # Cosmo
