@@ -66,14 +66,32 @@ expectations = {
         "dof":  601,
         "lrange": {"TT": (576, 7925)},
     },
+    "TTTEEE__cut_TT_only": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [576, 7925]}},
+        "chi2": 3254.41,
+        "dof":  601,
+        "lrange": {"TT": (576, 7925)},
+    },
     "EE": {
         "likelihood": {"likelihood_name": "hillik_act.EE"},
         "chi2": 979.42,
         "dof": 406,
         "lrange": {"EE": (576, 7925)},
     },
+    "TTTEEE__cut_EE_only": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"EE": [500, 8500]}},
+        "chi2": 979.42,
+        "dof": 406,
+        "lrange": {"EE": (576, 7925)},
+    },
     "TE": {
         "likelihood": {"likelihood_name": "hillik_act.TE"},
+        "chi2": 1925.22,
+        "dof":  644,
+        "lrange": {"TE": (576, 7925), "ET": (776, 7925)},
+    },
+    "TTTEEE__cut_TE_only": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TE": [500, 8500]}},
         "chi2": 1925.22,
         "dof":  644,
         "lrange": {"TE": (576, 7925), "ET": (776, 7925)},
@@ -86,6 +104,12 @@ expectations = {
     },
     "TTTEEE_planckcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_planckcut"},
+        "chi2": 3594.15,
+        "dof": 1098,
+        "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
+    },
+    "TTTEEE__cut_planckcut": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [2000, 8500], "TE": [1500, 8500], "EE": [1000, 8500]}},
         "chi2": 3594.15,
         "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},

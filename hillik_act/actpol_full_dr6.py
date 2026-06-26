@@ -45,6 +45,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
     lmin: Optional[int] = 2
     lmax: Optional[int] = 8501
+    lrange: Optional[dict] = None
     BoltzmannLmax: Optional[str] = 9000
 
     #----------------------------------------------------------------
@@ -81,11 +82,20 @@ class ACTDR6Likelihood(InstallableLikelihood):
         self.spectra = self.data["spectra"]
         self.maps = self.data["experiments"]
         default_cuts = self.defaults
+        lrange = self.lrange.copy() if self.lrange else {}
+        if "TE" in lrange and "ET" not in lrange:
+            lrange["ET"] = lrange["TE"]
+        if "ET" in lrange and "TE" not in lrange:
+            lrange["TE"] = lrange["ET"]
+        lrange_modes = set(lrange)
 
         #check modes
         if "TE" in self.foregrounds:
             self.foregrounds['ET'] = self.foregrounds['TE']
-        self._is_mode = {mode: mode in self.defaults["polarizations"] for mode in ["TT", "TE", "ET", "EE"]}
+        self._is_mode = {
+            mode: mode in self.defaults["polarizations"] and (not lrange or mode in lrange_modes)
+            for mode in ["TT", "TE", "ET", "EE"]
+        }
         self.log.debug("mode = {}".format(self._is_mode))
 
 
@@ -113,11 +123,18 @@ class ACTDR6Likelihood(InstallableLikelihood):
         select_ind = []
         for spec in self.spectra:
             spec["polarizations"] = spec.get("polarizations", default_cuts["polarizations"]).copy()
+            if lrange:
+                spec["polarizations"] = [pol for pol in spec["polarizations"] if pol in lrange_modes]
             for pol in spec["polarizations"]:
                 spec[pol] = {}
                 m1,m2 = spec["experiments"]
 
                 #redefine lmin/lmax if global set
+                if pol in lrange:
+                    spec["scales"][pol] = [
+                        max(spec["scales"][pol][0], lrange[pol][0]),
+                        min(spec["scales"][pol][1], lrange[pol][1]),
+                    ]
                 if spec["scales"][pol][0] < self.lmin: spec["scales"][pol][0] = self.lmin
                 if spec["scales"][pol][1] > self.lmax: spec["scales"][pol][1] = self.lmax
                 lmin,lmax = spec["scales"][pol]
