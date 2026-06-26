@@ -102,13 +102,13 @@ expectations = {
         "dof": 1651,
         "lrange": {"TT": (576, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
-    "TTTEEE_planckcut": {
-        "likelihood": {"likelihood_name": "hillik_act.TTTEEE_planckcut"},
+    "TTTEEE_tristram2026cut": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE_tristram2026cut"},
         "chi2": 3594.15,
         "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
-    "TTTEEE__cut_planckcut": {
+    "TTTEEE__cut_tristram2026cut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [2000, 8500], "TE": [1500, 8500], "EE": [1000, 8500]}},
         "chi2": 3594.15,
         "dof": 1098,

@@ -3,8 +3,8 @@ debug: false
 likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
-  hillik_planck.TE_actcut: null
-  hillik_act.TE_planckcut: null
+  hillik_planck.TE_tristram2026cut: null
+  hillik_act.TE_tristram2026cut: null
   hillik_spt.TE: null
 
 params:

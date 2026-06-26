@@ -2,8 +2,8 @@ debug: false
 
 likelihood:
   planck_2018_lowl.TT: null
-  hillik_planck.TT_actcut: null
-  hillik_act.TT_planckcut: null
+  hillik_planck.TT_tristram2026cut: null
+  hillik_act.TT_tristram2026cut: null
   hillik_spt.TT: null
 
 params:

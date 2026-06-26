@@ -582,8 +582,8 @@ class _HillipopLikelihood(InstallableLikelihood):
                 return False
             # Test if the covariance file is there
             ext = cls.__name__
-            if ext.endswith("_actcut"):
-                ext = ext[:-len("_actcut")]
+            if ext.endswith("_tristram2026cut"):
+                ext = ext[:-len("_tristram2026cut")]
             if ext in {"TT", "TTTEEE"}:
                 ext = f"{ext}_bin"
             test_path = os.path.join(path, f"**/invfll_PR4_v4.2_{ext}.fits")
@@ -638,17 +638,17 @@ class TE(_HillipopLikelihood):
     install_options = _get_install_options("planck_2020_hillipop_TE_v4.2.tar.gz")
 
 
-class TTTEEE_actcut(TTTEEE):
+class TTTEEE_tristram2026cut(TTTEEE):
     """Planck TT+TE+EE likelihood cut to the Planck side of the Planck-ACT split."""
 
 
-class TT_actcut(TT):
+class TT_tristram2026cut(TT):
     """Planck TT likelihood cut to the Planck side of the Planck-ACT split."""
 
 
-class EE_actcut(EE):
+class EE_tristram2026cut(EE):
     """Planck EE likelihood cut to the Planck side of the Planck-ACT split."""
 
 
-class TE_actcut(TE):
+class TE_tristram2026cut(TE):
     """Planck TE likelihood cut to the Planck side of the Planck-ACT split."""

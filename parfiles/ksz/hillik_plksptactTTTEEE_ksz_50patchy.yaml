@@ -3,9 +3,9 @@ debug: false
 likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE_actcut:
+  hillik_planck.TTTEEE_tristram2026cut:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/ksz/foregrounds_ksz_50patchy]
-  hillik_act.TTTEEE_planckcut:
+  hillik_act.TTTEEE_tristram2026cut:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/ksz/foregrounds_ksz_50patchy]
   hillik_spt.TTTEEE:
     foregrounds: !defaults [/sps/planck/Users/tristram/Soft/Hillik/parfiles/ksz/foregrounds_ksz_50patchy]
