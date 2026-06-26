@@ -82,7 +82,7 @@ expectations = {
         "lrange": {"TT": (30, 2000), "TE": (30, 1500), "EE": (30, 1000)},
     },
     "TTTEEE__cut_actcut": {
-        "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 2000], "TE": [30, 1500], "EE": [30, 1000]}},
+        "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 2005], "TE": [30, 1505], "EE": [30, 1000]}},
         "chi2": 7392.6049,
         "dof": 4202,
         "lrange": {"TT": (30, 2000), "TE": (30, 1500), "EE": (30, 1000)},
