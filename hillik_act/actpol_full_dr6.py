@@ -299,25 +299,25 @@ class TTTEEE(ACTDR6Likelihood):
     """
 
 
-class TTTEEE_PACT(ACTDR6Likelihood):
+class TTTEEE_planckcut(ACTDR6Likelihood):
     """
     CMB likelihood with ACTpol DR6 full dataset
     with lmin=2000 (TT), lmin=1500 (TE), lmin=1000 (EE)
     """
 
-class TT_PACT(ACTDR6Likelihood):
+class TT_planckcut(ACTDR6Likelihood):
     """
     CMB likelihood with ACTpol DR6 TT dataset
     with lmin=2000
     """
 
-class TE_PACT(ACTDR6Likelihood):
+class TE_planckcut(ACTDR6Likelihood):
     """
     CMB likelihood with ACTpol DR6 TE dataset
     with lmin=1500
     """
 
-class EE_PACT(ACTDR6Likelihood):
+class EE_planckcut(ACTDR6Likelihood):
     """
     CMB likelihood with ACTpol DR6 EE dataset
     with lmin=1000

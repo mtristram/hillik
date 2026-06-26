@@ -1,0 +1,13 @@
+data_folder: planck_2020/hillipop
+multipoles_range_file: data/binning_v4.2.fits
+xspectra_basename: data/dl_PR4_v4.2
+covariance_matrix_file: data/invfll_PR4_v4.2_TTTEEE_bin.fits
+
+lrange:
+  TT: [30, 2000]
+  TE: [30, 1500]
+  EE: [30, 1000]
+
+foregrounds: !defaults [foregrounds]
+
+params: !defaults [params_PLK_calib,params_PLK_dust_TT,params_PLK_dust_TE,params_PLK_dust_EE,params_PLK_ps,params_extragal]

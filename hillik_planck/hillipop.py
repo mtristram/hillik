@@ -352,9 +352,11 @@ class _HillipopLikelihood(InstallableLikelihood):
         # invert, cut, re-invert covariance matrix
         self.log.debug("\tInvert invkll matrix")
         kll = np.linalg.inv(self._invkll)
+        kll = 0.5 * (kll + kll.T)  # restore symmetry after numerical inversion
         kll = kll[kept_idxs,:][:,kept_idxs]
         self.log.debug("\tInvert kll matrix")
         self._invkll = np.linalg.inv(kll)
+        self._invkll = 0.5 * (self._invkll + self._invkll.T)
 
     def _get_matrix_size(self):
         """
@@ -571,6 +573,8 @@ class _HillipopLikelihood(InstallableLikelihood):
                 return False
             # Test if the covariance file is there
             ext = cls.__name__
+            if ext.endswith("_actcut"):
+                ext = ext[:-len("_actcut")]
             if ext in {"TT", "TTTEEE"}:
                 ext = f"{ext}_bin"
             test_path = os.path.join(path, f"**/invfll_PR4_v4.2_{ext}.fits")
@@ -623,4 +627,20 @@ class TE(_HillipopLikelihood):
     """
 
     install_options = _get_install_options("planck_2020_hillipop_TE_v4.2.tar.gz")
+
+
+class TTTEEE_actcut(TTTEEE):
+    """Planck TT+TE+EE likelihood cut to the Planck side of the Planck-ACT split."""
+
+
+class TT_actcut(TT):
+    """Planck TT likelihood cut to the Planck side of the Planck-ACT split."""
+
+
+class EE_actcut(EE):
+    """Planck EE likelihood cut to the Planck side of the Planck-ACT split."""
+
+
+class TE_actcut(TE):
+    """Planck TE likelihood cut to the Planck side of the Planck-ACT split."""
 

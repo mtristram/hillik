@@ -47,14 +47,14 @@ nuisance_params = {
     "TE": {**fg_params['TE']},
     "TTTEEE": {**fg_params['TT'],**extgal_params,**fg_params['TE'],**fg_params['EE']},
     }
-nuisance_params["TTTEEE_PACT"] = nuisance_params["TTTEEE"]
+nuisance_params["TTTEEE_planckcut"] = nuisance_params["TTTEEE"]
 
 expected_chi2 = {
     "TT": 3254.41,
     "EE":  979.42,
     "TE": 1925.22,
     "TTTEEE": 6133.82,
-    "TTTEEE_PACT": 3712.30,
+    "TTTEEE_planckcut": 3712.30,
 }
 
 expected_dof = {
@@ -62,7 +62,7 @@ expected_dof = {
     "EE": 406,
     "TE": 644,
     "TTTEEE": 1651,
-    "TTTEEE_PACT": 1139,
+    "TTTEEE_planckcut": 1139,
 }
 
 expected_lmax = {
@@ -70,7 +70,7 @@ expected_lmax = {
     "EE": 8501,
     "TE": 8501,
     "TTTEEE": 8501,
-    "TTTEEE_PACT": 8501,
+    "TTTEEE_planckcut": 8501,
 }
 
 expected_lmin = {
@@ -78,7 +78,7 @@ expected_lmin = {
     "EE": 600,
     "TE": 600,
     "TTTEEE": 600,
-    "TTTEEE_PACT": 1000,
+    "TTTEEE_planckcut": 1000,
 }
 
 def minimum_lmin(likelihood):

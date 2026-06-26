@@ -61,27 +61,32 @@ nuisance_params["TTTEEE"] = {
     **nuisance_params["TE"],
     **nuisance_params["EE"],
 }
+nuisance_params["TTTEEE_actcut"] = nuisance_params["TTTEEE"]
 
 #expected_chi2 = {"TT": 9231.9894, "EE": 9509.2059, "TE": 10214.672, "TTTEEE": 13138.09}
 #expected_chi2 = {"TT": 4810.9264, "EE": 1805.0759, "TE": 1985.9408}
 expected_chi2 = {
     "TT": 4810.9264,
     "TTTEEE": 8578.9722,
+    "TTTEEE_actcut": 7392.6049,
 }
 
 expected_dof = {
     "TT": 1646,
     "TTTEEE": 4872,
+    "TTTEEE_actcut": 4202,
 }
 
 expected_lmax = {
     "TT": 2500,
     "TTTEEE": 2500,
+    "TTTEEE_actcut": 2000,
 }
 
 expected_lmin = {
     "TT": 30,
     "TTTEEE": 30,
+    "TTTEEE_actcut": 30,
 }
 
 planck_actcut_lrange = {
@@ -199,7 +204,7 @@ class HillikPlkTest(unittest.TestCase):
         self.assertEqual(likelihood.lmax, expected_planck_actcut_lmax)
         self.assertEqual(likelihood.dof(), expected_planck_actcut_dof)
         self.assertEqual(likelihood._invkll.shape, (expected_planck_actcut_dof, expected_planck_actcut_dof))
-        self.assertTrue(np.allclose(likelihood._invkll, likelihood._invkll.T))
+        self.assertTrue(np.array_equal(likelihood._invkll, likelihood._invkll.T))
         self.assertEqual(len(likelihood.delta_dl), expected_planck_actcut_dof)
 
     def test_partial_lrange_removes_modes(self):
@@ -227,7 +232,7 @@ class HillikPlkTest(unittest.TestCase):
         self.assertEqual(likelihood.lmax, expected_planck_tt_only_lmax)
         self.assertEqual(likelihood.dof(), expected_planck_tt_only_dof)
         self.assertEqual(likelihood._invkll.shape, (expected_planck_tt_only_dof, expected_planck_tt_only_dof))
-        self.assertTrue(np.allclose(likelihood._invkll, likelihood._invkll.T))
+        self.assertTrue(np.array_equal(likelihood._invkll, likelihood._invkll.T))
         self.assertEqual(len(likelihood.delta_dl), expected_planck_tt_only_dof)
 
     def test_partial_lrange_keeps_ee_only(self):
@@ -255,5 +260,5 @@ class HillikPlkTest(unittest.TestCase):
         self.assertEqual(likelihood.lmax, expected_planck_ee_only_lmax)
         self.assertEqual(likelihood.dof(), expected_planck_ee_only_dof)
         self.assertEqual(likelihood._invkll.shape, (expected_planck_ee_only_dof, expected_planck_ee_only_dof))
-        self.assertTrue(np.allclose(likelihood._invkll, likelihood._invkll.T))
+        self.assertTrue(np.array_equal(likelihood._invkll, likelihood._invkll.T))
         self.assertEqual(len(likelihood.delta_dl), expected_planck_ee_only_dof)
