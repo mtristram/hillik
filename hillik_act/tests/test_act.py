@@ -1,6 +1,7 @@
 import os
 import unittest
 
+import numpy as np
 from cobaya.install import resolve_packages_path
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
 
@@ -63,38 +64,45 @@ expectations = {
         "likelihood": {"likelihood_name": "hillik_act.TT"},
         "chi2": 3254.41,
         "dof":  601,
-        "lrange": {"TT": (600, 8500)},
+        "lrange": {"TT": (576, 7925)},
     },
     "EE": {
         "likelihood": {"likelihood_name": "hillik_act.EE"},
         "chi2": 979.42,
         "dof": 406,
-        "lrange": {"EE": (600, 8500)},
+        "lrange": {"EE": (576, 7925)},
     },
     "TE": {
         "likelihood": {"likelihood_name": "hillik_act.TE"},
         "chi2": 1925.22,
         "dof":  644,
-        "lrange": {"TE": (600, 8500), "ET": (800, 8500)},
+        "lrange": {"TE": (576, 7925), "ET": (776, 7925)},
     },
     "TTTEEE": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE"},
         "chi2": 6133.82,
         "dof": 1651,
-        "lrange": {"TT": (600, 8500), "TE": (600, 8500), "ET": (800, 8500), "EE": (600, 8500)},
+        "lrange": {"TT": (576, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE_planckcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_planckcut"},
         "chi2": 3712.30,
         "dof": 1139,
-        "lrange": {"TT": (2000, 8500), "TE": (1500, 8500), "ET": (1500, 8500), "EE": (1000, 8500)},
+        "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
 }
 
 def measured_lranges(likelihood):
     ranges = {}
     for spec in likelihood.spectra:
-        for mode, (lmin, lmax) in spec["scales"].items():
+        for mode in spec["polarizations"]:
+            bpw = spec[mode]["bpw"]
+            if bpw.weight.shape[0] == len(bpw.values):
+                support = np.any(bpw.weight != 0, axis=1)
+            else:
+                support = np.any(bpw.weight != 0, axis=0)
+            lmin = min(bpw.values[support])
+            lmax = max(bpw.values[support])
             if mode not in ranges:
                 ranges[mode] = (lmin, lmax)
             else:
