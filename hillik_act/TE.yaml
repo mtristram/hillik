@@ -1,6 +1,14 @@
-# A cobaya likelihood for ACT DR6 data
-# see https://github.com/simonsobs/LAT_MFLike/blob/master/mflike/MFLike.yaml
-# for more details regarding section
+# Hillik adaptation of the original ACT DR6 multifrequency Cobaya likelihood.
+#
+# See https://github.com/simonsobs/LAT_MFLike/blob/master/mflike/MFLike.yaml
+# for more details.
+#
+# See https://github.com/ACTCollaboration/act_dr6_mflike.git
+# for the original `act_dr6.yaml` file.
+#
+# Restricts the full ACT setup to TE/ET, and expresses the original ACT center
+# cuts as full-bin support-edge cuts. This changes the nominal thresholds:
+# 1000 -> 976, 800 -> 776, and 600 -> 576.
 
 data_folder: ACTDR6MFLike/v1.0
 

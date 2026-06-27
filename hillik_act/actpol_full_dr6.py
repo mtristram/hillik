@@ -1,19 +1,28 @@
 """
-.. module:: ACT_full_DR6
+.. module:: ACT DR6 multifrequency likelihoods for Hillik.
 
-:Synopsis: Definition of python-native CMB likelihood for ACT likelihood.
+:Synopsis: Likelihood class for ACT DR6 to be used alongside Planck and SPT.
 :Author: Matthieu Tristram
 
-Adapted from Fortran likelihood code
+Adapted from Fortran likelihood code:
 https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
-full ACT DR6 spectra at 90, 150, 220 in temperature and polarization
 
+This module implements python-native ACT DR6 likelihoods for 90, 150, and
+220 GHz temperature and polarization spectra. It follows the ACT DR6
+multifrequency likelihood data layout, with spectrum-specific baseline cuts
+and bandpower-window support.
 
-:History: 
+The Hillik version uses Hillik foreground components and nuisance-parameter
+defaults for consistent Planck/ACT/SPT modelling.
+It uses provides `lrange`-based aliases for
+Planck-ACT cuts taking the full-bin support edges into account.
+
+:History:
  Jun 2026   - M. Tristram - Hillik release
  Jul 2026   - M. Tristram, L. Hergt - custom `lrange` and ensured zero overlap
 
 """
+
 import os
 import warnings
 from typing import Optional, Sequence

@@ -1,26 +1,24 @@
 """
-.. module:: HiLLiPoP for Hillik
+.. module:: Planck PR4 HiLLiPoP likelihoods for Hillik.
 
-:Synopsis: Likelihood class for Planck PR4 to be used alongside ACT and SPT
+:Synopsis: Likelihood class for Planck PR4 to be used alongside ACT and SPT.
 :Author: Matthieu Tristram
 
-Hillipop is a multifrequency CMB likelihood for Planck data.
+Adapted from:
+https://github.com/planck-npipe/hillipop.git
 
-The likelihood is a spectrum-based Gaussian approximation for
-cross-correlation spectra from Planck 100, 143 and 217GHz
-split-frequency maps, with semi-analytic estimates of the Cl
-covariance matrix based on the data. The cross-spectra are debiased
-from the effects of the mask and the beam leakage using Xpol before
-being compared to the model, which includes CMB and foreground
-residuals. They cover the multipoles from l=30 to l=2500.
+This module adapts the standalone Planck PR4 HiLLiPoP likelihood for joint
+Hillik analyses with Planck, ACT, and SPT data. HiLLiPoP is a multifrequency
+CMB likelihood for Planck 100, 143, and 217 GHz split-frequency cross-spectra,
+using a spectrum-based Gaussian approximation and Xpol-debiased spectra over
+multipoles l=30 to l=2500.
 
-This Hillik version makes the foreground treatment match between Planck, ACT,
-and SPT, and provides shortcuts that ensure there is no multipole overlap
-between Planck and ACT.
+The Hillik version uses Hillik foreground components and nuisance-parameter
+defaults for consistent Planck/ACT/SPT modelling.
+It uses binned covariance products and provides `lrange`-based aliases for
+Planck-ACT cuts taking the full-bin support edges into account.
 
-:History: 
- Sep 2020   - M. Tristram -
- Apr 2026   - M. Tristram, L. Hergt - Implement binned version
+:History:
  Jun 2026   - M. Tristram - Hillik release
  Jul 2026   - M. Tristram, L. Hergt - custom `lrange` and ensured zero overlap
 
@@ -608,30 +606,42 @@ def _get_install_options(filename):
 
 
 class TT(_HillipopLikelihood):
-    """High-L TT Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps.
+    """Planck PR4 Hillik binned TT likelihood.
+
+    High-L binned TT Likelihood for Polarized Planck Spectra-based
+    Gaussian-approximated likelihood with foreground models for
+    cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+    maps with Hillik foreground components and nuisance-parameter defaults.
     """
     install_options = _get_install_options("planck_2020_hillipop_TT_bin_v4.2.tar.gz")
 
 class TE(_HillipopLikelihood):
-    """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps.
+    """Planck PR4 Hillik binned TE likelihood.
+
+    High-L binned TE Likelihood for Polarized Planck Spectra-based
+    Gaussian-approximated likelihood with foreground models for
+    cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+    maps with Hillik foreground components and nuisance-parameter defaults.
     """
-    install_options = _get_install_options("planck_2020_hillipop_TE_v4.2.tar.gz")
+    install_options = _get_install_options("planck_2020_hillipop_TE_bin_v4.2.tar.gz")
 
 class EE(_HillipopLikelihood):
-    """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
-    foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
-    maps.
+    """Planck PR4 Hillik binned EE likelihood.
+
+    High-L binned EE Likelihood for Polarized Planck Spectra-based
+    Gaussian-approximated likelihood with foreground models for
+    cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+    maps with Hillik foreground components and nuisance-parameter defaults.
     """
-    install_options = _get_install_options("planck_2020_hillipop_EE_v4.2.tar.gz")
+    install_options = _get_install_options("planck_2020_hillipop_EE_bin_v4.2.tar.gz")
 
 class TTTEEE(_HillipopLikelihood):
-    """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
-    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-    split-frequency maps.
+    """Planck PR4 Hillik binned TT+TE+EE likelihood.
+
+    High-L binned TT+TE+EE Likelihood for Polarized Planck Spectra-based
+    Gaussian-approximated likelihood with foreground models for
+    cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
+    maps with Hillik foreground components and nuisance-parameter defaults.
     """
     install_options = _get_install_options("planck_2020_hillipop_TTTEEE_bin_v4.2.tar.gz")
 
