@@ -1,3 +1,5 @@
+# Planck side of the original P-ACT split.
+# ACT cuts are constrained by the original ACT DR6 baseline cuts.
 lrange:
   TT: [30, 1000]
   TE: [30, 600]

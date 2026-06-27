@@ -1,3 +1,5 @@
+# ACT side of the original P-ACT split.
+# ACT cuts are constrained by the original ACT DR6 baseline cuts.
 lrange:
   TT: [976, 8500]
   TE: [576, 8500]

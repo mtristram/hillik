@@ -303,97 +303,93 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
 
 class TT(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 TT dataset
-    """
+    """CMB likelihood with ACTpol DR6 TT dataset."""
 
 class TE(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 TE dataset
-    """
+    """CMB likelihood with ACTpol DR6 TE dataset."""
 
 class EE(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 EE dataset
-    """
+    """CMB likelihood with ACTpol DR6 EE dataset."""
 
 class TTTEEE(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 full dataset
-    """
+    """CMB likelihood with ACTpol DR6 full dataset."""
 
 
 class TT_tristram2026cut(TT):
-    """
-    CMB likelihood with ACTpol DR6 TT dataset
-    with lmin=2000
+    """ACT DR6 TT likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
 class TE_tristram2026cut(TE):
-    """
-    CMB likelihood with ACTpol DR6 TE dataset
-    with lmin=1500
+    """ACT DR6 TE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
 class EE_tristram2026cut(EE):
-    """
-    CMB likelihood with ACTpol DR6 EE dataset
-    with lmin=1000
+    """ACT DR6 EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
 class TTTEEE_tristram2026cut(TTTEEE):
-    """
-    CMB likelihood with ACTpol DR6 full dataset
-    with lmin=2000 (TT), lmin=1500 (TE), lmin=1000 (EE)
+    """ACT DR6 TT+TE+EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
 
 class TT_PACTcut(TT):
-    """
-    CMB likelihood with ACTpol DR6 TT dataset
-    with P-ACT TT cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 TT likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
     """
 
 class TE_PACTcut(TE):
-    """
-    CMB likelihood with ACTpol DR6 TE dataset
-    with P-ACT TE cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 TE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
     """
 
 class EE_PACTcut(EE):
-    """
-    CMB likelihood with ACTpol DR6 EE dataset
-    with P-ACT EE cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 EE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
     """
 
 class TTTEEE_PACTcut(TTTEEE):
-    """
-    CMB likelihood with ACTpol DR6 full dataset
-    with P-ACT cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 TT+TE+EE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
     """
 
 
 class TT_PACTcut_0overlap(TT):
-    """
-    CMB likelihood with ACTpol DR6 TT dataset
-    with zero-overlap P-ACT TT cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 TT likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
     """
 
 class TE_PACTcut_0overlap(TE):
-    """
-    CMB likelihood with ACTpol DR6 TE dataset
-    with zero-overlap P-ACT TE cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 TE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
     """
 
 class EE_PACTcut_0overlap(EE):
-    """
-    CMB likelihood with ACTpol DR6 EE dataset
-    with zero-overlap P-ACT EE cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 EE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
     """
 
 class TTTEEE_PACTcut_0overlap(TTTEEE):
-    """
-    CMB likelihood with ACTpol DR6 full dataset
-    with zero-overlap P-ACT cuts constrained by the original ACT DR6 baseline.
+    """ACT DR6 TT+TE+EE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
     """
 

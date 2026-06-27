@@ -630,40 +630,80 @@ class TTTEEE(_HillipopLikelihood):
 
 
 class TT_tristram2026cut(TT):
-    """Planck TT likelihood cut to the Planck side of the Planck-ACT split."""
+    """Planck TT likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
 
 class TE_tristram2026cut(TE):
-    """Planck TE likelihood cut to the Planck side of the Planck-ACT split."""
+    """Planck TE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
 
 class EE_tristram2026cut(EE):
-    """Planck EE likelihood cut to the Planck side of the Planck-ACT split."""
+    """Planck EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
 
 class TTTEEE_tristram2026cut(TTTEEE):
-    """Planck TT+TE+EE likelihood cut to the Planck side of the Planck-ACT split."""
+    """Planck TT+TE+EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
 
 
 class TT_PACTcut(TT):
-    """Planck TT likelihood cut to the Planck side of the original P-ACT split."""
+    """Planck TT likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
 
 class TE_PACTcut(TE):
-    """Planck TE likelihood cut to the Planck side of the original P-ACT split."""
+    """Planck TE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
 
 class EE_PACTcut(EE):
-    """Planck EE likelihood cut to the Planck side of the original P-ACT split."""
+    """Planck EE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
 
 class TTTEEE_PACTcut(TTTEEE):
-    """Planck TT+TE+EE likelihood cut to the Planck side of the original P-ACT split."""
+    """Planck TT+TE+EE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
 
 
 class TT_PACTcut_0overlap(TT):
-    """Planck TT likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+    """Planck TT likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and removes the highest Planck bins needed to avoid
+    Planck-ACT bin overlap.
+    """
 
 class TE_PACTcut_0overlap(TE):
-    """Planck TE likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+    """Planck TE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and removes the highest Planck bins needed to avoid
+    Planck-ACT bin overlap.
+    """
 
 class EE_PACTcut_0overlap(EE):
-    """Planck EE likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+    """Planck EE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and removes the highest Planck bins needed to avoid
+    Planck-ACT bin overlap.
+    """
 
 class TTTEEE_PACTcut_0overlap(TTTEEE):
-    """Planck TT+TE+EE likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+    """Planck TT+TE+EE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and removes the highest Planck bins needed to avoid
+    Planck-ACT bin overlap.
+    """
 
