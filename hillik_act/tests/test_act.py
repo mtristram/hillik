@@ -128,15 +128,15 @@ expectations = {
     },
     "TTTEEE_PACTcut_0overlap": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_PACTcut_0overlap"},
-        "chi2": 5879.73,
-        "dof": 1618,
-        "lrange": {"TT": (1026, 7925), "TE": (626, 7925), "ET": (776, 7925), "EE": (626, 7925)},
+        "chi2": 5993.50,
+        "dof": 1635,
+        "lrange": {"TT": (976, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE__cut_PACTcut_0overlap": {
-        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [1026, 8500], "TE": [626, 8500], "EE": [626, 8500]}},
-        "chi2": 5879.73,
-        "dof": 1618,
-        "lrange": {"TT": (1026, 7925), "TE": (626, 7925), "ET": (776, 7925), "EE": (626, 7925)},
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [976, 8500], "TE": [576, 8500], "EE": [576, 8500]}},
+        "chi2": 5993.50,
+        "dof": 1635,
+        "lrange": {"TT": (976, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE__cut_support_edges": {  # tests some literal edge cases that would have failed with an earlier bin calculation
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [1026, 3025], "TE": [626, 2525], "EE": [594, 2025]}},
