@@ -114,6 +114,12 @@ expectations = {
         "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
+    "TTTEEE__cut_support_edges": {  # tests some literal edge cases that would have failed with an earlier bin calculation
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [1026, 3025], "TE": [626, 2525], "EE": [594, 2025]}},
+        "chi2": 3638.07,
+        "dof": 1065,
+        "lrange": {"TT": (1026, 2925), "TE": (626, 2525), "ET": (776, 2525), "EE": (626, 2025)},
+    },
 }
 
 def measured_lranges(likelihood):
@@ -121,10 +127,7 @@ def measured_lranges(likelihood):
     for spec in likelihood.spectra:
         for mode in spec["polarizations"]:
             bpw = spec[mode]["bpw"]
-            if bpw.weight.shape[0] == len(bpw.values):
-                support = np.any(bpw.weight != 0, axis=1)
-            else:
-                support = np.any(bpw.weight != 0, axis=0)
+            support = np.any(bpw.weight != 0, axis=1)
             lmin = min(bpw.values[support])
             lmax = max(bpw.values[support])
             if mode not in ranges:

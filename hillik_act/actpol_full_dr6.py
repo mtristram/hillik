@@ -141,12 +141,13 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
                 dt,exp1,exp2 = get_cl_name(pol,m1,m2)
                 ls,dls,ind = data.get_ell_cl(dt,exp1,exp2, return_ind=True)
-                diffs = np.diff(ls)
-                half_bw = np.empty_like(ls)
-                half_bw[0] = diffs[0] / 2
-                for i, diff in enumerate(diffs):
-                    half_bw[i+1] = diff - half_bw[i]
-                mask = np.logical_and(ls-half_bw >= lmin, ls+half_bw <= lmax)
+                bpw = data.get_bandpower_windows(ind)
+                support = bpw.weight != 0
+                first_supported = np.argmax(support, axis=0)
+                last_supported = len(bpw.values) - np.argmax(support[::-1], axis=0) - 1
+                support_lmin = bpw.values[first_supported]
+                support_lmax = bpw.values[last_supported]
+                mask = np.logical_and(support_lmin >= lmin, support_lmax <= lmax)
                 spec[pol]['leff'] = ls[mask]
                 spec[pol]['dl']   = dls[mask]
                 ind = ind[mask]
