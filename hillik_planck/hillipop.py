@@ -582,8 +582,10 @@ class _HillipopLikelihood(InstallableLikelihood):
                 return False
             # Test if the covariance file is there
             ext = cls.__name__
-            if ext.endswith("_tristram2026cut"):
-                ext = ext[:-len("_tristram2026cut")]
+            for suffix in ["_tristram2026cut", "_PACTcut_0overlap", "_PACTcut"]:
+                if ext.endswith(suffix):
+                    ext = ext[:-len(suffix)]
+                    break
             if ext in {"TT", "TTTEEE"}:
                 ext = f"{ext}_bin"
             test_path = os.path.join(path, f"**/invfll_PR4_v4.2_{ext}.fits")
@@ -598,16 +600,6 @@ def _get_install_options(filename):
     return {"download_url": f"{data_url}/{filename}"}
 
 
-class TTTEEE(_HillipopLikelihood):
-    """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
-    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
-    split-frequency maps.
-
-    """
-
-    install_options = _get_install_options("planck_2020_hillipop_TTTEEE_bin_v4.2.tar.gz")
-
-
 class TT(_HillipopLikelihood):
     """High-L TT Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
@@ -616,7 +608,6 @@ class TT(_HillipopLikelihood):
     """
 
     install_options = _get_install_options("planck_2020_hillipop_TT_bin_v4.2.tar.gz")
-
 
 class EE(_HillipopLikelihood):
     """High-L EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
@@ -627,7 +618,6 @@ class EE(_HillipopLikelihood):
 
     install_options = _get_install_options("planck_2020_hillipop_EE_v4.2.tar.gz")
 
-
 class TE(_HillipopLikelihood):
     """High-L TE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood with
     foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
@@ -637,18 +627,51 @@ class TE(_HillipopLikelihood):
 
     install_options = _get_install_options("planck_2020_hillipop_TE_v4.2.tar.gz")
 
+class TTTEEE(_HillipopLikelihood):
+    """High-L TT+TE+EE Likelihood for Polarized Planck Spectra-based Gaussian-approximated likelihood
+    with foreground models for cross-correlation spectra from Planck 100, 143 and 217 GHz
+    split-frequency maps.
 
-class TTTEEE_tristram2026cut(TTTEEE):
-    """Planck TT+TE+EE likelihood cut to the Planck side of the Planck-ACT split."""
+    """
+
+    install_options = _get_install_options("planck_2020_hillipop_TTTEEE_bin_v4.2.tar.gz")
 
 
 class TT_tristram2026cut(TT):
     """Planck TT likelihood cut to the Planck side of the Planck-ACT split."""
 
-
 class EE_tristram2026cut(EE):
     """Planck EE likelihood cut to the Planck side of the Planck-ACT split."""
 
-
 class TE_tristram2026cut(TE):
     """Planck TE likelihood cut to the Planck side of the Planck-ACT split."""
+
+class TTTEEE_tristram2026cut(TTTEEE):
+    """Planck TT+TE+EE likelihood cut to the Planck side of the Planck-ACT split."""
+
+
+class TT_PACTcut(TT):
+    """Planck TT likelihood cut to the Planck side of the original P-ACT split."""
+
+class EE_PACTcut(EE):
+    """Planck EE likelihood cut to the Planck side of the original P-ACT split."""
+
+class TE_PACTcut(TE):
+    """Planck TE likelihood cut to the Planck side of the original P-ACT split."""
+
+class TTTEEE_PACTcut(TTTEEE):
+    """Planck TT+TE+EE likelihood cut to the Planck side of the original P-ACT split."""
+
+
+class TT_PACTcut_0overlap(TT):
+    """Planck TT likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+
+class EE_PACTcut_0overlap(EE):
+    """Planck EE likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+
+class TE_PACTcut_0overlap(TE):
+    """Planck TE likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+
+class TTTEEE_PACTcut_0overlap(TTTEEE):
+    """Planck TT+TE+EE likelihood cut to the Planck side of the zero-overlap P-ACT split."""
+

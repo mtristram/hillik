@@ -87,6 +87,30 @@ expectations = {
         "dof": 4202,
         "lrange": {"TT": (30, 2000), "TE": (30, 1500), "EE": (30, 1000)},
     },
+    "TTTEEE_PACTcut": {
+        "likelihood": {"likelihood_name": "hillik_planck.TTTEEE_PACTcut"},
+        "chi2": 3753.8726,
+        "dof": 2972,
+        "lrange": {"TT": (30, 1000), "TE": (30, 600), "EE": (30, 600)},
+    },
+    "TTTEEE__cut_PACTcut": {
+        "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 1000], "TE": [30, 600], "EE": [30, 600]}},
+        "chi2": 3753.8726,
+        "dof": 2972,
+        "lrange": {"TT": (30, 1000), "TE": (30, 600), "EE": (30, 600)},
+    },
+    "TTTEEE_PACTcut_0overlap": {
+        "likelihood": {"likelihood_name": "hillik_planck.TTTEEE_PACTcut_0overlap"},
+        "chi2": 3863.7719,
+        "dof": 3008,
+        "lrange": {"TT": (30, 1020), "TE": (30, 620), "EE": (30, 620)},
+    },
+    "TTTEEE__cut_PACTcut_0overlap": {
+        "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 1020], "TE": [30, 620], "EE": [30, 620]}},
+        "chi2": 3863.7719,
+        "dof": 3008,
+        "lrange": {"TT": (30, 1020), "TE": (30, 620), "EE": (30, 620)},
+    },
     "TTTEEE__cut_TT_1000": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 1000]}},
         "chi2": 1581.7426,
