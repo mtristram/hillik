@@ -26,9 +26,37 @@ Likelihood versions
 -------------------
 
 Likelihoods available are:
-* ``hillik_planck``, Planck 2020 (PR4) [Planck Collaboration 2020](https://arxiv.org/abs/2007.04997)
-* ``hillik_spt``, SPT3G (D1) [Camphuis et al. 2025](https://arxiv.org/abs/2506.20707)
-* ``hillik_act``, ACT (DR6) Baseline Multi-frquency Likelihood presented in [Louis et al. 2025](https://arxiv.org/abs/2503.14452)
+* ``hillik_planck.[TT|TE|EE|TTTEEE]``, Planck 2020 (PR4) [Planck Collaboration 2020](https://arxiv.org/abs/2007.04997)
+* ``hillik_act.[TT|TE|EE|TTTEEE]``, ACT (DR6) Baseline Multi-frquency Likelihood presented in [Louis et al. 2025](https://arxiv.org/abs/2503.14452)
+* ``hillik_spt.[TT|TE|EE|TTTEEE]``, SPT3G (D1) [Camphuis et al. 2025](https://arxiv.org/abs/2506.20707)
+
+Planck-ACT cut aliases
+----------------------
+
+For combined Planck+ACT analyses, Hillik provides matching cut aliases for the
+``hillik_planck.[TT|TE|EE|TTTEEE]`` and
+``hillik_act.[TT|TE|EE|TTTEEE]`` likelihoods. Use the same alias family on both
+sides, for example:
+
+```yaml
+likelihood:
+  hillik_planck.TTTEEE_tristram2026cut: null
+  hillik_act.TTTEEE_tristram2026cut: null
+```
+
+Available alias families are:
+
+| Alias family           | TT / TE / EE split | Meaning |
+| ---                    | ---                | ---     |
+| ``*_tristram2026cut``  | 2000 / 1500 / 1000 | Planck-ACT split used in the [Tristram et al. (2026)](https://arxiv.org/abs/2511.04733) analysis and in the combined example/parfiles. |
+| ``*_minerrcut``        | 1820 / 1070 / 820  | Split at the Planck/ACT uncertainty crossover, using Planck at lower multipoles and ACT at higher multipoles. |
+| ``*_PACTcut``          |  1000 / 600 / 600  | Original P-ACT split, constrained by the [original ACT DR6 baseline cuts](https://arxiv.org/abs/2503.14452) (includes Planck-ACT bin overlap). |
+| ``*_PACTcut_0overlap`` |   975 / 575 / 575  | Non-overlapping version of ``*_PACTcut``; removes the highest Planck bins until Planck and ACT bin supports do not overlap. |
+
+These aliases are implemented through the ``lrange`` option. Users can also
+provide custom ``lrange`` values directly to the base likelihoods. ACT cuts are
+applied using the full bandpower-window support, so the effective retained ACT
+bin edge can be slightly above the nominal requested threshold.
 
 Install
 -------
@@ -98,8 +126,8 @@ Requirements
 * `astropy` >= 6.0.1
 * `sacc` >= 0.9.0
 
-References
-----------
+How to cite Hillik
+------------------
 If you use this likelihood, please cite the following paper:
 > Combining cosmic microwave background datasets with consistent foreground modelling\
 > M. Tristram, et al., A&A, [2511.04733](https://arxiv.org/abs/2511.04733)\
