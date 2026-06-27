@@ -355,6 +355,31 @@ class TTTEEE_tristram2026cut(TTTEEE):
     """
 
 
+class TT_minerrcut(TT):
+    """ACT DR6 TT likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class TE_minerrcut(TE):
+    """ACT DR6 TE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class EE_minerrcut(EE):
+    """ACT DR6 EE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class TTTEEE_minerrcut(TTTEEE):
+    """ACT DR6 TT+TE+EE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+
 class TT_PACTcut(TT):
     """ACT DR6 TT likelihood with the original P-ACT split.
 

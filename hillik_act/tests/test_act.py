@@ -114,6 +114,18 @@ expectations = {
         "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
+    "TTTEEE_minerrcut": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE_minerrcut"},
+        "chi2": 4273.56,
+        "dof": 1321,
+        "lrange": {"TT": (1826, 7925), "TE": (1076, 7925), "ET": (1076, 7925), "EE": (826, 7925)},
+    },
+    "TTTEEE__cut_minerrcut": {
+        "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [1821, 8500], "TE": [1071, 8500], "EE": [821, 8500]}},
+        "chi2": 4273.56,
+        "dof": 1321,
+        "lrange": {"TT": (1826, 7925), "TE": (1076, 7925), "ET": (1076, 7925), "EE": (826, 7925)},
+    },
     "TTTEEE_PACTcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_PACTcut"},
         "chi2": 5993.50,

@@ -587,7 +587,7 @@ class _HillipopLikelihood(InstallableLikelihood):
                 return False
             # Test if the covariance file is there
             ext = cls.__name__
-            for suffix in ["_tristram2026cut", "_PACTcut_0overlap", "_PACTcut"]:
+            for suffix in ["_tristram2026cut", "_minerrcut", "_PACTcut_0overlap", "_PACTcut"]:
                 if ext.endswith(suffix):
                     ext = ext[:-len(suffix)]
                     break
@@ -666,6 +666,31 @@ class EE_tristram2026cut(EE):
 
 class TTTEEE_tristram2026cut(TTTEEE):
     """Planck TT+TE+EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+
+class TT_minerrcut(TT):
+    """Planck TT likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class TE_minerrcut(TE):
+    """Planck TE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class EE_minerrcut(EE):
+    """Planck EE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class TTTEEE_minerrcut(TTTEEE):
+    """Planck TT+TE+EE likelihood with the minimum-error Planck-ACT split.
 
     Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
