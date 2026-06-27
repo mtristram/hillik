@@ -15,7 +15,14 @@ being compared to the model, which includes CMB and foreground
 residuals. They cover the multipoles from l=30 to l=2500.
 
 This Hillik version makes the foreground treatment match between Planck, ACT,
-and SPT, and ensures there is not multipole overlap between Planck and ACT.
+and SPT, and provides shortcuts that ensure there is no multipole overlap
+between Planck and ACT.
+
+:History: 
+ Sep 2020   - M. Tristram -
+ Apr 2026   - M. Tristram, L. Hergt - Implement binned version
+ Jun 2026   - M. Tristram - Hillik release
+ Jul 2026   - M. Tristram, L. Hergt - custom `lrange` and ensured zero overlap
 
 """
 

@@ -1,11 +1,17 @@
-""".. module:: ACT_full_DR6
+"""
+.. module:: ACT_full_DR6
 
 :Synopsis: Definition of python-native CMB likelihood for ACT likelihood.
+:Author: Matthieu Tristram
+
 Adapted from Fortran likelihood code
 https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
 full ACT DR6 spectra at 90, 150, 220 in temperature and polarization
 
-:Author: Matthieu Tristram
+
+:History: 
+ Jun 2026   - M. Tristram - Hillik release
+ Jul 2026   - M. Tristram, L. Hergt - custom `lrange` and ensured zero overlap
 
 """
 import os
