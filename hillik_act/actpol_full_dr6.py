@@ -14,8 +14,8 @@ and bandpower-window support.
 
 The Hillik version uses Hillik foreground components and nuisance-parameter
 defaults for consistent Planck/ACT/SPT modelling.
-It uses provides `lrange`-based aliases for
-Planck-ACT cuts taking the full-bin support edges into account.
+It provides `lrange`-based aliases for Planck-ACT cuts taking the full-bin
+support edges into account.
 
 :History:
  Jun 2026   - M. Tristram - Hillik release
@@ -27,12 +27,12 @@ import os
 import warnings
 from typing import Optional, Sequence
 
-import hillik_foregrounds as hfg
+import sacc
 import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-import sacc
+import hillik_foregrounds as hfg
 
 
 #not used for ACT

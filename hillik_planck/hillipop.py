@@ -471,7 +471,6 @@ class _HillipopLikelihood(InstallableLikelihood):
             for il, (bmin, bmax, dl) in enumerate(zip(wf.lmins, wf.lmaxs, wf.dl)):
                 X[x0+il, bmin:bmax+1] = 1/dl
             x0 += wf.nbins
-        
         return X
 
     def compute_chi2(self, dlth, **params_values):
