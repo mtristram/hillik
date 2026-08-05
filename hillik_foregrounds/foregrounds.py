@@ -4,12 +4,12 @@ import numpy as np
 import itertools
 from cobaya.log import HasLogger, LoggedError
 from scipy import constants
-from astropy.utils.compat import NUMPY_LT_2_0
+from astropy.utils import minversion
 
-if NUMPY_LT_2_0:
-    from numpy import trapz
-else:
+if minversion(np, "2.0.dev"):
     from numpy import trapezoid as trapz
+else:
+    from numpy import trapz
 
 
 T_CMB = 2.72548
@@ -589,7 +589,7 @@ class cib_powerlaw(fgmodel):
 
     def compute_dl(self, pars):
         #powerlaw in Dl (as SPT and ACT)
-        #SPT: alpha_cib = -1.5  #(SPT: alpha+2 = 0.513 ± 0.092)
+        #SPT: alpha_cib = -1.5  #(SPT: alpha+2 = 0.513 Â± 0.092)
         #ACT: alpha_cib = -1.2  #(ACT: alpha+2 = 0.8)
         ell = np.arange( 2, self.lmax+1)
         self.dlfg = np.zeros( self.lmax+1)
