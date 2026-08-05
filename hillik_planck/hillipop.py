@@ -622,7 +622,7 @@ class TE(_HillipopLikelihood):
     cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
     maps with Hillik foreground components and nuisance-parameter defaults.
     """
-    install_options = _get_install_options("planck_2020_hillipop_TE_bin_v4.2.tar.gz")
+    install_options = _get_install_options("planck_2020_hillipop_TE_v4.2.tar.gz")
 
 class EE(_HillipopLikelihood):
     """Planck PR4 Hillik binned EE likelihood.
@@ -632,7 +632,7 @@ class EE(_HillipopLikelihood):
     cross-correlation spectra from Planck 100, 143 and 217 GHz split-frequency
     maps with Hillik foreground components and nuisance-parameter defaults.
     """
-    install_options = _get_install_options("planck_2020_hillipop_EE_bin_v4.2.tar.gz")
+    install_options = _get_install_options("planck_2020_hillipop_EE_v4.2.tar.gz")
 
 class TTTEEE(_HillipopLikelihood):
     """Planck PR4 Hillik binned TT+TE+EE likelihood.
