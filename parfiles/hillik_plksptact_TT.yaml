@@ -2,9 +2,9 @@ debug: false
 
 likelihood:
   planck_2018_lowl.TT: null
-  hillik_planck.TT: null
+  hillik_planck.TT_tristram2026cut: null
+  hillik_act.TT_tristram2026cut: null
   hillik_spt.TT: null
-  hillik_act.TT_PACT: null
 
 params:
   # Cosmo

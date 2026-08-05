@@ -1,0 +1,7 @@
+# Planck side of the zero-overlap P-ACT split.
+# Starts from PACTcut and removes the highest Planck bins needed to avoid
+# Planck-ACT bin overlap.
+lrange:
+  TT: [30, 975]
+  TE: [30, 575]
+  EE: [30, 575]

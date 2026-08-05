@@ -1,0 +1,14 @@
+# ACT side of the minimum-error Planck-ACT split.
+#
+# This split was constructed by combining Planck and ACT cross-spectra into one
+# effective spectrum per mode (TT, TE, EE), estimating the uncertainty per
+# multipole/bin from the likelihood spectra, and finding where the Planck and
+# ACT uncertainties cross. Planck keeps the lower multipoles where it has the
+# smaller uncertainties, while ACT keeps the higher multipoles.
+#
+# The final cut values are adjusted using bin support, so Planck's highest
+# retained bin and ACT's lowest retained bin do not overlap. If the resulting
+# gap can fit another bin, that bin is kept; in practice this mainly affects
+# Planck because its bins are narrower.
+lrange:
+  EE: [821, 8500]

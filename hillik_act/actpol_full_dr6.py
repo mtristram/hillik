@@ -1,22 +1,38 @@
-""".. module:: ACT_full_DR6
+"""
+.. module:: ACT DR6 multifrequency likelihoods for Hillik.
 
-:Synopsis: Definition of python-native CMB likelihood for ACT likelihood.
-Adapted from Fortran likelihood code
-https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
-full ACT DR6 spectra at 90, 150, 220 in temperature and polarization
-
+:Synopsis: Likelihood class for ACT DR6 to be used alongside Planck and SPT.
 :Author: Matthieu Tristram
 
+Adapted from Fortran likelihood code:
+https://lambda.gsfc.nasa.gov/product/act/act_dr4_likelihood_get.cfm
+
+This module implements python-native ACT DR6 likelihoods for 90, 150, and
+220 GHz temperature and polarization spectra. It follows the ACT DR6
+multifrequency likelihood data layout, with spectrum-specific baseline cuts
+and bandpower-window support.
+
+The Hillik version uses Hillik foreground components and nuisance-parameter
+defaults for consistent Planck/ACT/SPT modelling.
+It provides `lrange`-based aliases for Planck-ACT cuts taking the full-bin
+support edges into account.
+
+:History:
+ Jun 2026   - M. Tristram - Hillik release
+ Jul 2026   - M. Tristram, L. Hergt - custom `lrange` and ensured zero overlap
+
 """
+
 import os
+import warnings
 from typing import Optional, Sequence
 
-import hillik_foregrounds as hfg
+import sacc
 import numpy as np
 from cobaya.likelihoods.base_classes import InstallableLikelihood
 from cobaya.log import LoggedError
 
-import sacc
+import hillik_foregrounds as hfg
 
 
 #not used for ACT
@@ -44,6 +60,7 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
     lmin: Optional[int] = 2
     lmax: Optional[int] = 8501
+    lrange: Optional[dict] = None
     BoltzmannLmax: Optional[str] = 9000
 
     #----------------------------------------------------------------
@@ -80,18 +97,29 @@ class ACTDR6Likelihood(InstallableLikelihood):
         self.spectra = self.data["spectra"]
         self.maps = self.data["experiments"]
         default_cuts = self.defaults
+        lrange = self.lrange.copy() if self.lrange else {}
+        if "TE" in lrange and "ET" not in lrange:
+            lrange["ET"] = lrange["TE"]
+        if "ET" in lrange and "TE" not in lrange:
+            lrange["TE"] = lrange["ET"]
+        lrange_modes = set(lrange)
 
         #check modes
         if "TE" in self.foregrounds:
             self.foregrounds['ET'] = self.foregrounds['TE']
-        self._is_mode = {mode: mode in self.defaults["polarizations"] for mode in ["TT", "TE", "ET", "EE"]}
+        self._is_mode = {
+            mode: mode in self.defaults["polarizations"] and (not lrange or mode in lrange_modes)
+            for mode in ["TT", "TE", "ET", "EE"]
+        }
         self.log.debug("mode = {}".format(self._is_mode))
 
 
         #-----------------------------------------------
         #load spectrum
         #-----------------------------------------------
-        data = sacc.Sacc.load_fits( os.path.join(self.data_folder, self.input_file))
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="The FITS format without the 'sacc_ordering' column is deprecated.*", category=UserWarning)
+            data = sacc.Sacc.load_fits( os.path.join(self.data_folder, self.input_file))
 
         def get_cl_name(pol,exp1,exp2):
             pol_dict = {"T": "0", "E": "e", "B": "b"}
@@ -110,20 +138,34 @@ class ACTDR6Likelihood(InstallableLikelihood):
         select_ind = []
         for spec in self.spectra:
             spec["polarizations"] = spec.get("polarizations", default_cuts["polarizations"]).copy()
+            if lrange:
+                spec["polarizations"] = [pol for pol in spec["polarizations"] if pol in lrange_modes]
             for pol in spec["polarizations"]:
                 spec[pol] = {}
                 m1,m2 = spec["experiments"]
 
                 #redefine lmin/lmax if global set
+                if pol in lrange:
+                    spec["scales"][pol] = [
+                        max(spec["scales"][pol][0], lrange[pol][0]),
+                        min(spec["scales"][pol][1], lrange[pol][1]),
+                    ]
                 if spec["scales"][pol][0] < self.lmin: spec["scales"][pol][0] = self.lmin
                 if spec["scales"][pol][1] > self.lmax: spec["scales"][pol][1] = self.lmax
                 lmin,lmax = spec["scales"][pol]
 
                 dt,exp1,exp2 = get_cl_name(pol,m1,m2)
-                ls,dls = data.get_ell_cl(dt,exp1,exp2)
-                spec[pol]['leff'] = np.array([l for l,dl in zip(ls,dls) if l>=lmin and l<=lmax])
-                spec[pol]['dl']   = np.array([dl for l,dl in zip(ls,dls) if l>=lmin and l<=lmax])
-                ind = data.indices( dt, (exp1,exp2), ell__gt=lmin, ell__lt=lmax)
+                ls,dls,ind = data.get_ell_cl(dt,exp1,exp2, return_ind=True)
+                bpw = data.get_bandpower_windows(ind)
+                support = bpw.weight != 0
+                first_supported = np.argmax(support, axis=0)
+                last_supported = len(bpw.values) - np.argmax(support[::-1], axis=0) - 1
+                support_lmin = bpw.values[first_supported]
+                support_lmax = bpw.values[last_supported]
+                mask = np.logical_and(support_lmin >= lmin, support_lmax <= lmax)
+                spec[pol]['leff'] = ls[mask]
+                spec[pol]['dl']   = dls[mask]
+                ind = ind[mask]
                 spec[pol]["bpw"] = data.get_bandpower_windows(ind)
                 select_ind += list(ind)
                 self.log.debug( f"{spec['experiments']} {pol}: {len(ind)}bins [{lmin},{lmax}]")
@@ -276,47 +318,118 @@ class ACTDR6Likelihood(InstallableLikelihood):
 
 
 class TT(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 TT dataset
-    """
+    """CMB likelihood with ACTpol DR6 TT dataset."""
 
 class TE(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 TE dataset
-    """
+    """CMB likelihood with ACTpol DR6 TE dataset."""
 
 class EE(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 EE dataset
-    """
+    """CMB likelihood with ACTpol DR6 EE dataset."""
 
 class TTTEEE(ACTDR6Likelihood):
+    """CMB likelihood with ACTpol DR6 full dataset."""
+
+
+class TT_tristram2026cut(TT):
+    """ACT DR6 TT likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
-    CMB likelihood with ACTpol DR6 full dataset
+
+class TE_tristram2026cut(TE):
+    """ACT DR6 TE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class EE_tristram2026cut(EE):
+    """ACT DR6 EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
+    """
+
+class TTTEEE_tristram2026cut(TTTEEE):
+    """ACT DR6 TT+TE+EE likelihood with the Tristram et al. 2026 Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
 
-class TTTEEE_PACT(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 full dataset
-    with lmin=2000 (TT), lmin=1500 (TE), lmin=1000 (EE)
+class TT_minerrcut(TT):
+    """ACT DR6 TT likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
-class TT_PACT(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 TT dataset
-    with lmin=2000
+class TE_minerrcut(TE):
+    """ACT DR6 TE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
-class TE_PACT(ACTDR6Likelihood):
-    """
-    CMB likelihood with ACTpol DR6 TE dataset
-    with lmin=1500
+class EE_minerrcut(EE):
+    """ACT DR6 EE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
 
-class EE_PACT(ACTDR6Likelihood):
+class TTTEEE_minerrcut(TTTEEE):
+    """ACT DR6 TT+TE+EE likelihood with the minimum-error Planck-ACT split.
+
+    Planck keeps lower multipoles and ACT keeps higher multipoles.
     """
-    CMB likelihood with ACTpol DR6 EE dataset
-    with lmin=1000
+
+
+class TT_PACTcut(TT):
+    """ACT DR6 TT likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
+
+class TE_PACTcut(TE):
+    """ACT DR6 TE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
+
+class EE_PACTcut(EE):
+    """ACT DR6 EE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
+
+class TTTEEE_PACTcut(TTTEEE):
+    """ACT DR6 TT+TE+EE likelihood with the original P-ACT split.
+
+    ACT cuts are constrained by the original ACT DR6 baseline cuts.
+    """
+
+
+class TT_PACTcut_0overlap(TT):
+    """ACT DR6 TT likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
+    """
+
+class TE_PACTcut_0overlap(TE):
+    """ACT DR6 TE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
+    """
+
+class EE_PACTcut_0overlap(EE):
+    """ACT DR6 EE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
+    """
+
+class TTTEEE_PACTcut_0overlap(TTTEEE):
+    """ACT DR6 TT+TE+EE likelihood with the zero-overlap P-ACT split.
+
+    Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+    adjustment is made by removing Planck bins.
     """
 

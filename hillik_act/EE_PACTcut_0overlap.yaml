@@ -1,0 +1,5 @@
+# ACT side of the zero-overlap P-ACT split.
+# Starts from PACTcut and keeps the ACT cuts unchanged; the no-overlap
+# adjustment is made by removing Planck bins.
+lrange:
+  EE: [576, 8500]

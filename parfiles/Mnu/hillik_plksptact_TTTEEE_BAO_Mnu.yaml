@@ -3,9 +3,9 @@ debug: false
 likelihood:
   planck_2018_lowl.TT: null
   planck_2020_lollipop.lowlE: null
-  hillik_planck.TTTEEE: null
+  hillik_planck.TTTEEE_tristram2026cut: null
+  hillik_act.TTTEEE_tristram2026cut: null
   hillik_spt.TTTEEE: null
-  hillik_act.TTTEEE_PACT: null
   bao.desi_2024_bao_all:
     measurements_file: bao_data/desi_bao_dr2/desi_gaussian_bao_ALL_GCcomb_mean.txt
     cov_file: bao_data/desi_bao_dr2/desi_gaussian_bao_ALL_GCcomb_cov.txt

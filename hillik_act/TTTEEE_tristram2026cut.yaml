@@ -1,0 +1,6 @@
+# ACT side of the Tristram et al. 2026 Planck-ACT split.
+# Planck keeps lower multipoles and ACT keeps higher multipoles.
+lrange:
+  TT: [2000, 8500]
+  TE: [1500, 8500]
+  EE: [1000, 8500]

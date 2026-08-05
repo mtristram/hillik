@@ -1,3 +1,5 @@
+# Hillik adaptation of the standalone Planck PR4 HiLLiPoP TE likelihood.
+# Uses the binned covariance product and Hillik foreground/parameter defaults.
 data_folder: planck_2020/hillipop
 multipoles_range_file: data/binning_v4.2.fits
 xspectra_basename: data/dl_PR4_v4.2
