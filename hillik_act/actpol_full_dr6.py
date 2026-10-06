@@ -279,11 +279,12 @@ class ACTDR6Likelihood(InstallableLikelihood):
     
 
     def get_requirements(self):
-        requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","et","ee"]})
+        requirements = dict(Cl={mode:self.BoltzmannLmax for mode in ["tt","te","ee"]})
         return requirements
 
     def logp(self, **params_values):
         dl = self.provider.get_Cl(units="muK2", ell_factor=True)
+        dl["et"] = dl["te"]
         return self.loglike(dl, **params_values)
 
     def loglike(self, dl_cmb, **params):
