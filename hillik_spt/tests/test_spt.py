@@ -1,9 +1,13 @@
 import os
 import unittest
-
 import numpy as np
+import camb
+from astropy.utils import minversion
+
 from cobaya.install import resolve_packages_path
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
+
+CAMB2 = minversion(camb, "2.0.0")
 
 cosmo_params = {
     "cosmomc_theta": 0.01040,
@@ -68,25 +72,25 @@ nuisance_params["TTTEEE"] = {
 expectations = {
     "TT": {
         "likelihood": {"likelihood_name": "hillik_spt.TT"},
-        "chi2": 897.167,
+        "chi2": 896.9280 if CAMB2 else 897.167,
         "dof": 312,
         "lrange": {"TT": (350, 4095)},
     },
     "EE": {
         "likelihood": {"likelihood_name": "hillik_spt.EE"},
-        "chi2": 612.755,
+        "chi2": 612.42544 if CAMB2 else 612.755,
         "dof": 432,
         "lrange": {"EE": (350, 4095)},
     },
     "TE": {
         "likelihood": {"likelihood_name": "hillik_spt.TE"},
-        "chi2": 827.760,
+        "chi2": 827.1614 if CAMB2 else 827.760,
         "dof": 648,
         "lrange": {"TE": (350, 4095)},
     },
     "TTTEEE": {
         "likelihood": {"likelihood_name": "hillik_spt.TTTEEE"},
-        "chi2": 2300.714,
+        "chi2": 2299.2894 if CAMB2 else 2300.714,
         "dof": 1392,
         "lrange": {"TT": (350, 4095), "TE": (350, 4095), "EE": (350, 4095)},
     },

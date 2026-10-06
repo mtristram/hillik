@@ -1,9 +1,13 @@
 import os
 import unittest
-
 import numpy as np
+import camb
+from astropy.utils import minversion
+
 from cobaya.install import resolve_packages_path
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
+
+CAMB2 = minversion(camb, "2.0.0")
 
 cosmo_params = {
     "cosmomc_theta": 0.010408,
@@ -59,79 +63,79 @@ nuisance_params["TTTEEE"] = {
 expectations = {
     "TT": {
         "likelihood": {"likelihood_name": "hillik_planck.TT"},
-        "chi2": 4810.9264,
+        "chi2": 4802.5479 if CAMB2 else 4810.9264,
         "dof": 1646,
         "lrange": {"TT": (30, 2500)},
     },
     "TTTEEE__cut_TT_only": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 2500]}},
-        "chi2": 4810.9264,
+        "chi2": 4802.5479if CAMB2 else 4810.9264,
         "dof": 1646,
         "lrange": {"TT": (30, 2500)},
     },
     "TTTEEE": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE"},
-        "chi2": 8578.9722,
+        "chi2": 8569.0671 if CAMB2 else 8578.9722,
         "dof": 4872,
         "lrange": {"TT": (30, 2500), "TE": (30, 2000), "EE": (30, 2000)},
     },
     "TTTEEE_tristram2026cut": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE_tristram2026cut"},
-        "chi2": 7392.6049,
+        "chi2": 7382.0091 if CAMB2 else 7392.6049,
         "dof": 4202,
         "lrange": {"TT": (30, 2000), "TE": (30, 1500), "EE": (30, 1000)},
     },
     "TTTEEE__cut_tristram2026cut": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 2005], "TE": [30, 1505], "EE": [30, 1000]}},
-        "chi2": 7392.6049,
+        "chi2": 7382.0091 if CAMB2 else 7392.6049,
         "dof": 4202,
         "lrange": {"TT": (30, 2000), "TE": (30, 1500), "EE": (30, 1000)},
     },
     "TTTEEE_minerrcut": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE_minerrcut"},
-        "chi2": 6540.027,
+        "chi2": 6531.3537 if CAMB2 else 6540.027,
         "dof": 3782,
         "lrange": {"TT": (30, 1820), "TE": (30, 1070), "EE": (30, 820)},
     },
     "TTTEEE__cut_minerrcut": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 1820], "TE": [30, 1070], "EE": [30, 820]}},
-        "chi2": 6540.027,
+        "chi2": 6531.3537 if CAMB2 else 6540.027,
         "dof": 3782,
         "lrange": {"TT": (30, 1820), "TE": (30, 1070), "EE": (30, 820)},
     },
     "TTTEEE_PACTcut": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE_PACTcut"},
-        "chi2": 3753.8726,
+        "chi2": 3752.7005 if CAMB2 else 3753.8726,
         "dof": 2972,
         "lrange": {"TT": (30, 1000), "TE": (30, 600), "EE": (30, 600)},
     },
     "TTTEEE__cut_PACTcut": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 1000], "TE": [30, 600], "EE": [30, 600]}},
-        "chi2": 3753.8726,
+        "chi2": 3752.7005 if CAMB2 else 3753.8726,
         "dof": 2972,
         "lrange": {"TT": (30, 1000), "TE": (30, 600), "EE": (30, 600)},
     },
     "TTTEEE_PACTcut_0overlap": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE_PACTcut_0overlap"},
-        "chi2": 3621.5991,
+        "chi2": 3620.4946 if CAMB2 else 3621.5991,
         "dof": 2918,
         "lrange": {"TT": (30, 970), "TE": (30, 570), "EE": (30, 570)},
     },
     "TTTEEE__cut_PACTcut_0overlap": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 975], "TE": [30, 575], "EE": [30, 575]}},
-        "chi2": 3621.5991,
+        "chi2": 3620.4946 if CAMB2 else 3621.5991,
         "dof": 2918,
         "lrange": {"TT": (30, 970), "TE": (30, 570), "EE": (30, 570)},
     },
     "TTTEEE__cut_TT_1000": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"TT": [30, 1000]}},
-        "chi2": 1581.7426,
+        "chi2": 1581.4566 if CAMB2 else 1581.7426,
         "dof": 1096,
         "lrange": {"TT": (30, 1000)},
     },
     "TTTEEE__cut_EE_1000": {
         "likelihood": {"likelihood_name": "hillik_planck.TTTEEE", "lrange": {"EE": [30, 1000]}},
-        "chi2": 1364.6279,
+        "chi2":  1363.5381 if CAMB2 else 1364.6279,
         "dof": 1046,
         "lrange": {"EE": (30, 1000)},
     },
@@ -148,9 +152,9 @@ class HillikPLKTest(unittest.TestCase):
     def setUp(self):
         from cobaya.install import install
 
-        for mode in ["TT", "TE", "EE", "TTTEEE"]:
+        for expected in expectations.values():
             install(
-                {"likelihood": {f"hillik_planck.{mode}": None}},
+                {"likelihood": {expected["likelihood"]["likelihood_name"]: None}},
                 path=packages_path,
                 no_set_global=True,
             )

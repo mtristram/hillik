@@ -1,9 +1,13 @@
 import os
 import unittest
-
 import numpy as np
+import camb
+from astropy.utils import minversion
+
 from cobaya.install import resolve_packages_path
 packages_path = os.environ.get("COBAYA_PACKAGES_PATH") or resolve_packages_path()
+
+CAMB2 = minversion(camb, "2.0.0")
 
 cosmo_params = {
     "cosmomc_theta": 0.01040,
@@ -62,97 +66,97 @@ nuisance_params["TTTEEE"] = {
 expectations = {
     "TT": {
         "likelihood": {"likelihood_name": "hillik_act.TT"},
-        "chi2": 3254.41,
+        "chi2": 3253.77 if CAMB2 else 3254.41,
         "dof":  601,
         "lrange": {"TT": (576, 7925)},
     },
     "TTTEEE__cut_TT_only": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [576, 7925]}},
-        "chi2": 3254.41,
+        "chi2": 3253.77 if CAMB2 else 3254.41,
         "dof":  601,
         "lrange": {"TT": (576, 7925)},
     },
     "EE": {
         "likelihood": {"likelihood_name": "hillik_act.EE"},
-        "chi2": 979.42,
+        "chi2": 979.00 if CAMB2 else 979.42,
         "dof": 406,
         "lrange": {"EE": (576, 7925)},
     },
     "TTTEEE__cut_EE_only": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"EE": [500, 8500]}},
-        "chi2": 979.42,
+        "chi2": 979.00 if CAMB2 else 979.42,
         "dof": 406,
         "lrange": {"EE": (576, 7925)},
     },
     "TE": {
         "likelihood": {"likelihood_name": "hillik_act.TE"},
-        "chi2": 1925.22,
+        "chi2": 1924.68 if CAMB2 else 1925.22,
         "dof":  644,
         "lrange": {"TE": (576, 7925), "ET": (776, 7925)},
     },
     "TTTEEE__cut_TE_only": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TE": [500, 8500]}},
-        "chi2": 1925.22,
+        "chi2": 1924.68 if CAMB2 else 1925.22,
         "dof":  644,
         "lrange": {"TE": (576, 7925), "ET": (776, 7925)},
     },
     "TTTEEE": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE"},
-        "chi2": 6133.82,
+        "chi2": 6132.44 if CAMB2 else 6133.82,
         "dof": 1651,
         "lrange": {"TT": (576, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE_tristram2026cut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_tristram2026cut"},
-        "chi2": 3594.15,
+        "chi2": 3592.74 if CAMB2 else 3594.15,
         "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
     "TTTEEE__cut_tristram2026cut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [2000, 8500], "TE": [1500, 8500], "EE": [1000, 8500]}},
-        "chi2": 3594.15,
+        "chi2": 3592.74 if CAMB2 else 3594.15,
         "dof": 1098,
         "lrange": {"TT": (2026, 7925), "TE": (1526, 7925), "ET": (1526, 7925), "EE": (1026, 7925)},
     },
     "TTTEEE_minerrcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_minerrcut"},
-        "chi2": 4273.56,
+        "chi2": 4272.28 if CAMB2 else 4273.56,
         "dof": 1321,
         "lrange": {"TT": (1826, 7925), "TE": (1076, 7925), "ET": (1076, 7925), "EE": (826, 7925)},
     },
     "TTTEEE__cut_minerrcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [1821, 8500], "TE": [1071, 8500], "EE": [821, 8500]}},
-        "chi2": 4273.56,
+        "chi2": 4272.28 if CAMB2 else 4273.56,
         "dof": 1321,
         "lrange": {"TT": (1826, 7925), "TE": (1076, 7925), "ET": (1076, 7925), "EE": (826, 7925)},
     },
     "TTTEEE_PACTcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_PACTcut"},
-        "chi2": 5993.50,
+        "chi2": 5992.17 if CAMB2 else 5993.50,
         "dof": 1635,
         "lrange": {"TT": (976, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE__cut_PACTcut": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [976, 8500], "TE": [576, 8500], "EE": [576, 8500]}},
-        "chi2": 5993.50,
+        "chi2": 5992.17 if CAMB2 else 5993.50,
         "dof": 1635,
         "lrange": {"TT": (976, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE_PACTcut_0overlap": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE_PACTcut_0overlap"},
-        "chi2": 5993.50,
+        "chi2": 5992.17 if CAMB2 else 5993.50,
         "dof": 1635,
         "lrange": {"TT": (976, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE__cut_PACTcut_0overlap": {
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [976, 8500], "TE": [576, 8500], "EE": [576, 8500]}},
-        "chi2": 5993.50,
+        "chi2": 5992.17 if CAMB2 else 5993.50,
         "dof": 1635,
         "lrange": {"TT": (976, 7925), "TE": (576, 7925), "ET": (776, 7925), "EE": (576, 7925)},
     },
     "TTTEEE__cut_support_edges": {  # tests some literal edge cases that would have failed with an earlier bin calculation
         "likelihood": {"likelihood_name": "hillik_act.TTTEEE", "lrange": {"TT": [1026, 3025], "TE": [626, 2525], "EE": [594, 2025]}},
-        "chi2": 3638.07,
+        "chi2": 3636.9843 if CAMB2 else 3638.07,
         "dof": 1065,
         "lrange": {"TT": (1026, 2925), "TE": (626, 2525), "ET": (776, 2525), "EE": (626, 2025)},
     },
